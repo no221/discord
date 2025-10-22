@@ -64,28 +64,27 @@ export default function Home() {
   }
 
   // animasi harga slot machine
-  useEffect(() => {
-    const oldPrice = displayPrice
-    const newPrice = selected.variant.price
-    if (oldPrice !== newPrice) {
-      setPriceAnim(true)
-      let start = oldPrice
-      const diff = newPrice - oldPrice
-      const steps = 10
-      const stepValue = diff / steps
-      let currentStep = 0
+  
+useEffect(() => {
+  const oldPrice = displayPrice
+  const newPrice = selected.variant.price
+  if (oldPrice !== newPrice) {
+    let start = oldPrice
+    const diff = newPrice - oldPrice
+    const steps = 10
+    const stepValue = diff / steps
+    let currentStep = 0
 
-      const interval = setInterval(() => {
-        currentStep++
-        setDisplayPrice(Math.round(oldPrice + stepValue * currentStep))
-        if (currentStep >= steps) {
-          clearInterval(interval)
-          setDisplayPrice(newPrice)
-          setPriceAnim(false)
-        }
-      }, 30)
-    }
-  }, [selected.variant])
+    const interval = setInterval(() => {
+      currentStep++
+      setDisplayPrice(Math.round(oldPrice + stepValue * currentStep))
+      if (currentStep >= steps) {
+        clearInterval(interval)
+        setDisplayPrice(newPrice)
+      }
+    }, 50)
+  }
+}, [selected.variant.price])
 
   return (
     <div className="min-h-screen p-6 max-w-4xl mx-auto">
