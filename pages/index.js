@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react'
 import { products } from '@/data/product'
 
+// Fungsi diskon
 function getDiscount(qty) {
   if (qty >= 30) return 0.15
   if (qty >= 20) return 0.1
@@ -10,6 +11,8 @@ function getDiscount(qty) {
   if (qty >= 3) return 0.03
   return 0
 }
+
+// Hook animasi angka
 function useAnimatedNumber(value, duration = 300) {
   const [display, setDisplay] = useState(value)
 
@@ -29,6 +32,7 @@ function useAnimatedNumber(value, duration = 300) {
 
   return display
 }
+
 export default function Home() {
   const [cartOpen, setCartOpen] = useState(false)
   const [selected, setSelected] = useState({ product: products[0], variant: products[0].variants[1] })
@@ -38,21 +42,18 @@ export default function Home() {
     phone: '+62 838-7380-3436',
     address: 'jalan taman teratai 3 blok Hh 3 no. 18'
   })
-  const taxRate = 0.1
-const discountRate = getDiscount(qty)
-const priceBeforeTax = selected.variant.price * qty
-const discountedPrice = priceBeforeTax * (1 - discountRate)
-const finalPrice = Math.round(discountedPrice * (1 + taxRate))
-  const [status, setStatus] = useState(null)
   const [imgIndex, setImgIndex] = useState(0)
   const [imgAnim, setImgAnim] = useState(false)
-  const [displayPrice, setDisplayPrice] = useState(selected.variant.price)
+  const [status, setStatus] = useState(null)
 
-  useEffect(() => {
-    setSelected({ product: products[0], variant: products[0].variants[1] })
-  }, [])
+  const taxRate = 0.1
+  const discountRate = getDiscount(qty)
+  const priceBeforeTax = selected.variant.price * qty
+  const discountedPrice = priceBeforeTax * (1 - discountRate)
+  const finalPrice = Math.round(discountedPrice * (1 + taxRate))
+  const animatedFinalPrice = useAnimatedNumber(finalPrice, 200)
 
-  // auto-slide gambar
+  // Auto-slide gambar
   useEffect(() => {
     const interval = setInterval(() => {
       handleImgChange((imgIndex + 1) % selected.product.images.length)
@@ -98,28 +99,6 @@ const finalPrice = Math.round(discountedPrice * (1 + taxRate))
     }
   }
 
-  // animasi harga slot machine
-  useEffect(() => {
-    const oldPrice = displayPrice
-    const newPrice = selected.variant.price
-    if (oldPrice !== newPrice) {
-      let start = oldPrice
-      const diff = newPrice - oldPrice
-      const steps = 15
-      const stepValue = diff / steps
-      let currentStep = 0
-
-      const interval = setInterval(() => {
-        currentStep++
-        setDisplayPrice(Math.round(oldPrice + stepValue * currentStep))
-        if (currentStep >= steps) {
-          clearInterval(interval)
-          setDisplayPrice(newPrice)
-        }
-      }, 40)
-    }
-  }, [selected.variant.price])
-
   return (
     <div className="min-h-screen p-6 bg-gradient-to-b from-orange-50 to-white">
       <header className="flex items-center justify-between mb-6">
@@ -130,45 +109,27 @@ const finalPrice = Math.round(discountedPrice * (1 + taxRate))
 
       <main className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Product detail */}
-<section className="bg-white p-4 rounded-lg shadow">
-  <div className="relative">
-    <img
-      src={selected.product.images[imgIndex]}
-      alt="product"
-      className={`w-full h-64 object-contain rounded transition-opacity duration-300 ${imgAnim ? 'opacity-0' : 'opacity-100'}`}
-    />
-    {/* tombol prev/next */}
-  </div>
+        <section className="bg-white p-4 rounded-lg shadow">
+          <div className="relative">
+            <img
+              src={selected.product.images[imgIndex]}
+              alt="product"
+              className={`w-full h-64 object-contain rounded transition-opacity duration-300 ${imgAnim ? 'opacity-0' : 'opacity-100'}`}
+            />
+          </div>
 
-  <h2 className="mt-3 text-xl font-semibold">{selected.product.name}</h2>
-  <p className="text-sm text-gray-600 mt-1">{selected.product.description}</p>
+          <h2 className="mt-3 text-xl font-semibold">{selected.product.name}</h2>
+          <p className="text-sm text-gray-600 mt-1">{selected.product.description}</p>
 
-  {/* DISINI TARO DIV HARGA */}
-  <div className="mt-3 text-right">
-    {discountRate > 0 && (
-      <div className="text-sm text-gray-400 line-through">
-        Rp {priceBeforeTax.toLocaleString()}
-      </div>
-    )}
-    <div className="text-lg font-bold text-orange-600 transition-all duration-300">
-      Rp {displayPrice.toLocaleString()}
-    </div>
-    {discountRate > 0 && (
-      <div className="text-xs text-green-600">
-        Diskon {Math.round(discountRate * 100)}% + pajak {taxRate * 100}%
-      </div>
-    )}
-  </div>
-
-  <div className="mt-4">
-    <button
-      onClick={() => openCartFor(selected.product)}
-      className="px-4 py-2 rounded bg-orange-500 text-white"
-    >
-      Beli Sekarang
-    </button>
-  </div>
-</section>
+          <div className="mt-4">
+            <button
+              onClick={() => openCartFor(selected.product)}
+              className="px-4 py-2 rounded bg-orange-500 text-white"
+            >
+              Beli Sekarang
+            </button>
+          </div>
+        </section>
 
         {/* You may like this too */}
         <aside className="bg-white p-4 rounded-lg shadow-lg">
@@ -214,8 +175,8 @@ const finalPrice = Math.round(discountedPrice * (1 + taxRate))
             />
             <div className="flex-1">
               <div className="font-semibold">{selected.product.name}</div>
-              <div className="text-sm mt-2">Variants</div>
 
+              {/* Variants */}
               <table className="w-full mt-2 text-sm">
                 <thead>
                   <tr className="text-left">
@@ -228,7 +189,9 @@ const finalPrice = Math.round(discountedPrice * (1 + taxRate))
                   {selected.product.variants.map((v) => (
                     <tr
                       key={v.size}
-                      className={`cursor-pointer ${selected.variant.size === v.size ? 'bg-gray-100' : ''}`}
+                      className={`cursor-pointer ${
+                        selected.variant.size === v.size ? 'bg-gray-100' : ''
+                      }`}
                       onClick={() => setSelected({ ...selected, variant: v })}
                     >
                       <td className="py-2">{v.size}</td>
@@ -239,6 +202,7 @@ const finalPrice = Math.round(discountedPrice * (1 + taxRate))
                 </tbody>
               </table>
 
+              {/* Input & Quantity */}
               <div className="mt-3">
                 <label className="block text-xs">Nama</label>
                 <input
@@ -246,20 +210,19 @@ const finalPrice = Math.round(discountedPrice * (1 + taxRate))
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full border p-2 rounded text-sm text-gray-500/50"
                 />
-                <label className="block text-xs mt-2">No. Telp</label>
                 <input
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full border p-2 rounded text-sm text-gray-500/50"
+                  className="w-full border p-2 rounded text-sm text-gray-500/50 mt-2"
                 />
-                <label className="block text-xs mt-2">Alamat</label>
                 <input
                   value={form.address}
                   onChange={(e) => setForm({ ...form, address: e.target.value })}
-                  className="w-full border p-2 rounded text-sm text-gray-500/50"
+                  className="w-full border p-2 rounded text-sm text-gray-500/50 mt-2"
                 />
               </div>
 
+              {/* Quantity + Harga */}
               <div className="mt-3 flex items-center justify-between">
                 <div>
                   <div className="text-sm">Quantity</div>
@@ -279,14 +242,25 @@ const finalPrice = Math.round(discountedPrice * (1 + taxRate))
                     </button>
                   </div>
                 </div>
+
                 <div className="text-right">
-                  <div className="text-sm">Total</div>
-                  <div className="text-lg font-bold">
-                    Rp {(selected.variant.price * qty).toLocaleString()}
+                  {discountRate > 0 && (
+                    <div className="text-sm text-gray-400 line-through">
+                      Rp {priceBeforeTax.toLocaleString()}
+                    </div>
+                  )}
+                  <div className="text-lg font-bold text-orange-600">
+                    Rp {animatedFinalPrice.toLocaleString()}
                   </div>
+                  {discountRate > 0 && (
+                    <div className="text-xs text-green-600">
+                      Diskon {Math.round(discountRate * 100)}% + pajak {taxRate * 100}%
+                    </div>
+                  )}
                 </div>
               </div>
 
+              {/* Buttons */}
               <div className="mt-4 flex gap-3">
                 <button
                   onClick={() => setCartOpen(false)}
@@ -307,7 +281,7 @@ const finalPrice = Math.round(discountedPrice * (1 + taxRate))
                   Pembelian berhasil! Terima kasih.
                 </div>
               )}
-{status === 'processing' && (
+              {status === 'processing' && (
                 <div className="mt-3 text-gray-600">Memproses...</div>
               )}
               {status === 'error' && (
