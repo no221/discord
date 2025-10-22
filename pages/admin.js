@@ -2,10 +2,44 @@ import { useEffect, useState } from 'react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { Pie } from 'react-chartjs-2'
 ChartJS.register(ArcElement, Tooltip, Legend)
-import AnimatedNumber from '../components/AnimatedNumber';
+import { useState } from 'react';
 
-{/* misal: */}
-<AnimatedNumber value={totalBought} />
+export default function AdminPage() {
+  const [authorized, setAuthorized] = useState(false);
+  const [pwd, setPwd] = useState('');
+
+  if (!authorized) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen">
+        <input
+          type="password"
+          placeholder="Admin password"
+          value={pwd}
+          onChange={(e) => setPwd(e.target.value)}
+          className="border rounded p-2 mb-2"
+        />
+        <button
+          className="px-4 py-2 bg-blue-500 text-white rounded"
+          onClick={() => {
+            if (pwd === process.env.NEXT_PUBLIC_ADMIN_PASS) {
+              setAuthorized(true);
+            } else {
+              alert('Wrong password');
+            }
+          }}
+        >
+          Login
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      {/* konten admin */}
+    </div>
+  );
+}
 export default function Admin(){
   const [data, setData] = useState({ purchases: [] })
 
