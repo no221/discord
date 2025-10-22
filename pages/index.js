@@ -1,12 +1,12 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { products } from '@/data/products'
+import { products } from '@/data/product'
 
 export default function Home() {
   const [cartOpen, setCartOpen] = useState(false)
   const [selected, setSelected] = useState({ product: products[0], variant: products[0].variants[1] })
   const [qty, setQty] = useState(1)
-  const [form, setForm] = useState({ name: 'John Doe', phone: '081234567890', address: 'Jl. Contoh 1' })
+  const [form, setForm] = useState({ name: 'Li fan', phone: '+62 838-7380-3436', address: 'jalan taman teratai 3 blok Hh 3 no. 18' })
   const [status, setStatus] = useState(null)
   const [imgIndex, setImgIndex] = useState(0)
   const [animating, setAnimating] = useState(false)
