@@ -12,7 +12,7 @@ export const products = [
       'https://cdn.discordapp.com/attachments/1419839079222218772/1430527475674255442/images_10.jpg?ex=68fa1a08&is=68f8c888&hm=b62b495cf55715bcf0ff38a86ee1ddd0a80790d8efc48d404c97f2a45eb517df&',
       'https://cdn.discordapp.com/attachments/1419839079222218772/1430527475972182046/images_9.jpg?ex=68fa1a08&is=68f8c888&hm=570cd3275fd057a898cb95737802f5ec6201346d0319a0b03e0d71f06e29468d&'
     ],
-    description: 'Bola futsal berkualitas tinggi, cocok untuk pertandingan indoor maupun outdoor.',
+    description: 'Bola Futsal Pro dibuat dari bahan sintetis premium yang tahan lama dan ringan, memudahkan kontrol bola saat dribbling maupun passing. Cocok untuk latihan intensif maupun pertandingan futsal indoor dan outdoor. Permukaan yang halus dan jahitan presisi memberikan pantulan yang konsisten serta akurasi tendangan yang lebih tinggi.',
   },
   {
     id: 2,
@@ -27,7 +27,7 @@ export const products = [
       'https://cdn.discordapp.com/attachments/1419839079222218772/1430525330862637176/images_4.jpg?ex=68fa1808&is=68f8c688&hm=b480d955498a13276b7baa5a1d40bfda35c2bbb7c066237a83b4f669cef0a75a&',
       'https://cdn.discordapp.com/attachments/1419839079222218772/1430525330862637176/images_4.jpg?ex=68fa1808&is=68f8c688&hm=b480d955498a13276b7baa5a1d40bfda35c2bbb7c066237a83b4f669cef0a75a&'
     ],
-    description: 'Bola sepak standar FIFA, bahan kulit sintetis premium.',
+    description: 'Bola Sepak Classic merupakan bola standar FIFA dengan bahan kulit sintetis berkualitas tinggi, cocok untuk pertandingan formal maupun latihan rutin. Desain panel klasiknya memberikan grip yang baik dan kontrol bola optimal, sementara daya tahan terhadap benturan membuat bola ini ideal untuk penggunaan jangka panjang di lapangan outdoor.',
   },
   {
     id: 3,
@@ -42,6 +42,6 @@ export const products = [
       'https://cdn.discordapp.com/attachments/1419839079222218772/1430528588062654505/images_13.jpg?ex=68fa1b11&is=68f8c991&hm=c49ec9250f9da8b78949b589d18616f853e6fafa07fdf00219bbabb4f2739d87&',
       'https://cdn.discordapp.com/attachments/1419839079222218772/1430528588481953905/images_14.jpg?ex=68fa1b11&is=68f8c991&hm=97f1fc5dd5e374e1abdb98fce3e8ba1dd88f0175ddbf3a8c6ee9335e5f760445&'
     ],
-    description: 'Bola sepak outdoor yang cocok untuk latihan dribbling dengan lancar.',
+    description: 'Bola Sepak Training dirancang khusus untuk latihan harian dan pengembangan teknik dribbling. Terbuat dari bahan sintetis yang ringan namun tahan lama, bola ini memudahkan pemain meningkatkan akurasi tendangan dan kontrol bola. Ideal untuk latihan indoor maupun outdoor, serta cocok bagi pemula maupun pemain berpengalaman yang ingin meningkatkan skill dasar sepak bola.',
   },
 ];
