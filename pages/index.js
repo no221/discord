@@ -233,12 +233,6 @@ export default function Home() {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full border p-2 rounded text-sm text-gray-500/50"
                 />
-                <label className="block text-xs mt-2">Phone</label>
-                <input
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full border p-2 rounded text-sm text-gray-500/50"
-                />
                 <label className="block text-xs mt-2">Discount Code</label>
                 <input
                   value={form.code}
@@ -306,7 +300,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Popup Pesanan Diterima */}
+{/* Popup Pesanan Diterima */}
       {showSuccessPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
           <div className="bg-white p-6 rounded-xl flex flex-col items-center gap-4 shadow-lg animate-fadeIn">
@@ -314,15 +308,21 @@ export default function Home() {
             <div className="text-lg font-semibold">Pesananmu diterima!</div>
             <button
               className="px-4 py-2 bg-orange-500 text-white rounded"
-onClick={() => {
-  setShowSuccessPopup(false)
-  setCartOpen(false)
-}}
+              onClick={() => {
+                setShowSuccessPopup(false)
+                setCartOpen(false)
+              }}
+            >
               Ok
             </button>
           </div>
         </div>
       )}
+
+      {/* Footer */}
+      <footer className="mt-8 py-4 text-center text-sm text-gray-500 border-t border-gray-200">
+        Made by Kelompok-4
+      </footer>
 
       <style jsx>{`
         .animate-fadeIn {
