@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react'
 import { products } from '@/data/product'
 
-// Diskon berdasarkan quantity
 function getDiscount(qty) {
   if (qty >= 30) return 0.15
   if (qty >= 20) return 0.1
@@ -12,10 +11,8 @@ function getDiscount(qty) {
   return 0
 }
 
-// Hook animasi angka
 function useAnimatedNumber(value, duration = 300) {
   const [display, setDisplay] = useState(value)
-
   useEffect(() => {
     let start = performance.now()
     const initial = display
@@ -40,21 +37,20 @@ export default function Home() {
   const [form, setForm] = useState({
     name: 'Li fan',
     phone: '+62 838-7380-3436',
-    address: 'jalan taman teratai 3 blok Hh 3 no. 18'
+    address: 'jalan taman teratai 3 blok Hh 3 no. 18',
+    code: ''
   })
-  const [status, setStatus] = useState(null) // null | processing | success | error
+  const [status, setStatus] = useState(null)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const [imgIndex, setImgIndex] = useState(0)
   const [imgAnim, setImgAnim] = useState(false)
   const [displayPrice, setDisplayPrice] = useState(selected.variant.price)
 
-  // Diskon dan final price
-  const discountRate = getDiscount(qty)
-  const priceBeforeDiscount = selected.variant.price * qty
-  const discountedPrice = Math.round(priceBeforeDiscount * (1 - discountRate))
-  const animatedPrice = useAnimatedNumber(discountedPrice, 300)
+  useEffect(() => {
+    setSelected({ product: products[0], variant: products[0].variants[1] })
+  }, [])
 
-  // Auto-slide gambar
+  // auto-slide gambar
   useEffect(() => {
     const interval = setInterval(() => {
       handleImgChange((imgIndex + 1) % selected.product.images.length)
@@ -73,33 +69,61 @@ export default function Home() {
   function openCartFor(product) {
     setSelected({ product, variant: product.variants[1] })
     setQty(1)
+    setForm({ ...form, code: '' }) // reset discount code
     setCartOpen(true)
   }
 
   async function bayarNow() {
     setStatus('processing')
-    const body = {
-      productId: selected.product.id,
-      name: form.name,
-      phone: form.phone,
-      address: form.address,
-      size: selected.variant.size,
-      price: selected.variant.price,
-      qty
-    }
     try {
-      const res = await fetch('/api/purchase', {
+      const body = {
+        productId: selected.product.id,
+        name: form.name,
+        phone: form.phone,
+        address: form.address,
+        size: selected.variant.size,
+        price: selected.variant.price,
+        qty,
+        discountCode: form.code
+      }
+      await fetch('/api/purchase', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(body)
       })
-      await res.json()
       setStatus('success')
       setShowSuccessPopup(true)
     } catch {
       setStatus('error')
     }
   }
+
+  // animasi harga slot machine
+  useEffect(() => {
+    const oldPrice = displayPrice
+    const newPrice = selected.variant.price
+    if (oldPrice !== newPrice) {
+      const diff = newPrice - oldPrice
+      const steps = 15
+      const stepValue = diff / steps
+      let currentStep = 0
+      const interval = setInterval(() => {
+        currentStep++
+        setDisplayPrice(Math.round(oldPrice + stepValue * currentStep))
+        if (currentStep >= steps) {
+          clearInterval(interval)
+          setDisplayPrice(newPrice)
+        }
+      }, 40)
+    }
+  }, [selected.variant.price])
+
+  // Hitung harga dengan discount
+  let discountRate = getDiscount(qty)
+  if (form.code?.toLowerCase() === 'kelompok4') discountRate = Math.max(discountRate, 0.8)
+  const priceBeforeDiscount = selected.variant.price * qty
+  const discountedPrice = Math.round(priceBeforeDiscount * (1 - discountRate))
+  const animatedPrice = useAnimatedNumber(discountedPrice, 300)
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-b from-orange-50 to-white">
@@ -122,6 +146,7 @@ export default function Home() {
 
           <h2 className="mt-3 text-xl font-semibold">{selected.product.name}</h2>
           <p className="text-sm text-gray-600 mt-1">{selected.product.description}</p>
+          <p className="mt-2 text-lg font-bold text-orange-600">Rp {selected.variant.price.toLocaleString()}</p>
 
           <div className="mt-4">
             <button
@@ -146,9 +171,7 @@ export default function Home() {
                 <img src={p.images[0]} alt="thumb" className="w-16 h-16 object-cover rounded" />
                 <div className="flex-1">
                   <div className="font-medium">{p.name}</div>
-                  <div className="text-sm text-gray-600">
-                    Rp {p.variants[1].price.toLocaleString()}
-                  </div>
+                  <div className="text-sm text-gray-600">Rp {p.variants[1].price.toLocaleString()}</div>
                 </div>
                 <button
                   className="text-sm px-3 py-1 border rounded"
@@ -164,7 +187,7 @@ export default function Home() {
 
       {/* Cart popup */}
       <div
-        className={`fixed left-0 right-0 bottom-0 transition-transform duration-300 ${
+        className={`fixed left-0 right-0 bottom-0 transition-transform ${
           cartOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -210,19 +233,22 @@ export default function Home() {
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
                   className="w-full border p-2 rounded text-sm text-gray-500/50"
                 />
+                <label className="block text-xs mt-2">Phone</label>
                 <input
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full border p-2 rounded text-sm text-gray-500/50 mt-2"
+                  className="w-full border p-2 rounded text-sm text-gray-500/50"
                 />
+                <label className="block text-xs mt-2">Discount Code</label>
                 <input
-                  value={form.address}
-                  onChange={(e) => setForm({ ...form, address: e.target.value })}
-                  className="w-full border p-2 rounded text-sm text-gray-500/50 mt-2"
+                  value={form.code}
+                  onChange={(e) => setForm({ ...form, code: e.target.value })}
+                  placeholder="Masukkan kode diskon"
+                  className="w-full border p-2 rounded text-sm text-gray-500/50"
                 />
               </div>
 
-              {/* Quantity & Price */}
+              {/* Quantity & Harga */}
               <div className="mt-3 flex items-center justify-between">
                 <div>
                   <div className="text-sm">Quantity</div>
@@ -243,7 +269,6 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Harga */}
                 <div className="text-right">
                   {discountRate > 0 && (
                     <div className="text-sm text-gray-400 line-through">
@@ -281,24 +306,38 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Success popup */}
+      {/* Popup Pesanan Diterima */}
       {showSuccessPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
-          <div className="bg-white p-6 rounded-xl text-center shadow-lg">
-            <div className="text-4xl text-green-500 mb-3">✅</div>
-            <div className="font-semibold text-lg mb-4">Pesananmu diterima!</div>
+        <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
+          <div className="bg-white p-6 rounded-xl flex flex-col items-center gap-4 shadow-lg animate-fadeIn">
+            <div className="text-6xl text-green-500 animate-bounce">✓</div>
+            <div className="text-lg font-semibold">Pesananmu diterima!</div>
             <button
               className="px-4 py-2 bg-orange-500 text-white rounded"
-              onClick={() => {
-                setShowSuccessPopup(false)
-                setCartOpen(false)
-              }}
+              onClick={() => setShowSuccessPopup(false)}
             >
               Ok
             </button>
           </div>
         </div>
       )}
+
+      <style jsx>{`
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .animate-bounce {
+          animation: bounce 0.6s ease infinite alternate;
+        }
+        @keyframes bounce {
+          from { transform: translateY(0); }
+          to { transform: translateY(-10px); }
+        }
+      `}</style>
     </div>
   )
 }
