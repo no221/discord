@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react'
 import { products } from '@/data/product'
 
-// Fungsi diskon
+// Diskon berdasarkan quantity
 function getDiscount(qty) {
   if (qty >= 30) return 0.15
   if (qty >= 20) return 0.1
@@ -42,16 +42,17 @@ export default function Home() {
     phone: '+62 838-7380-3436',
     address: 'jalan taman teratai 3 blok Hh 3 no. 18'
   })
+  const [status, setStatus] = useState(null) // null | processing | success | error
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false)
   const [imgIndex, setImgIndex] = useState(0)
   const [imgAnim, setImgAnim] = useState(false)
-  const [status, setStatus] = useState(null)
+  const [displayPrice, setDisplayPrice] = useState(selected.variant.price)
 
-  const taxRate = 0.1
+  // Diskon dan final price
   const discountRate = getDiscount(qty)
-  const priceBeforeTax = selected.variant.price * qty
-  const discountedPrice = priceBeforeTax * (1 - discountRate)
-  const finalPrice = Math.round(discountedPrice * (1 + taxRate))
-  const animatedFinalPrice = useAnimatedNumber(finalPrice, 200)
+  const priceBeforeDiscount = selected.variant.price * qty
+  const discountedPrice = Math.round(priceBeforeDiscount * (1 - discountRate))
+  const animatedPrice = useAnimatedNumber(discountedPrice, 300)
 
   // Auto-slide gambar
   useEffect(() => {
@@ -94,6 +95,7 @@ export default function Home() {
       })
       await res.json()
       setStatus('success')
+      setShowSuccessPopup(true)
     } catch {
       setStatus('error')
     }
@@ -162,7 +164,7 @@ export default function Home() {
 
       {/* Cart popup */}
       <div
-        className={`fixed left-0 right-0 bottom-0 transition-transform ${
+        className={`fixed left-0 right-0 bottom-0 transition-transform duration-300 ${
           cartOpen ? 'translate-y-0' : 'translate-y-full'
         }`}
       >
@@ -189,9 +191,7 @@ export default function Home() {
                   {selected.product.variants.map((v) => (
                     <tr
                       key={v.size}
-                      className={`cursor-pointer ${
-                        selected.variant.size === v.size ? 'bg-gray-100' : ''
-                      }`}
+                      className={`cursor-pointer ${selected.variant.size === v.size ? 'bg-gray-100' : ''}`}
                       onClick={() => setSelected({ ...selected, variant: v })}
                     >
                       <td className="py-2">{v.size}</td>
@@ -222,7 +222,7 @@ export default function Home() {
                 />
               </div>
 
-              {/* Quantity + Harga */}
+              {/* Quantity & Price */}
               <div className="mt-3 flex items-center justify-between">
                 <div>
                   <div className="text-sm">Quantity</div>
@@ -243,18 +243,19 @@ export default function Home() {
                   </div>
                 </div>
 
+                {/* Harga */}
                 <div className="text-right">
                   {discountRate > 0 && (
                     <div className="text-sm text-gray-400 line-through">
-                      Rp {priceBeforeTax.toLocaleString()}
+                      Rp {priceBeforeDiscount.toLocaleString()}
                     </div>
                   )}
                   <div className="text-lg font-bold text-orange-600">
-                    Rp {animatedFinalPrice.toLocaleString()}
+                    Rp {animatedPrice.toLocaleString()}
                   </div>
                   {discountRate > 0 && (
                     <div className="text-xs text-green-600">
-                      Diskon {Math.round(discountRate * 100)}% + pajak {taxRate * 100}%
+                      Diskon {Math.round(discountRate * 100)}%
                     </div>
                   )}
                 </div>
@@ -275,22 +276,29 @@ export default function Home() {
                   Bayar Sekarang
                 </button>
               </div>
-
-              {status === 'success' && (
-                <div className="mt-3 text-green-600">
-                  Pembelian berhasil! Terima kasih.
-                </div>
-              )}
-              {status === 'processing' && (
-                <div className="mt-3 text-gray-600">Memproses...</div>
-              )}
-              {status === 'error' && (
-                <div className="mt-3 text-red-600">Ada kesalahan. Coba lagi.</div>
-              )}
             </div>
           </div>
         </div>
       </div>
+
+      {/* Success popup */}
+      {showSuccessPopup && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/40 z-50">
+          <div className="bg-white p-6 rounded-xl text-center shadow-lg">
+            <div className="text-4xl text-green-500 mb-3">✅</div>
+            <div className="font-semibold text-lg mb-4">Pesananmu diterima!</div>
+            <button
+              className="px-4 py-2 bg-orange-500 text-white rounded"
+              onClick={() => {
+                setShowSuccessPopup(false)
+                setCartOpen(false)
+              }}
+            >
+              Ok
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
