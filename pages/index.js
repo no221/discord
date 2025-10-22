@@ -9,19 +9,29 @@ export default function Home() {
   const [form, setForm] = useState({ name: 'Li fan', phone: '+62 838-7380-3436', address: 'jalan taman teratai 3 blok Hh 3 no. 18' })
   const [status, setStatus] = useState(null)
   const [imgIndex, setImgIndex] = useState(0)
-  const [animating, setAnimating] = useState(false)
+  const [imgAnim, setImgAnim] = useState(false)
+  const [priceAnim, setPriceAnim] = useState(false)
+  const [displayPrice, setDisplayPrice] = useState(selected.variant.price)
 
   useEffect(() => {
     setSelected({ product: products[0], variant: products[0].variants[1] })
   }, [])
 
-  // auto-slide
+  // auto-slide gambar
   useEffect(() => {
     const interval = setInterval(() => {
-      setImgIndex(prev => (prev + 1) % selected.product.images.length)
+      handleImgChange((imgIndex + 1) % selected.product.images.length)
     }, 3000)
     return () => clearInterval(interval)
-  }, [selected])
+  }, [selected, imgIndex])
+
+  function handleImgChange(newIndex) {
+    setImgAnim(true)
+    setTimeout(() => {
+      setImgIndex(newIndex)
+      setImgAnim(false)
+    }, 300)
+  }
 
   function openCartFor(product) {
     setSelected({ product, variant: product.variants[1] })
@@ -53,36 +63,52 @@ export default function Home() {
     }
   }
 
-  // animasi angka harga
+  // animasi harga slot machine
   useEffect(() => {
-    setAnimating(true)
-    const t = setTimeout(() => setAnimating(false), 400)
-    return () => clearTimeout(t)
+    const oldPrice = displayPrice
+    const newPrice = selected.variant.price
+    if (oldPrice !== newPrice) {
+      setPriceAnim(true)
+      let start = oldPrice
+      const diff = newPrice - oldPrice
+      const steps = 10
+      const stepValue = diff / steps
+      let currentStep = 0
+
+      const interval = setInterval(() => {
+        currentStep++
+        setDisplayPrice(Math.round(oldPrice + stepValue * currentStep))
+        if (currentStep >= steps) {
+          clearInterval(interval)
+          setDisplayPrice(newPrice)
+          setPriceAnim(false)
+        }
+      }, 30)
+    }
   }, [selected.variant])
 
   return (
     <div className="min-h-screen p-6 max-w-4xl mx-auto">
       <header className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Mi Store - Clone</h1>
+        <h1 className="text-2xl font-bold"> Soccer Ball Shop - Steven </h1>
       </header>
 
       <main className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <section className="bg-white p-4 rounded-lg shadow">
-          {/* Slider manual */}
           <div className="relative">
             <img
               src={selected.product.images[imgIndex]}
               alt="product"
-              className="w-full h-64 object-contain rounded transition-all duration-500"
+              className={`w-full h-64 object-contain rounded transition-opacity duration-300 ${imgAnim ? 'opacity-0' : 'opacity-100'}`}
             />
             <button
-              onClick={() => setImgIndex((imgIndex - 1 + selected.product.images.length) % selected.product.images.length)}
+              onClick={() => handleImgChange((imgIndex - 1 + selected.product.images.length) % selected.product.images.length)}
               className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white px-2 rounded"
             >
               ‹
             </button>
             <button
-              onClick={() => setImgIndex((imgIndex + 1) % selected.product.images.length)}
+              onClick={() => handleImgChange((imgIndex + 1) % selected.product.images.length)}
               className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white px-2 rounded"
             >
               ›
@@ -90,12 +116,8 @@ export default function Home() {
           </div>
 
           <h2 className="mt-3 text-xl font-semibold">{selected.product.name}</h2>
-          <p
-            className={`text-lg mt-2 transition-all ${
-              animating ? 'scale-110 text-orange-600' : ''
-            } duration-300`}
-          >
-            Rp {selected.variant.price.toLocaleString()}
+          <p className={`text-lg mt-2 transition-transform duration-300 ${priceAnim ? 'scale-110 text-orange-600' : ''}`}>
+            Rp {displayPrice.toLocaleString()}
           </p>
 
           <div className="mt-4">
@@ -112,7 +134,11 @@ export default function Home() {
           <h3 className="font-semibold">You may like this too</h3>
           <div className="mt-3 grid grid-cols-1 gap-3">
             {products.map((p) => (
-              <div key={p.id} className="flex items-center gap-3">
+              <div
+                key={p.id}
+                className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 rounded p-2 transition"
+                onClick={() => openCartFor(p)} // klik di mana saja pada card
+              >
                 <img src={p.images[0]} alt="thumb" className="w-16 h-16 object-cover rounded" />
                 <div className="flex-1">
                   <div className="font-medium">{p.name}</div>
@@ -121,8 +147,8 @@ export default function Home() {
                   </div>
                 </div>
                 <button
-                  onClick={() => openCartFor(p)}
                   className="text-sm px-3 py-1 border rounded"
+                  onClick={(e) => { e.stopPropagation(); openCartFor(p) }}
                 >
                   Tambah
                 </button>
@@ -177,22 +203,20 @@ export default function Home() {
               <div className="mt-3">
                 <label className="block text-xs">Nama</label>
                 <input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full border p-2 rounded text-sm"
-                />
-                <label className="block text-xs mt-2">No. Telp</label>
-                <input
-                  value={form.phone}
-                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                  className="w-full border p-2 rounded text-sm"
-                />
-                <label className="block text-xs mt-2">Alamat</label>
-                <input
-                  value={form.address}
-                  onChange={(e) => setForm({ ...form, address: e.target.value })}
-                  className="w-full border p-2 rounded text-sm"
-                />
+  value={form.name}
+  onChange={(e) => setForm({ ...form, name: e.target.value })}
+  className="w-full border p-2 rounded text-sm text-gray-500/50"
+/>
+<input
+  value={form.phone}
+  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+  className="w-full border p-2 rounded text-sm text-gray-500/50 mt-2"
+/>
+<input
+  value={form.address}
+  onChange={(e) => setForm({ ...form, address: e.target.value })}
+  className="w-full border p-2 rounded text-sm text-gray-500/50 mt-2"
+/>
               </div>
 
               <div className="mt-3 flex items-center justify-between">
