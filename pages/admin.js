@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { Pie } from 'react-chartjs-2'
 ChartJS.register(ArcElement, Tooltip, Legend)
-import { useState } from 'react';
+//import { useState } from 'react';
 
 export default function AdminPage() {
   const [authorized, setAuthorized] = useState(false);
