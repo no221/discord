@@ -31,11 +31,11 @@ export default function Admin() {
         <button
           className="px-4 py-2 bg-blue-500 text-white rounded"
           onClick={() => {
-            if (pwd === process.env.NEXT_PUBLIC_ADMIN_PASS) {
-              setAuthorized(true)
-            } else {
-              alert('Wrong password')
-            }
+            if (pwd.trim() === (process.env.NEXT_PUBLIC_ADMIN_PASS || '').trim()) {
+  setAuthorized(true)
+} else {
+  alert('Wrong password')
+}
           }}
         >
           Login
