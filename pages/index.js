@@ -2,6 +2,33 @@
 import { useState, useEffect } from 'react'
 import { products } from '@/data/product'
 
+function getDiscount(qty) {
+  if (qty >= 30) return 0.15
+  if (qty >= 20) return 0.1
+  if (qty >= 10) return 0.07
+  if (qty >= 7) return 0.05
+  if (qty >= 3) return 0.03
+  return 0
+}
+function useAnimatedNumber(value, duration = 300) {
+  const [display, setDisplay] = useState(value)
+
+  useEffect(() => {
+    let start = performance.now()
+    const initial = display
+    const diff = value - initial
+
+    function animate(time) {
+      const progress = Math.min((time - start) / duration, 1)
+      setDisplay(Math.round(initial + diff * progress))
+      if (progress < 1) requestAnimationFrame(animate)
+    }
+
+    requestAnimationFrame(animate)
+  }, [value])
+
+  return display
+}
 export default function Home() {
   const [cartOpen, setCartOpen] = useState(false)
   const [selected, setSelected] = useState({ product: products[0], variant: products[0].variants[1] })
@@ -11,6 +38,11 @@ export default function Home() {
     phone: '+62 838-7380-3436',
     address: 'jalan taman teratai 3 blok Hh 3 no. 18'
   })
+  const taxRate = 0.1
+const discountRate = getDiscount(qty)
+const priceBeforeTax = selected.variant.price * qty
+const discountedPrice = priceBeforeTax * (1 - discountRate)
+const finalPrice = Math.round(discountedPrice * (1 + taxRate))
   const [status, setStatus] = useState(null)
   const [imgIndex, setImgIndex] = useState(0)
   const [imgAnim, setImgAnim] = useState(false)
@@ -98,42 +130,45 @@ export default function Home() {
 
       <main className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Product detail */}
-        <section className="bg-white p-4 rounded-lg shadow-lg">
-          <div className="relative">
-            <img
-              src={selected.product.images[imgIndex]}
-              alt="product"
-              className={`w-full h-64 object-contain rounded transition-opacity duration-300 ${imgAnim ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}`}
-            />
-            <button
-              onClick={() => handleImgChange((imgIndex - 1 + selected.product.images.length) % selected.product.images.length)}
-              className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white px-2 rounded"
-            >
-              ‹
-            </button>
-            <button
-              onClick={() => handleImgChange((imgIndex + 1) % selected.product.images.length)}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white px-2 rounded"
-            >
-              ›
-            </button>
-          </div>
+<section className="bg-white p-4 rounded-lg shadow">
+  <div className="relative">
+    <img
+      src={selected.product.images[imgIndex]}
+      alt="product"
+      className={`w-full h-64 object-contain rounded transition-opacity duration-300 ${imgAnim ? 'opacity-0' : 'opacity-100'}`}
+    />
+    {/* tombol prev/next */}
+  </div>
 
-          <h2 className="mt-3 text-xl font-semibold">{selected.product.name}</h2>
-          <p className="text-sm text-gray-600 mt-1">{selected.product.description}</p>
-          <p className="text-lg mt-2 font-mono transition-transform duration-300 text-orange-600">
-            Rp {displayPrice.toLocaleString()}
-          </p>
+  <h2 className="mt-3 text-xl font-semibold">{selected.product.name}</h2>
+  <p className="text-sm text-gray-600 mt-1">{selected.product.description}</p>
 
-          <div className="mt-4">
-            <button
-              onClick={() => openCartFor(selected.product)}
-              className="px-4 py-2 rounded bg-orange-500 text-white hover:bg-orange-600 transition-colors"
-            >
-              Beli Sekarang
-            </button>
-          </div>
-        </section>
+  {/* DISINI TARO DIV HARGA */}
+  <div className="mt-3 text-right">
+    {discountRate > 0 && (
+      <div className="text-sm text-gray-400 line-through">
+        Rp {priceBeforeTax.toLocaleString()}
+      </div>
+    )}
+    <div className="text-lg font-bold text-orange-600 transition-all duration-300">
+      Rp {displayPrice.toLocaleString()}
+    </div>
+    {discountRate > 0 && (
+      <div className="text-xs text-green-600">
+        Diskon {Math.round(discountRate * 100)}% + pajak {taxRate * 100}%
+      </div>
+    )}
+  </div>
+
+  <div className="mt-4">
+    <button
+      onClick={() => openCartFor(selected.product)}
+      className="px-4 py-2 rounded bg-orange-500 text-white"
+    >
+      Beli Sekarang
+    </button>
+  </div>
+</section>
 
         {/* You may like this too */}
         <aside className="bg-white p-4 rounded-lg shadow-lg">
