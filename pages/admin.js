@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react'
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { Pie } from 'react-chartjs-2'
 ChartJS.register(ArcElement, Tooltip, Legend)
+import AnimatedNumber from '../components/AnimatedNumber';
 
+{/* misal: */}
+<AnimatedNumber value={totalBought} />
 export default function Admin(){
   const [data, setData] = useState({ purchases: [] })
 
