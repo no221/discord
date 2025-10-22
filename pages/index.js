@@ -380,19 +380,6 @@ export default function Home() {
                 <div><strong>Estimated Delivery:</strong> {invoiceData.estimatedDelivery}</div>
                 <div><strong>Total:</strong> Rp {invoiceData.finalPrice.toLocaleString()}</div>
               </div>
-async function submitRating() {
-  if (!rating) return;
-  try {
-    await fetch('/api/rating', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ orderId: invoiceData.orderId, rating }),
-    });
-    alert('Terima kasih atas ratingnya!');
-  } catch (err) {
-    alert('Gagal submit rating');
-  }
-}
               {/* Rating */}
               <div className="mt-4">
                 <div className="mb-2 font-semibold text-sm">Beri rating pesanan:</div>
