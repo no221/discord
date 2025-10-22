@@ -1,2 +1,0 @@
-- name: Deploy to Vercel
-  run: npx vercel --prod --force
