@@ -38,6 +38,27 @@ function useAnimatedNumber(value, duration = 300) {
   return display
 }
 
+// Custom hook untuk animasi harga per item di cart
+function useItemPriceAnimation(price, duration = 300) {
+  const [displayPrice, setDisplayPrice] = useState(price)
+  
+  useEffect(() => {
+    let start = performance.now()
+    const initial = displayPrice
+    const diff = price - initial
+
+    function animate(time) {
+      const progress = Math.min((time - start) / duration, 1)
+      setDisplayPrice(Math.round(initial + diff * progress))
+      if (progress < 1) requestAnimationFrame(animate)
+    }
+
+    requestAnimationFrame(animate)
+  }, [price, duration])
+
+  return displayPrice
+}
+
 // Fungsi untuk extract image ID dari berbagai URL
 const extractImageUrl = (url) => {
   if (!url) return '';
@@ -94,6 +115,7 @@ export default function Home() {
   const [imageAnim, setImageAnim] = useState(false)
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [voucherApplied, setVoucherApplied] = useState(false)
+  const [priceUpdateKey, setPriceUpdateKey] = useState(0) // Untuk trigger animasi
 
   // Payment methods data
   const paymentMethods = [
@@ -181,6 +203,14 @@ export default function Home() {
     }, 0)
   }, [cart, form.code, calculateDiscount])
 
+  // Calculate price for individual cart item
+  const calculateItemPrice = useCallback((item) => {
+    const itemTotal = item.variant.price * item.quantity
+    const discountRate = calculateDiscount(item.quantity, form.code)
+    const discountedPrice = Math.round(itemTotal * (1 - discountRate))
+    return { itemTotal, discountedPrice, discountRate }
+  }, [form.code, calculateDiscount])
+
   // Calculate total items in cart
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0)
 
@@ -190,7 +220,7 @@ export default function Home() {
   const animatedPrice = useAnimatedNumber(discountedPrice, 300)
   const animatedTotalPrice = useAnimatedNumber(totalPrice, 500)
 
-  // Apply voucher effect - FIXED: Pindahkan useEffect ke bawah
+  // Apply voucher effect
   useEffect(() => {
     if (form.code && voucherDiscounts[form.code.toLowerCase()]) {
       setVoucherApplied(true)
@@ -199,7 +229,7 @@ export default function Home() {
     }
   }, [form.code])
 
-  // Image slider for product detail - FIXED: Pindahkan useEffect ke bawah
+  // Image slider for product detail
   useEffect(() => {
     if (selectedProduct && currentPage === 'product') {
       const interval = setInterval(() => {
@@ -217,7 +247,7 @@ export default function Home() {
     }, 300)
   }, [])
 
-  // Add to cart function
+  // Add to cart function dengan trigger animasi
   const addToCart = useCallback((product, variant, quantity) => {
     const existingItem = cart.find(item => 
       item.product.id === product.id && item.variant.size === variant.size
@@ -237,6 +267,9 @@ export default function Home() {
       }])
     }
     
+    // Trigger animasi harga
+    setPriceUpdateKey(prev => prev + 1)
+    
     // Show feedback
     setCartOpen(true)
   }, [cart])
@@ -246,9 +279,10 @@ export default function Home() {
     setCart(cart.filter(item => 
       !(item.product.id === productId && item.variant.size === variantSize)
     ))
+    setPriceUpdateKey(prev => prev + 1)
   }, [cart])
 
-  // Update quantity in cart
+  // Update quantity in cart dengan animasi
   const updateQuantity = useCallback((productId, variantSize, newQuantity) => {
     if (newQuantity < 1) return
     
@@ -257,6 +291,9 @@ export default function Home() {
         ? { ...item, quantity: newQuantity }
         : item
     ))
+    
+    // Trigger animasi harga
+    setPriceUpdateKey(prev => prev + 1)
   }, [cart])
 
   // Open product detail
@@ -300,7 +337,7 @@ export default function Home() {
     }
   }, [cart, form, totalPrice])
 
-  // Close cart when clicking outside - FIXED: Pindahkan useEffect ke bawah
+  // Close cart when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (cartOpen && !event.target.closest('.cart-container') && !event.target.closest('.cart-icon')) {
@@ -332,6 +369,124 @@ export default function Home() {
       />
     );
   };
+
+  // Component untuk cart item dengan animasi harga
+  const CartItemWithAnimation = ({ item, index }) => {
+    const { itemTotal, discountedPrice, discountRate } = calculateItemPrice(item)
+    const animatedItemPrice = useItemPriceAnimation(discountedPrice, 300)
+    const animatedOriginalPrice = useItemPriceAnimation(itemTotal, 300)
+
+    return (
+      <div key={`${item.product.id}-${item.variant.size}-${index}-${priceUpdateKey}`} 
+           className="flex items-center gap-3 py-3 border-b animate-item-update">
+        {renderProductImage(
+          item.product.images[0], 
+          item.product.name, 
+          "w-12 h-12 object-cover rounded"
+        )}
+        <div className="flex-1">
+          <div className="font-medium text-sm">{item.product.name}</div>
+          <div className="text-xs text-gray-600">Size: {item.variant.size}</div>
+          <div className="flex items-center gap-2 mt-1">
+            <button
+              onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
+              className="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300 transition-all duration-200 transform hover:scale-110"
+            >
+              -
+            </button>
+            <span className="text-xs font-semibold animate-quantity-change">{item.quantity}</span>
+            <button
+              onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
+              className="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300 transition-all duration-200 transform hover:scale-110"
+            >
+              +
+            </button>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="text-sm font-semibold text-orange-600 animate-price-bounce">
+            Rp {animatedItemPrice.toLocaleString()}
+          </div>
+          {discountRate > 0 && (
+            <div className="text-xs text-green-600 animate-fade-in">
+              Diskon {Math.round(discountRate * 100)}%
+              {voucherApplied && ` (Voucher)`}
+            </div>
+          )}
+          {discountRate > 0 && (
+            <div className="text-xs text-gray-400 line-through animate-strike">
+              Rp {animatedOriginalPrice.toLocaleString()}
+            </div>
+          )}
+          <button
+            onClick={() => removeFromCart(item.product.id, item.variant.size)}
+            className="text-red-500 text-xs hover:text-red-700 mt-1 transition-all duration-200 transform hover:scale-110"
+          >
+            Hapus
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Component untuk cart item di checkout page
+  const CheckoutCartItem = ({ item, index }) => {
+    const { itemTotal, discountedPrice, discountRate } = calculateItemPrice(item)
+    const animatedItemPrice = useItemPriceAnimation(discountedPrice, 300)
+    const animatedOriginalPrice = useItemPriceAnimation(itemTotal, 300)
+
+    return (
+      <div key={`${item.product.id}-${item.variant.size}-${index}-${priceUpdateKey}`} 
+           className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border rounded-lg bg-orange-50/30 animate-item-update">
+        {renderProductImage(
+          item.product.images[0],
+          item.product.name,
+          "w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg"
+        )}
+        <div className="flex-1">
+          <div className="font-semibold text-sm md:text-base">{item.product.name}</div>
+          <div className="text-xs md:text-sm text-gray-600">Size: {item.variant.size}</div>
+          <div className="flex items-center gap-2 md:gap-3 mt-2">
+            <button
+              onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
+              className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110"
+            >
+              -
+            </button>
+            <span className="font-semibold animate-quantity-change">{item.quantity}</span>
+            <button
+              onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
+              className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110"
+            >
+              +
+            </button>
+          </div>
+        </div>
+        <div className="text-right">
+          <div className="font-semibold text-base md:text-lg text-orange-600 animate-price-bounce">
+            Rp {animatedItemPrice.toLocaleString()}
+          </div>
+          {discountRate > 0 && (
+            <div className="text-xs text-green-600 animate-fade-in">
+              Diskon {Math.round(discountRate * 100)}%
+              {voucherApplied && ` (Voucher)`}
+            </div>
+          )}
+          {discountRate > 0 && (
+            <div className="text-xs text-gray-400 line-through animate-strike">
+              Rp {animatedOriginalPrice.toLocaleString()}
+            </div>
+          )}
+          <button
+            onClick={() => removeFromCart(item.product.id, item.variant.size)}
+            className="text-red-500 text-xs hover:text-red-700 mt-1 transition-all duration-200 transform hover:scale-110"
+          >
+            Hapus
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen p-4 md:p-6 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
@@ -422,63 +577,15 @@ export default function Home() {
                 ) : (
                   <>
                     <div className="max-h-48 overflow-y-auto">
-                      {cart.map((item, index) => {
-                        const itemTotal = item.variant.price * item.quantity
-                        const discountRate = calculateDiscount(item.quantity, form.code)
-                        const discountedPrice = Math.round(itemTotal * (1 - discountRate))
-                        
-                        return (
-                          <div key={index} className="flex items-center gap-3 py-3 border-b">
-                            {renderProductImage(
-                              item.product.images[0], 
-                              item.product.name, 
-                              "w-12 h-12 object-cover rounded"
-                            )}
-                            <div className="flex-1">
-                              <div className="font-medium text-sm">{item.product.name}</div>
-                              <div className="text-xs text-gray-600">Size: {item.variant.size}</div>
-                              <div className="flex items-center gap-2 mt-1">
-                                <button
-                                  onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
-                                  className="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300"
-                                >
-                                  -
-                                </button>
-                                <span className="text-xs">{item.quantity}</span>
-                                <button
-                                  onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
-                                  className="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300"
-                                >
-                                  +
-                                </button>
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-sm font-semibold">
-                                Rp {discountedPrice.toLocaleString()}
-                              </div>
-                              {discountRate > 0 && (
-                                <div className="text-xs text-green-600">
-                                  Diskon {Math.round(discountRate * 100)}%
-                                  {voucherApplied && ` (Voucher)`}
-                                </div>
-                              )}
-                              <button
-                                onClick={() => removeFromCart(item.product.id, item.variant.size)}
-                                className="text-red-500 text-xs hover:text-red-700 mt-1"
-                              >
-                                Hapus
-                              </button>
-                            </div>
-                          </div>
-                        )
-                      })}
+                      {cart.map((item, index) => (
+                        <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+                      ))}
                     </div>
                     
                     <div className="mt-3 pt-3 border-t">
                       <div className="flex justify-between font-semibold text-lg">
                         <span>Total:</span>
-                        <span className="text-orange-600">Rp {animatedTotalPrice.toLocaleString()}</span>
+                        <span className="text-orange-600 animate-price-bounce">Rp {animatedTotalPrice.toLocaleString()}</span>
                       </div>
                       {voucherApplied && (
                         <div className="text-sm text-green-600 mt-1 animate-pulse">
@@ -490,7 +597,7 @@ export default function Home() {
                           setCartOpen(false)
                           setCurrentPage('cart')
                         }}
-                        className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold"
+                        className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold transform hover:scale-105"
                       >
                         Checkout ({cart.length} items)
                       </button>
@@ -518,63 +625,15 @@ export default function Home() {
               ) : (
                 <>
                   <div className="max-h-96 overflow-y-auto">
-                    {cart.map((item, index) => {
-                      const itemTotal = item.variant.price * item.quantity
-                      const discountRate = calculateDiscount(item.quantity, form.code)
-                      const discountedPrice = Math.round(itemTotal * (1 - discountRate))
-                      
-                      return (
-                        <div key={index} className="flex items-center gap-3 py-3 border-b">
-                          {renderProductImage(
-                            item.product.images[0], 
-                            item.product.name, 
-                            "w-12 h-12 object-cover rounded"
-                          )}
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{item.product.name}</div>
-                            <div className="text-xs text-gray-600">Size: {item.variant.size}</div>
-                            <div className="flex items-center gap-2 mt-1">
-                              <button
-                                onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
-                                className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300"
-                              >
-                                -
-                              </button>
-                              <span className="text-xs">{item.quantity}</span>
-                              <button
-                                onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
-                                className="w-6 h-6 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm font-semibold">
-                              Rp {discountedPrice.toLocaleString()}
-                            </div>
-                            {discountRate > 0 && (
-                              <div className="text-xs text-green-600">
-                                Diskon {Math.round(discountRate * 100)}%
-                                {voucherApplied && ` (Voucher)`}
-                              </div>
-                            )}
-                            <button
-                              onClick={() => removeFromCart(item.product.id, item.variant.size)}
-                              className="text-red-500 text-xs hover:text-red-700 mt-1"
-                            >
-                              Hapus
-                            </button>
-                          </div>
-                        </div>
-                      )
-                    })}
+                    {cart.map((item, index) => (
+                      <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+                    ))}
                   </div>
                   
                   <div className="mt-4 pt-4 border-t">
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total:</span>
-                      <span className="text-orange-600">Rp {animatedTotalPrice.toLocaleString()}</span>
+                      <span className="text-orange-600 animate-price-bounce">Rp {animatedTotalPrice.toLocaleString()}</span>
                     </div>
                     {voucherApplied && (
                       <div className="text-sm text-green-600 mt-1 animate-pulse">
@@ -586,7 +645,7 @@ export default function Home() {
                         setCartOpen(false)
                         setCurrentPage('cart')
                       }}
-                      className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg"
+                      className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105"
                     >
                       Checkout ({cart.length} items)
                     </button>
@@ -700,7 +759,7 @@ export default function Home() {
                       onClick={() => setSelectedVariant(variant)}
                       className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base ${
                         selectedVariant.size === variant.size
-                          ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
+                          ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-select'
                           : 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
                       }`}
                     >
@@ -718,14 +777,14 @@ export default function Home() {
                 <div className="flex items-center gap-3 bg-orange-50 rounded-lg p-2 w-full sm:w-auto justify-center">
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
+                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110"
                   >
                     -
                   </button>
-                  <span className="px-4 py-1 text-lg font-semibold min-w-8 text-center">{qty}</span>
+                  <span className="px-4 py-1 text-lg font-semibold min-w-8 text-center animate-quantity-change">{qty}</span>
                   <button
                     onClick={() => setQty(qty + 1)}
-                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
+                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110"
                   >
                     +
                   </button>
@@ -753,7 +812,7 @@ export default function Home() {
                           Rp {priceBeforeDiscount.toLocaleString()}
                         </div>
                       )}
-                      <div className="text-lg font-bold text-orange-600">
+                      <div className="text-lg font-bold text-orange-600 animate-price-bounce">
                         Rp {animatedPrice.toLocaleString()}
                       </div>
                       {discountRate > 0 && (
@@ -774,7 +833,7 @@ export default function Home() {
 
               <button
                 onClick={() => setCurrentPage('home')}
-                className="w-full mt-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300 font-semibold"
+                className="w-full mt-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300 font-semibold transform hover:scale-105"
               >
                 ← Kembali ke Home
               </button>
@@ -831,7 +890,7 @@ export default function Home() {
                 <p className="text-gray-500 text-lg mb-6">Keranjang Anda kosong</p>
                 <button
                   onClick={() => setCurrentPage('home')}
-                  className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold"
+                  className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold transform hover:scale-105"
                 >
                   Belanja Sekarang
                 </button>
@@ -842,62 +901,9 @@ export default function Home() {
                 <div className="lg:col-span-2">
                   <h3 className="font-semibold text-lg mb-4">Items dalam Keranjang</h3>
                   <div className="space-y-3 md:space-y-4">
-                    {cart.map((item, index) => {
-                      const itemTotal = item.variant.price * item.quantity
-                      const discountRate = calculateDiscount(item.quantity, form.code)
-                      const discountedPrice = Math.round(itemTotal * (1 - discountRate))
-                      
-                      return (
-                        <div key={index} className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border rounded-lg bg-orange-50/30 animate-fade-in">
-                          {renderProductImage(
-                            item.product.images[0],
-                            item.product.name,
-                            "w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg"
-                          )}
-                          <div className="flex-1">
-                            <div className="font-semibold text-sm md:text-base">{item.product.name}</div>
-                            <div className="text-xs md:text-sm text-gray-600">Size: {item.variant.size}</div>
-                            <div className="flex items-center gap-2 md:gap-3 mt-2">
-                              <button
-                                onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
-                                className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white transition-all duration-200"
-                              >
-                                -
-                              </button>
-                              <span className="font-semibold">{item.quantity}</span>
-                              <button
-                                onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
-                                className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white transition-all duration-200"
-                              >
-                                +
-                              </button>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <div className="font-semibold text-base md:text-lg text-orange-600">
-                              Rp {discountedPrice.toLocaleString()}
-                            </div>
-                            {discountRate > 0 && (
-                              <div className="text-xs text-green-600">
-                                Diskon {Math.round(discountRate * 100)}%
-                                {voucherApplied && ` (Voucher)`}
-                              </div>
-                            )}
-                            {discountRate > 0 && (
-                              <div className="text-xs text-gray-400 line-through animate-strike">
-                                Rp {itemTotal.toLocaleString()}
-                              </div>
-                            )}
-                            <button
-                              onClick={() => removeFromCart(item.product.id, item.variant.size)}
-                              className="text-red-500 text-xs hover:text-red-700 mt-1 transition-all duration-200"
-                            >
-                              Hapus
-                            </button>
-                          </div>
-                        </div>
-                      )
-                    })}
+                    {cart.map((item, index) => (
+                      <CheckoutCartItem key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+                    ))}
                   </div>
                 </div>
 
@@ -1009,7 +1015,7 @@ export default function Home() {
                     </div>
                     <div className="flex justify-between text-xl font-bold mt-2">
                       <span>Total Pembayaran:</span>
-                      <span className="text-orange-600 animate-count-up">
+                      <span className="text-orange-600 animate-price-bounce">
                         Rp {animatedTotalPrice.toLocaleString()}
                       </span>
                     </div>
@@ -1183,6 +1189,36 @@ export default function Home() {
         @keyframes countUp {
           0% { transform: scale(1.1); color: #ea580c; }
           100% { transform: scale(1); color: #ea580c; }
+        }
+        .animate-item-update {
+          animation: itemUpdate 0.3s ease-out;
+        }
+        @keyframes itemUpdate {
+          0% { background-color: rgba(255, 247, 237, 0.8); transform: scale(0.98); }
+          100% { background-color: rgba(255, 247, 237, 0.3); transform: scale(1); }
+        }
+        .animate-price-bounce {
+          animation: priceBounce 0.3s ease-out;
+        }
+        @keyframes priceBounce {
+          0% { transform: scale(1.1); color: #ea580c; }
+          50% { transform: scale(1.05); color: #ea580c; }
+          100% { transform: scale(1); color: #ea580c; }
+        }
+        .animate-quantity-change {
+          animation: quantityChange 0.2s ease-out;
+        }
+        @keyframes quantityChange {
+          0% { transform: scale(1.2); }
+          100% { transform: scale(1); }
+        }
+        .animate-variant-select {
+          animation: variantSelect 0.3s ease-out;
+        }
+        @keyframes variantSelect {
+          0% { transform: scale(0.95); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
         }
         .line-clamp-2 {
           display: -webkit-box;
