@@ -31,9 +31,13 @@ function useAnimatedNumber(value, duration = 300) {
 }
 
 export default function Home() {
+  const [currentPage, setCurrentPage] = useState('home') // 'home', 'product', 'cart'
+  const [selectedProduct, setSelectedProduct] = useState(null)
+  const [cart, setCart] = useState([])
   const [cartOpen, setCartOpen] = useState(false)
-  const [selected, setSelected] = useState({ product: products[0], variant: products[0].variants[1] })
+  const [selectedVariant, setSelectedVariant] = useState(null)
   const [qty, setQty] = useState(1)
+  const [searchTerm, setSearchTerm] = useState('')
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -42,104 +46,83 @@ export default function Home() {
   })
   const [status, setStatus] = useState(null)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
-  const [imgIndex, setImgIndex] = useState(0)
-  const [imgAnim, setImgAnim] = useState(false)
-  const [displayPrice, setDisplayPrice] = useState(selected.variant.price)
-  const [productChangeAnim, setProductChangeAnim] = useState(false)
-  const [variantChangeAnim, setVariantChangeAnim] = useState(false)
 
-  useEffect(() => {
-    setSelected({ product: products[0], variant: products[0].variants[1] })
-  }, [])
+  // Filter products based on search
+  const filteredProducts = products.filter(product =>
+    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.description.toLowerCase().includes(searchTerm.toLowerCase())
+  )
 
-  // auto-slide gambar
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handleImgChange((imgIndex + 1) % selected.product.images.length)
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [selected, imgIndex])
+  // Add to cart function
+  function addToCart(product, variant, quantity) {
+    const existingItem = cart.find(item => 
+      item.product.id === product.id && item.variant.size === variant.size
+    )
 
-  function handleImgChange(newIndex) {
-    setImgAnim(true)
-    setTimeout(() => {
-      setImgIndex(newIndex)
-      setImgAnim(false)
-    }, 300)
+    if (existingItem) {
+      setCart(cart.map(item =>
+        item.product.id === product.id && item.variant.size === variant.size
+          ? { ...item, quantity: item.quantity + quantity }
+          : item
+      ))
+    } else {
+      setCart([...cart, {
+        product,
+        variant,
+        quantity
+      }])
+    }
   }
 
-  function openCartFor(product) {
-    // Animasi pergantian product
-    setProductChangeAnim(true)
-    setTimeout(() => {
-      setSelected({ product, variant: product.variants[1] })
-      setQty(1)
-      setForm({ ...form, code: '' })
-      setProductChangeAnim(false)
-      setCartOpen(true)
-    }, 300)
+  // Remove from cart
+  function removeFromCart(productId, variantSize) {
+    setCart(cart.filter(item => 
+      !(item.product.id === productId && item.variant.size === variantSize)
+    ))
   }
 
-  function handleVariantChange(v) {
-    // Animasi pergantian variant
-    setVariantChangeAnim(true)
-    setTimeout(() => {
-      setSelected(prev => ({ ...prev, variant: v }))
-      setTimeout(() => setVariantChangeAnim(false), 200)
-    }, 150)
+  // Calculate total items in cart
+  const totalItems = cart.reduce((total, item) => total + item.quantity, 0)
+
+  // Calculate total price
+  const totalPrice = cart.reduce((total, item) => {
+    const discountRate = getDiscount(item.quantity)
+    const priceBeforeDiscount = item.variant.price * item.quantity
+    return total + Math.round(priceBeforeDiscount * (1 - discountRate))
+  }, 0)
+
+  // Open product detail
+  function openProductDetail(product) {
+    setSelectedProduct(product)
+    setSelectedVariant(product.variants[1])
+    setQty(1)
+    setCurrentPage('product')
   }
 
-  async function bayarNow() {
+  // Handle checkout
+  async function handleCheckout() {
     setStatus('processing')
     try {
-      const body = {
-        productId: selected.product.id,
-        name: form.name,
-        phone: form.phone,
-        address: form.address,
-        size: selected.variant.size,
-        price: selected.variant.price,
-        qty,
-        discountCode: form.code
+      const orderData = {
+        items: cart,
+        customer: form,
+        total: totalPrice
       }
+      
       await fetch('/api/purchase', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(orderData)
       })
+      
       setStatus('success')
       setShowSuccessPopup(true)
+      setCart([])
+      setCartOpen(false)
     } catch {
       setStatus('error')
     }
   }
-
-  // animasi harga slot machine
-  useEffect(() => {
-    const oldPrice = displayPrice
-    const newPrice = selected.variant.price
-    if (oldPrice !== newPrice) {
-      const diff = newPrice - oldPrice
-      const steps = 15
-      const stepValue = diff / steps
-      let currentStep = 0
-      const interval = setInterval(() => {
-        currentStep++
-        setDisplayPrice(Math.round(oldPrice + stepValue * currentStep))
-        if (currentStep >= steps) {
-          clearInterval(interval)
-          setDisplayPrice(newPrice)
-        }
-      }, 40)
-    }
-  }, [selected.variant.price])
-
-  // Hitung harga dengan discount
-  let discountRate = getDiscount(qty)
-  if (form.code?.toLowerCase() === 'kelompok4') discountRate = Math.max(discountRate, 0.8)
-  const priceBeforeDiscount = selected.variant.price * qty
-  const discountedPrice = Math.round(priceBeforeDiscount * (1 - discountRate))
-  const animatedPrice = useAnimatedNumber(discountedPrice, 300)
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
@@ -169,242 +152,380 @@ export default function Home() {
         {/* Pulse Rings - More Visible */}
         <div className="absolute -bottom-32 -left-32 w-80 h-80 border-4 border-orange-300 rounded-full animate-pulse-ring-slow opacity-40"></div>
         <div className="absolute -top-32 -right-32 w-96 h-96 border-4 border-amber-200 rounded-full animate-pulse-ring-slower opacity-30"></div>
-        
-        {/* Bouncing Dots */}
-        <div className="absolute top-1/2 left-1/3 w-3 h-3 bg-orange-500 rounded-full animate-bounce-dot opacity-60"></div>
-        <div className="absolute bottom-40 right-1/4 w-2 h-2 bg-amber-500 rounded-full animate-bounce-dot-delayed opacity-60"></div>
       </div>
 
+      {/* Header dengan Search dan Cart */}
       <header className="flex items-center justify-between mb-6 relative z-10">
-        <h1 className="text-2xl font-bold text-orange-700 flex items-center gap-2 animate-pulse-gentle">
-          ⚽ Soccer Ball Shop - Kelompok 4
-        </h1>
-      </header>
-
-      <main className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-        {/* bagian detail*/}
-        <section className={`bg-white p-4 rounded-lg shadow-xl backdrop-blur-sm bg-white/90 transition-all duration-500 ${
-          productChangeAnim ? 'scale-95 opacity-50' : 'scale-100 opacity-100'
-        }`}>
-          <div className="relative">
-            <img
-              src={selected.product.images[imgIndex]}
-              alt="product"
-              className={`w-full h-64 object-contain rounded transition-all duration-500 ${
-                imgAnim ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-              }`}
-            />
-          </div>
-
-          <h2 className="mt-3 text-xl font-semibold">{selected.product.name}</h2>
-          <p className="text-sm text-gray-600 mt-1">{selected.product.description}</p>
-          <p className="mt-2 text-lg font-bold text-orange-600">Rp {selected.variant.price.toLocaleString()}</p>
-
-          <div className="mt-4">
-            <button
-              onClick={() => openCartFor(selected.product)}
-              className="px-4 py-2 rounded bg-orange-500 text-white hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl animate-pulse-gentle"
-            >
-              Beli Sekarang
-            </button>
-          </div>
-        </section>
-
-        {/* You may like this too */}
-        <aside className="bg-white p-4 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
-          <h3 className="font-semibold mb-2">You may like this too</h3>
-          <div className="grid grid-cols-1 gap-3">
-            {products.map((p) => (
-              <div
-                key={p.id}
-                className="flex items-center gap-3 cursor-pointer hover:shadow-xl hover:scale-105 transition-all duration-300 rounded p-2 bg-white/80 backdrop-blur-sm border border-transparent hover:border-orange-200"
-                onClick={() => openCartFor(p)}
-              >
-                <img src={p.images[0]} alt="thumb" className="w-16 h-16 object-cover rounded" />
-                <div className="flex-1">
-                  <div className="font-medium">{p.name}</div>
-                  <div className="text-sm text-gray-600">Rp {p.variants[1].price.toLocaleString()}</div>
-                </div>
-                <button
-                  className="text-sm px-3 py-1 border rounded hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110"
-                  onClick={(e) => { e.stopPropagation(); openCartFor(p) }}
-                >
-                  Tambah
-                </button>
-              </div>
-            ))}
-          </div>
-        </aside>
-      </main>
-
-      {/* Enhanced Cart Popup - Now goes off screen */}
-      <div
-        className={`fixed inset-0 z-50 transition-all duration-700 ease-in-out ${
-          cartOpen 
-            ? 'opacity-100 visible translate-y-0' 
-            : 'opacity-0 invisible translate-y-full'
-        }`}
-      >
-        {/* Backdrop */}
-        <div 
-          className="absolute inset-0 bg-black/30 backdrop-blur-sm"
-          onClick={() => setCartOpen(false)}
-        />
-        
-        {/* Cart Content */}
-        <div className="absolute bottom-0 left-0 right-0 max-h-[90vh] overflow-y-auto">
-          <div className="max-w-4xl mx-auto p-4 bg-white/95 backdrop-blur-md rounded-t-2xl shadow-2xl border-t border-orange-100 transform transition-transform duration-500">
-            <div className="flex items-start gap-4">
-              <img
-                src={selected.product.images[0]}
-                alt="small"
-                className="w-20 h-20 object-cover rounded shadow-lg"
+        <div className="flex items-center gap-4">
+          <h1 
+            className="text-2xl font-bold text-orange-700 flex items-center gap-2 animate-pulse-gentle cursor-pointer"
+            onClick={() => setCurrentPage('home')}
+          >
+            ⚽ Soccer Ball Shop - Steven
+          </h1>
+          
+          {/* Search Bar - hanya muncul di homepage */}
+          {currentPage === 'home' && (
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Cari produk..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-64"
               />
-              <div className="flex-1">
-                <div className="font-semibold text-lg">{selected.product.name}</div>
-
-                {/* Variants with Slide Animation */}
-                <table className="w-full mt-2 text-sm">
-                  <thead>
-                    <tr className="text-left">
-                      <th>Size</th>
-                      <th>Price</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {selected.product.variants.map((v) => (
-                      <tr
-                        key={v.size}
-                        className={`cursor-pointer transition-all duration-300 ${
-                          selected.variant.size === v.size 
-                            ? 'bg-orange-50 border-l-4 border-orange-500 shadow-inner' 
-                            : 'hover:bg-gray-50'
-                        } ${
-                          variantChangeAnim && selected.variant.size === v.size 
-                            ? 'animate-variant-select' 
-                            : ''
-                        }`}
-                        onClick={() => handleVariantChange(v)}
-                      >
-                        <td className="py-2 pl-2">{v.size}</td>
-                        <td>Rp {v.price.toLocaleString()}</td>
-                        <td className="text-orange-500">
-                          {selected.variant.size === v.size ? '✓' : ''}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-
-                {/* Input & Quantity */}
-                <div className="mt-3">
-                  <label className="block text-xs">Nama</label>
-                  <input
-                    value={form.name}
-                    onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    placeholder="Li fan"
-                    className="w-full border p-2 rounded text-sm transition-all duration-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-
-                  <label className="block text-xs mt-2">Nomor Telepon</label>
-                  <input
-                    value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="+62 838-7380-3436"
-                    className="w-full border p-2 rounded text-sm transition-all duration-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-
-                  <label className="block text-xs mt-2">Alamat</label>
-                  <input
-                    value={form.address}
-                    onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    placeholder="jalan taman teratai 3 blok Hh 3 no. 18"
-                    className="w-full border p-2 rounded text-sm transition-all duration-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-
-                  <label className="block text-xs mt-2">Discount Code</label>
-                  <input
-                    value={form.code}
-                    onChange={(e) => setForm({ ...form, code: e.target.value })}
-                    placeholder="Masukkan kode diskon"
-                    className="w-full border p-2 rounded text-sm transition-all duration-300 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-                  />
-                </div>
-
-                {/* Quantity & Harga */}
-                <div className="mt-3 flex items-center justify-between">
-                  <div>
-                    <div className="text-sm">Quantity</div>
-                    <div className="flex items-center gap-2 mt-1">
-                      <button
-                        onClick={() => setQty(Math.max(1, qty - 1))}
-                        className="px-3 py-1 border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110"
-                      >
-                        -
-                      </button>
-                      <div className="px-3 py-1 bg-orange-50 rounded min-w-8 text-center">{qty}</div>
-                      <button
-                        onClick={() => setQty(qty + 1)}
-                        className="px-3 py-1 border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="text-right">
-                    {discountRate > 0 && (
-                      <div className="text-sm text-gray-400 line-through">
-                        Rp {priceBeforeDiscount.toLocaleString()}
-                      </div>
-                    )}
-                    <div className="text-lg font-bold text-orange-600">
-                      Rp {animatedPrice.toLocaleString()}
-                    </div>
-                    {discountRate > 0 && (
-                      <div className="text-xs text-green-600">
-                        Diskon {Math.round(discountRate * 100)}%
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Buttons */}
-                <div className="mt-4 flex gap-3">
-                  <button
-                    onClick={() => setCartOpen(false)}
-                    className="flex-1 py-2 border rounded hover:bg-gray-50 transition-all duration-300 transform hover:scale-105"
-                  >
-                    Tutup
-                  </button>
-                  <button
-                    onClick={bayarNow}
-                    className="flex-1 py-2 rounded bg-emerald-600 text-white hover:bg-emerald-700 transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                  >
-                    Bayar Sekarang
-                  </button>
-                </div>
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                🔍
               </div>
             </div>
-          </div>
+          )}
         </div>
-      </div>
 
-      {/* Popup Pesanan Diterima */}
+        {/* Cart Icon */}
+        <div className="relative">
+          <button
+            onClick={() => setCartOpen(!cartOpen)}
+            className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative"
+          >
+            🛒
+            {totalItems > 0 && (
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
+                {totalItems}
+              </span>
+            )}
+          </button>
+
+          {/* Cart Dropdown */}
+          {cartOpen && (
+            <div className="absolute right-0 top-12 w-80 bg-white rounded-lg shadow-2xl border border-orange-100 z-50">
+              <div className="p-4">
+                <h3 className="font-semibold mb-3">Keranjang Belanja</h3>
+                
+                {cart.length === 0 ? (
+                  <p className="text-gray-500 text-center py-4">Keranjang kosong</p>
+                ) : (
+                  <>
+                    <div className="max-h-60 overflow-y-auto">
+                      {cart.map((item, index) => (
+                        <div key={index} className="flex items-center gap-3 py-2 border-b">
+                          <img src={item.product.images[0]} alt={item.product.name} className="w-12 h-12 object-cover rounded" />
+                          <div className="flex-1">
+                            <div className="font-medium text-sm">{item.product.name}</div>
+                            <div className="text-xs text-gray-600">Size: {item.variant.size}</div>
+                            <div className="text-xs text-gray-600">Qty: {item.quantity}</div>
+                          </div>
+                          <div className="text-right">
+                            <div className="text-sm font-semibold">
+                              Rp {Math.round(item.variant.price * item.quantity * (1 - getDiscount(item.quantity))).toLocaleString()}
+                            </div>
+                            <button
+                              onClick={() => removeFromCart(item.product.id, item.variant.size)}
+                              className="text-red-500 text-xs hover:text-red-700"
+                            >
+                              Hapus
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    
+                    <div className="mt-3 pt-3 border-t">
+                      <div className="flex justify-between font-semibold">
+                        <span>Total:</span>
+                        <span>Rp {totalPrice.toLocaleString()}</span>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setCartOpen(false)
+                          setCurrentPage('cart')
+                        }}
+                        className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300"
+                      >
+                        Checkout
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="relative z-10">
+        {/* Homepage - All Products */}
+        {currentPage === 'home' && (
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Semua Produk Bola</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredProducts.map((product) => (
+                <div
+                  key={product.id}
+                  className="bg-white p-4 rounded-lg shadow-lg backdrop-blur-sm bg-white/90 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                  onClick={() => openProductDetail(product)}
+                >
+                  <img
+                    src={product.images[0]}
+                    alt={product.name}
+                    className="w-full h-48 object-cover rounded mb-3"
+                  />
+                  <h3 className="font-semibold text-lg">{product.name}</h3>
+                  <p className="text-sm text-gray-600 mt-1">{product.description}</p>
+                  <p className="mt-2 text-lg font-bold text-orange-600">
+                    Rp {product.variants[1].price.toLocaleString()}
+                  </p>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      addToCart(product, product.variants[1], 1)
+                    }}
+                    className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300"
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Product Detail Page */}
+        {currentPage === 'product' && selectedProduct && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Product Detail */}
+            <section className="bg-white p-4 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
+              <img
+                src={selectedProduct.images[0]}
+                alt={selectedProduct.name}
+                className="w-full h-64 object-contain rounded mb-3"
+              />
+              <h2 className="text-xl font-semibold">{selectedProduct.name}</h2>
+              <p className="text-sm text-gray-600 mt-1">{selectedProduct.description}</p>
+              
+              {/* Variant Selection */}
+              <div className="mt-4">
+                <h4 className="font-semibold mb-2">Pilih Size:</h4>
+                <div className="flex gap-2">
+                  {selectedProduct.variants.map((variant) => (
+                    <button
+                      key={variant.size}
+                      onClick={() => setSelectedVariant(variant)}
+                      className={`px-4 py-2 border rounded-lg transition-all duration-300 ${
+                        selectedVariant.size === variant.size
+                          ? 'bg-orange-500 text-white border-orange-500'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-orange-500'
+                      }`}
+                    >
+                      {variant.size} - Rp {variant.price.toLocaleString()}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quantity & Add to Cart */}
+              <div className="mt-6 flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setQty(Math.max(1, qty - 1))}
+                    className="px-3 py-1 border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300"
+                  >
+                    -
+                  </button>
+                  <span className="px-4 py-1 bg-orange-50 rounded-lg">{qty}</span>
+                  <button
+                    onClick={() => setQty(qty + 1)}
+                    className="px-3 py-1 border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300"
+                  >
+                    +
+                  </button>
+                </div>
+                
+                <button
+                  onClick={() => {
+                    addToCart(selectedProduct, selectedVariant, qty)
+                    setQty(1)
+                  }}
+                  className="flex-1 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300"
+                >
+                  Add to Cart
+                </button>
+              </div>
+
+              <button
+                onClick={() => setCurrentPage('home')}
+                className="w-full mt-3 py-2 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300"
+              >
+                Kembali ke Home
+              </button>
+            </section>
+
+            {/* You May Like This Too */}
+            <aside className="bg-white p-4 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
+              <h3 className="font-semibold mb-4">You may like this too</h3>
+              <div className="grid grid-cols-1 gap-3">
+                {products
+                  .filter(p => p.id !== selectedProduct.id)
+                  .slice(0, 3)
+                  .map((p) => (
+                    <div
+                      key={p.id}
+                      className="flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded p-2 border border-transparent hover:border-orange-200"
+                      onClick={() => openProductDetail(p)}
+                    >
+                      <img src={p.images[0]} alt="thumb" className="w-16 h-16 object-cover rounded" />
+                      <div className="flex-1">
+                        <div className="font-medium">{p.name}</div>
+                        <div className="text-sm text-gray-600">Rp {p.variants[1].price.toLocaleString()}</div>
+                      </div>
+                      <button
+                        className="text-sm px-3 py-1 border rounded hover:bg-orange-500 hover:text-white transition-all duration-300"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          addToCart(p, p.variants[1], 1)
+                        }}
+                      >
+                        Tambah
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            </aside>
+          </div>
+        )}
+
+        {/* Cart/Checkout Page */}
+        {currentPage === 'cart' && (
+          <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-xl p-6 backdrop-blur-sm bg-white/90">
+            <h2 className="text-xl font-semibold mb-4">Checkout</h2>
+            
+            {cart.length === 0 ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-4">Keranjang Anda kosong</p>
+                <button
+                  onClick={() => setCurrentPage('home')}
+                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300"
+                >
+                  Belanja Sekarang
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Cart Items */}
+                <div className="space-y-4 mb-6">
+                  {cart.map((item, index) => (
+                    <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
+                      <img src={item.product.images[0]} alt={item.product.name} className="w-16 h-16 object-cover rounded" />
+                      <div className="flex-1">
+                        <div className="font-semibold">{item.product.name}</div>
+                        <div className="text-sm text-gray-600">Size: {item.variant.size}</div>
+                        <div className="text-sm text-gray-600">Qty: {item.quantity}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">
+                          Rp {Math.round(item.variant.price * item.quantity * (1 - getDiscount(item.quantity))).toLocaleString()}
+                        </div>
+                        <button
+                          onClick={() => removeFromCart(item.product.id, item.variant.size)}
+                          className="text-red-500 text-sm hover:text-red-700"
+                        >
+                          Hapus
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Customer Form */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold">Informasi Pelanggan</h3>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Nama</label>
+                    <input
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                      placeholder="Masukkan nama lengkap"
+                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Nomor Telepon</label>
+                    <input
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      placeholder="Masukkan nomor telepon"
+                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Alamat</label>
+                    <textarea
+                      value={form.address}
+                      onChange={(e) => setForm({ ...form, address: e.target.value })}
+                      placeholder="Masukkan alamat lengkap"
+                      rows="3"
+                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Kode Diskon (Opsional)</label>
+                    <input
+                      value={form.code}
+                      onChange={(e) => setForm({ ...form, code: e.target.value })}
+                      placeholder="Masukkan kode diskon"
+                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                    />
+                  </div>
+
+                  {/* Total */}
+                  <div className="border-t pt-4">
+                    <div className="flex justify-between text-lg font-semibold">
+                      <span>Total Pembayaran:</span>
+                      <span>Rp {totalPrice.toLocaleString()}</span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 mt-6">
+                    <button
+                      onClick={() => setCurrentPage('home')}
+                      className="flex-1 py-3 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300"
+                    >
+                      Kembali Belanja
+                    </button>
+                    <button
+                      onClick={handleCheckout}
+                      disabled={!form.name || !form.phone || !form.address}
+                      className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300"
+                    >
+                      Bayar Sekarang
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Success Popup */}
       {showSuccessPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 backdrop-blur-sm">
           <div className="bg-white p-6 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border border-orange-200">
             <div className="text-6xl text-green-500 animate-bounce">✓</div>
             <div className="text-lg font-semibold">Pesananmu diterima!</div>
             <button
-              className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition-all duration-300 transform hover:scale-105"
+              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105"
               onClick={() => {
                 setShowSuccessPopup(false)
-                setCartOpen(false)
+                setCurrentPage('home')
               }}
             >
-              Ok
+              Kembali ke Home
             </button>
           </div>
         </div>
@@ -412,7 +533,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="mt-8 py-4 text-center text-sm text-gray-500 border-t border-gray-200 relative z-10 backdrop-blur-sm bg-white/50">
-        Made with love by Kelompok-4
+        Made by Kelompok-4
       </footer>
 
       <style jsx>{`
@@ -491,16 +612,6 @@ export default function Home() {
           0%, 100% { opacity: 0.3; transform: scale(1); }
           50% { opacity: 0.6; transform: scale(1.1); }
         }
-        .animate-bounce-dot {
-          animation: bounceDot 2s ease-in-out infinite;
-        }
-        .animate-bounce-dot-delayed {
-          animation: bounceDot 2s ease-in-out infinite 1s;
-        }
-        @keyframes bounceDot {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
         .animate-pulse-gentle {
           animation: pulseGentle 3s ease-in-out infinite;
         }
@@ -514,14 +625,6 @@ export default function Home() {
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
-        }
-        .animate-variant-select {
-          animation: variantSelect 0.3s ease-out;
-        }
-        @keyframes variantSelect {
-          0% { background-color: transparent; }
-          50% { background-color: rgba(249, 115, 22, 0.2); }
-          100% { background-color: rgb(255, 247, 237); }
         }
       `}</style>
     </div>
