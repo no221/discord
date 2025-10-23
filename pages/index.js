@@ -11,7 +11,6 @@ function getDiscount(qty) {
   return 0
 }
 
-// Pindahkan voucherDiscounts ke luar component atau di dalam component
 const voucherDiscounts = {
   'kelompok4': 0.8,
   'soccer50': 0.5,
@@ -59,6 +58,7 @@ export default function Home() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0)
   const [imageAnim, setImageAnim] = useState(false)
   const [paymentOpen, setPaymentOpen] = useState(false)
+  const [voucherApplied, setVoucherApplied] = useState(false)
 
   // Payment methods data
   const paymentMethods = [
@@ -120,7 +120,12 @@ export default function Home() {
       const voucherDiscount = voucherDiscounts[voucherCode.toLowerCase()]
       if (voucherDiscount) {
         discountRate = Math.max(discountRate, voucherDiscount)
+        setVoucherApplied(true)
+      } else {
+        setVoucherApplied(false)
       }
+    } else {
+      setVoucherApplied(false)
     }
     
     return discountRate
@@ -153,6 +158,16 @@ export default function Home() {
   const { priceBeforeDiscount, discountedPrice, discountRate } = calculateProductPrice()
   const totalPrice = calculateTotalPrice()
   const animatedPrice = useAnimatedNumber(discountedPrice, 300)
+  const animatedTotalPrice = useAnimatedNumber(totalPrice, 500)
+
+  // Apply voucher effect
+  useEffect(() => {
+    if (form.code && voucherDiscounts[form.code.toLowerCase()]) {
+      setVoucherApplied(true)
+    } else {
+      setVoucherApplied(false)
+    }
+  }, [form.code])
 
   // Image slider for product detail
   useEffect(() => {
@@ -361,7 +376,7 @@ export default function Home() {
                     <div className="max-h-48 overflow-y-auto">
                       {cart.map((item, index) => {
                         const itemTotal = item.variant.price * item.quantity
-                        const discountRate = getDiscount(item.quantity)
+                        const discountRate = calculateDiscount(item.quantity, form.code)
                         const discountedPrice = Math.round(itemTotal * (1 - discountRate))
                         
                         return (
@@ -393,6 +408,7 @@ export default function Home() {
                               {discountRate > 0 && (
                                 <div className="text-xs text-green-600">
                                   Diskon {Math.round(discountRate * 100)}%
+                                  {voucherApplied && ` (Voucher)`}
                                 </div>
                               )}
                               <button
@@ -410,8 +426,13 @@ export default function Home() {
                     <div className="mt-3 pt-3 border-t">
                       <div className="flex justify-between font-semibold text-lg">
                         <span>Total:</span>
-                        <span>Rp {totalPrice.toLocaleString()}</span>
+                        <span className="text-orange-600">Rp {animatedTotalPrice.toLocaleString()}</span>
                       </div>
+                      {voucherApplied && (
+                        <div className="text-sm text-green-600 mt-1 animate-pulse">
+                          ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+                        </div>
+                      )}
                       <button
                         onClick={() => {
                           setCartOpen(false)
@@ -447,7 +468,7 @@ export default function Home() {
                   <div className="max-h-96 overflow-y-auto">
                     {cart.map((item, index) => {
                       const itemTotal = item.variant.price * item.quantity
-                      const discountRate = getDiscount(item.quantity)
+                      const discountRate = calculateDiscount(item.quantity, form.code)
                       const discountedPrice = Math.round(itemTotal * (1 - discountRate))
                       
                       return (
@@ -476,6 +497,12 @@ export default function Home() {
                             <div className="text-sm font-semibold">
                               Rp {discountedPrice.toLocaleString()}
                             </div>
+                            {discountRate > 0 && (
+                              <div className="text-xs text-green-600">
+                                Diskon {Math.round(discountRate * 100)}%
+                                {voucherApplied && ` (Voucher)`}
+                              </div>
+                            )}
                             <button
                               onClick={() => removeFromCart(item.product.id, item.variant.size)}
                               className="text-red-500 text-xs hover:text-red-700 mt-1"
@@ -491,8 +518,13 @@ export default function Home() {
                   <div className="mt-4 pt-4 border-t">
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total:</span>
-                      <span>Rp {totalPrice.toLocaleString()}</span>
+                      <span className="text-orange-600">Rp {animatedTotalPrice.toLocaleString()}</span>
                     </div>
+                    {voucherApplied && (
+                      <div className="text-sm text-green-600 mt-1 animate-pulse">
+                        ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+                      </div>
+                    )}
                     <button
                       onClick={() => {
                         setCartOpen(false)
@@ -625,56 +657,64 @@ export default function Home() {
                 </div>
               </div>
 
-{/* Quantity & Add to Cart */}
-<div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
-  <div className="flex items-center gap-3 bg-orange-50 rounded-lg p-2 w-full sm:w-auto justify-center">
-    <button
-      onClick={() => setQty(Math.max(1, qty - 1))}
-      className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
-    >
-      -
-    </button>
-    <span className="px-4 py-1 text-lg font-semibold min-w-8 text-center">{qty}</span>
-    <button
-      onClick={() => setQty(qty + 1)}
-      className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
-    >
-      +
-    </button>
-  </div>
-  
-  <button
-    onClick={() => {
-      addToCart(selectedProduct, selectedVariant, qty)
-      setQty(1)
-    }}
-    className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 font-semibold text-lg"
-  >
-    + Add to Cart
-  </button>
-</div>
-
-{/* Harga dengan diskon */}
-{selectedVariant && (
-  <div className="mt-4 text-right">
-    {discountRate > 0 && (
-      <div className="text-sm text-gray-400 line-through">
-        Rp {priceBeforeDiscount.toLocaleString()}
-      </div>
-    )}
-    <div className="text-lg font-bold text-orange-600">
-      Rp {animatedPrice.toLocaleString()}
-    </div>
-    {discountRate > 0 && (
-      <div className="text-xs text-green-600">
-        Diskon {Math.round(discountRate * 100)}%
-        {form.code && ` (Voucher: ${form.code.toUpperCase()})`}
-      </div>
-    )}
-  </div>
-)}
+              {/* Quantity & Add to Cart */}
+              <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
+                <div className="flex items-center gap-3 bg-orange-50 rounded-lg p-2 w-full sm:w-auto justify-center">
+                  <button
+                    onClick={() => setQty(Math.max(1, qty - 1))}
+                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
+                  >
+                    -
+                  </button>
+                  <span className="px-4 py-1 text-lg font-semibold min-w-8 text-center">{qty}</span>
+                  <button
+                    onClick={() => setQty(qty + 1)}
+                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
+                  >
+                    +
+                  </button>
+                </div>
                 
-              
+                <button
+                  onClick={() => {
+                    addToCart(selectedProduct, selectedVariant, qty)
+                    setQty(1)
+                  }}
+                  className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 font-semibold text-lg"
+                >
+                  + Add to Cart
+                </button>
+              </div>
+
+              {/* Harga dengan diskon dan animasi */}
+              {selectedVariant && (
+                <div className="mt-4 p-4 bg-orange-50 rounded-lg animate-price-change">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm text-gray-600">Harga Total:</div>
+                    <div className="text-right">
+                      {discountRate > 0 && (
+                        <div className="text-sm text-gray-400 line-through animate-strike">
+                          Rp {priceBeforeDiscount.toLocaleString()}
+                        </div>
+                      )}
+                      <div className="text-lg font-bold text-orange-600">
+                        Rp {animatedPrice.toLocaleString()}
+                      </div>
+                      {discountRate > 0 && (
+                        <div className="text-xs text-green-600 animate-fade-in">
+                          🎉 Diskon {Math.round(discountRate * 100)}%
+                          {voucherApplied && ` (Voucher: ${form.code.toUpperCase()})`}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  {voucherApplied && (
+                    <div className="mt-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded animate-pulse">
+                      ✅ Voucher berhasil diterapkan!
+                    </div>
+                  )}
+                </div>
+              )}
 
               <button
                 onClick={() => setCurrentPage('home')}
@@ -744,11 +784,11 @@ export default function Home() {
                   <div className="space-y-3 md:space-y-4">
                     {cart.map((item, index) => {
                       const itemTotal = item.variant.price * item.quantity
-                      const discountRate = getDiscount(item.quantity)
+                      const discountRate = calculateDiscount(item.quantity, form.code)
                       const discountedPrice = Math.round(itemTotal * (1 - discountRate))
                       
                       return (
-                        <div key={index} className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border rounded-lg bg-orange-50/30">
+                        <div key={index} className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border rounded-lg bg-orange-50/30 animate-fade-in">
                           <img src={item.product.images[0]} alt={item.product.name} className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg" />
                           <div className="flex-1">
                             <div className="font-semibold text-sm md:text-base">{item.product.name}</div>
@@ -756,31 +796,37 @@ export default function Home() {
                             <div className="flex items-center gap-2 md:gap-3 mt-2">
                               <button
                                 onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
-                                className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white"
+                                className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white transition-all duration-200"
                               >
                                 -
                               </button>
                               <span className="font-semibold">{item.quantity}</span>
                               <button
                                 onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
-                                className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white"
+                                className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white transition-all duration-200"
                               >
                                 +
                               </button>
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="font-semibold text-base md:text-lg">
+                            <div className="font-semibold text-base md:text-lg text-orange-600">
                               Rp {discountedPrice.toLocaleString()}
                             </div>
                             {discountRate > 0 && (
                               <div className="text-xs text-green-600">
                                 Diskon {Math.round(discountRate * 100)}%
+                                {voucherApplied && ` (Voucher)`}
+                              </div>
+                            )}
+                            {discountRate > 0 && (
+                              <div className="text-xs text-gray-400 line-through animate-strike">
+                                Rp {itemTotal.toLocaleString()}
                               </div>
                             )}
                             <button
                               onClick={() => removeFromCart(item.product.id, item.variant.size)}
-                              className="text-red-500 text-xs hover:text-red-700 mt-1"
+                              className="text-red-500 text-xs hover:text-red-700 mt-1 transition-all duration-200"
                             >
                               Hapus
                             </button>
@@ -801,7 +847,7 @@ export default function Home() {
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="Masukkan nama lengkap"
-                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                       required
                     />
                   </div>
@@ -812,7 +858,7 @@ export default function Home() {
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
                       placeholder="Masukkan nomor telepon"
-                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                       required
                     />
                   </div>
@@ -824,7 +870,7 @@ export default function Home() {
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
                       placeholder="Masukkan alamat lengkap untuk pengiriman"
                       rows="3"
-                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                       required
                     />
                   </div>
@@ -835,8 +881,18 @@ export default function Home() {
                       value={form.code}
                       onChange={(e) => setForm({ ...form, code: e.target.value })}
                       placeholder="Masukkan kode diskon"
-                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
                     />
+                    {voucherApplied && (
+                      <div className="text-sm text-green-600 mt-1 animate-pulse">
+                        ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+                      </div>
+                    )}
+                    {form.code && !voucherApplied && (
+                      <div className="text-sm text-red-600 mt-1">
+                        ❌ Kode voucher tidak valid
+                      </div>
+                    )}
                   </div>
 
                   {/* Payment Method */}
@@ -844,7 +900,7 @@ export default function Home() {
                     <label className="block text-sm font-medium mb-2">Metode Pembayaran *</label>
                     <button
                       onClick={() => setPaymentOpen(!paymentOpen)}
-                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-left flex justify-between items-center"
+                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-left flex justify-between items-center transition-all duration-300"
                     >
                       <span>
                         {form.paymentMethod ? 
@@ -856,7 +912,7 @@ export default function Home() {
                     </button>
                     
                     {paymentOpen && (
-                      <div className="absolute top-full left-0 right-0 bg-white border rounded-lg shadow-2xl z-50 max-h-60 overflow-y-auto mt-1">
+                      <div className="absolute top-full left-0 right-0 bg-white border rounded-lg shadow-2xl z-50 max-h-60 overflow-y-auto mt-1 animate-dropdown">
                         {paymentMethods.map((method) => (
                           <div
                             key={method.id}
@@ -882,29 +938,36 @@ export default function Home() {
                   </div>
 
                   {/* Total */}
-                  <div className="border-t pt-4">
+                  <div className="border-t pt-4 animate-total-update">
                     <div className="flex justify-between text-lg font-semibold">
                       <span>Total Items:</span>
                       <span>{totalItems} items</span>
                     </div>
                     <div className="flex justify-between text-xl font-bold mt-2">
                       <span>Total Pembayaran:</span>
-                      <span className="text-orange-600">Rp {totalPrice.toLocaleString()}</span>
+                      <span className="text-orange-600 animate-count-up">
+                        Rp {animatedTotalPrice.toLocaleString()}
+                      </span>
                     </div>
+                    {voucherApplied && (
+                      <div className="text-sm text-green-600 mt-2 bg-green-50 p-2 rounded animate-pulse">
+                        🎉 Hemat {Math.round((calculateDiscount(1, form.code) - getDiscount(1)) * 100)}% dengan voucher!
+                      </div>
+                    )}
                   </div>
 
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
                     <button
                       onClick={() => setCurrentPage('home')}
-                      className="flex-1 py-3 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300 font-semibold"
+                      className="flex-1 py-3 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300 font-semibold transform hover:scale-105"
                     >
                       ← Kembali
                     </button>
                     <button
                       onClick={handleCheckout}
                       disabled={!form.name || !form.phone || !form.address || !form.paymentMethod}
-                      className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg"
+                      className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg transform hover:scale-105"
                     >
                       💳 Bayar Sekarang
                     </button>
@@ -1018,6 +1081,44 @@ export default function Home() {
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+        .animate-price-change {
+          animation: priceChange 0.5s ease-out;
+        }
+        @keyframes priceChange {
+          0% { transform: scale(0.95); opacity: 0.7; }
+          100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-strike {
+          animation: strike 0.3s ease-out;
+        }
+        @keyframes strike {
+          0% { transform: scaleX(0); }
+          100% { transform: scaleX(1); }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.5s ease-out;
+        }
+        .animate-dropdown {
+          animation: dropdown 0.2s ease-out;
+        }
+        @keyframes dropdown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-total-update {
+          animation: totalUpdate 0.3s ease-out;
+        }
+        @keyframes totalUpdate {
+          0% { background-color: rgba(255, 247, 237, 0.5); }
+          100% { background-color: transparent; }
+        }
+        .animate-count-up {
+          animation: countUp 0.5s ease-out;
+        }
+        @keyframes countUp {
+          0% { transform: scale(1.1); color: #ea580c; }
+          100% { transform: scale(1); color: #ea580c; }
         }
         .line-clamp-2 {
           display: -webkit-box;
