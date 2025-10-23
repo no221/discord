@@ -46,12 +46,32 @@ export default function Home() {
   })
   const [status, setStatus] = useState(null)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
+  const [imageAnim, setImageAnim] = useState(false)
 
   // Filter products based on search
   const filteredProducts = products.filter(product =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  // Image slider for product detail
+  useEffect(() => {
+    if (selectedProduct && currentPage === 'product') {
+      const interval = setInterval(() => {
+        handleImageChange((currentImageIndex + 1) % selectedProduct.images.length)
+      }, 4000)
+      return () => clearInterval(interval)
+    }
+  }, [selectedProduct, currentImageIndex, currentPage])
+
+  function handleImageChange(newIndex) {
+    setImageAnim(true)
+    setTimeout(() => {
+      setCurrentImageIndex(newIndex)
+      setImageAnim(false)
+    }, 300)
+  }
 
   // Add to cart function
   function addToCart(product, variant, quantity) {
@@ -109,6 +129,7 @@ export default function Home() {
   function openProductDetail(product) {
     setSelectedProduct(product)
     setSelectedVariant(product.variants[1])
+    setCurrentImageIndex(0)
     setQty(1)
     setCurrentPage('product')
     setCartOpen(false) // Close cart when opening product detail
@@ -142,7 +163,7 @@ export default function Home() {
   // Close cart when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
-      if (cartOpen && !event.target.closest('.cart-container')) {
+      if (cartOpen && !event.target.closest('.cart-container') && !event.target.closest('.cart-icon')) {
         setCartOpen(false)
       }
     }
@@ -182,7 +203,7 @@ export default function Home() {
       </div>
 
       {/* Header dengan Search dan Cart */}
-      <header className="flex items-center justify-between mb-6 relative z-10">
+      <header className="flex items-center justify-between mb-6 relative z-30">
         <div className="flex items-center gap-4">
           <h1 
             className="text-2xl font-bold text-orange-700 flex items-center gap-2 animate-pulse-gentle cursor-pointer"
@@ -212,10 +233,10 @@ export default function Home() {
         </div>
 
         {/* Cart Icon */}
-        <div className="relative cart-container">
+        <div className="relative">
           <button
             onClick={() => setCartOpen(!cartOpen)}
-            className="p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg"
+            className="cart-icon p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40"
           >
             <span className="text-lg">🛒</span>
             {totalItems > 0 && (
@@ -227,7 +248,7 @@ export default function Home() {
 
           {/* Cart Dropdown */}
           {cartOpen && (
-            <div className="absolute right-0 top-14 w-96 bg-white rounded-lg shadow-2xl border border-orange-100 z-50 max-h-80 overflow-hidden">
+            <div className="cart-container absolute right-0 top-14 w-96 bg-white rounded-lg shadow-2xl border border-orange-100 z-50 max-h-80 overflow-hidden">
               <div className="p-4">
                 <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
                   🛒 Keranjang Belanja
@@ -350,13 +371,54 @@ export default function Home() {
         {/* Product Detail Page */}
         {currentPage === 'product' && selectedProduct && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Product Detail */}
+            {/* Product Detail dengan Image Slider */}
             <section className="bg-white p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
-              <img
-                src={selectedProduct.images[0]}
-                alt={selectedProduct.name}
-                className="w-full h-80 object-contain rounded mb-4"
-              />
+              {/* Image Slider */}
+              <div className="relative mb-4">
+                <img
+                  src={selectedProduct.images[currentImageIndex]}
+                  alt={selectedProduct.name}
+                  className={`w-full h-80 object-contain rounded transition-opacity duration-500 ${
+                    imageAnim ? 'opacity-0' : 'opacity-100'
+                  }`}
+                />
+                
+                {/* Navigation Arrows */}
+                {selectedProduct.images.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => handleImageChange((currentImageIndex - 1 + selectedProduct.images.length) % selectedProduct.images.length)}
+                      className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300"
+                    >
+                      ←
+                    </button>
+                    <button
+                      onClick={() => handleImageChange((currentImageIndex + 1) % selectedProduct.images.length)}
+                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300"
+                    >
+                      →
+                    </button>
+                  </>
+                )}
+                
+                {/* Image Indicators */}
+                {selectedProduct.images.length > 1 && (
+                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
+                    {selectedProduct.images.map((_, index) => (
+                      <button
+                        key={index}
+                        onClick={() => handleImageChange(index)}
+                        className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                          index === currentImageIndex 
+                            ? 'bg-orange-500 scale-125' 
+                            : 'bg-white/70 hover:bg-white'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
+
               <h2 className="text-2xl font-semibold">{selectedProduct.name}</h2>
               <p className="text-gray-600 mt-2">{selectedProduct.description}</p>
               
