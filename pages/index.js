@@ -45,18 +45,20 @@ export default function Home() {
   const [imgIndex, setImgIndex] = useState(0)
   const [imgAnim, setImgAnim] = useState(false)
   const [displayPrice, setDisplayPrice] = useState(selected.variant.price)
+  const [previewProduct, setPreviewProduct] = useState(selected.product)
 
   useEffect(() => {
     setSelected({ product: products[0], variant: products[0].variants[1] })
+    setPreviewProduct(products[0])
   }, [])
 
   // auto-slide gambar
   useEffect(() => {
     const interval = setInterval(() => {
-      handleImgChange((imgIndex + 1) % selected.product.images.length)
+      handleImgChange((imgIndex + 1) % previewProduct.images.length)
     }, 4000)
     return () => clearInterval(interval)
-  }, [selected, imgIndex])
+  }, [previewProduct, imgIndex])
 
   function handleImgChange(newIndex) {
     setImgAnim(true)
@@ -71,6 +73,11 @@ export default function Home() {
     setQty(1)
     setForm({ ...form, code: '' }) // reset discount code
     setCartOpen(true)
+  }
+
+  function preview(product) {
+    setPreviewProduct(product)
+    setImgIndex(0)
   }
 
   async function bayarNow() {
@@ -126,31 +133,41 @@ export default function Home() {
   const animatedPrice = useAnimatedNumber(discountedPrice, 300)
 
   return (
-    <div className="min-h-screen p-6 bg-gradient-to-b from-orange-50 to-white">
-      <header className="flex items-center justify-between mb-6">
+    <div className="min-h-screen p-6 relative overflow-hidden">
+      {/* Animated gradient background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-orange-100 via-yellow-50 to-orange-200 animate-gradient-slow -z-10"></div>
+
+      {/* Optional subtle balls pattern overlay */}
+      <div className="absolute inset-0 bg-[url('/pattern-balls.svg')] bg-repeat opacity-20 -z-10"></div>
+
+      {/* Header */}
+      <header className="flex items-center justify-between mb-6 relative z-10">
         <h1 className="text-2xl font-bold text-orange-700 flex items-center gap-2">
           ⚽ Soccer Ball Shop - Steven
         </h1>
       </header>
 
-      <main className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Main */}
+      <main className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
         {/* Product detail */}
         <section className="bg-white p-4 rounded-lg shadow">
           <div className="relative">
             <img
-              src={selected.product.images[imgIndex]}
+              src={previewProduct.images[imgIndex]}
               alt="product"
               className={`w-full h-64 object-contain rounded transition-opacity duration-300 ${imgAnim ? 'opacity-0' : 'opacity-100'}`}
             />
           </div>
 
-          <h2 className="mt-3 text-xl font-semibold">{selected.product.name}</h2>
-          <p className="text-sm text-gray-600 mt-1">{selected.product.description}</p>
-          <p className="mt-2 text-lg font-bold text-orange-600">Rp {selected.variant.price.toLocaleString()}</p>
+          <h2 className="mt-3 text-xl font-semibold">{previewProduct.name}</h2>
+          <p className="text-sm text-gray-600 mt-1">{previewProduct.description}</p>
+          <p className="mt-2 text-lg font-bold text-orange-600">
+            Rp {previewProduct.variants[1].price.toLocaleString()}
+          </p>
 
           <div className="mt-4">
             <button
-              onClick={() => openCartFor(selected.product)}
+              onClick={() => openCartFor(previewProduct)}
               className="px-4 py-2 rounded bg-orange-500 text-white"
             >
               Beli Sekarang
@@ -166,7 +183,7 @@ export default function Home() {
               <div
                 key={p.id}
                 className="flex items-center gap-3 cursor-pointer hover:shadow-xl hover:scale-105 transition-transform rounded p-2"
-                onClick={() => openCartFor(p)}
+                onClick={() => preview(p)}
               >
                 <img src={p.images[0]} alt="thumb" className="w-16 h-16 object-cover rounded" />
                 <div className="flex-1">
@@ -226,39 +243,39 @@ export default function Home() {
               </table>
 
               {/* Input & Quantity */}
-<div className="mt-3">
-  <label className="block text-xs">Nama</label>
-  <input
-    value={form.name}
-    onChange={(e) => setForm({ ...form, name: e.target.value })}
-    placeholder="Li fan"
-    className="w-full border p-2 rounded text-sm text-gray-500/50"
-  />
+              <div className="mt-3">
+                <label className="block text-xs">Nama</label>
+                <input
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  placeholder="Li fan"
+                  className="w-full border p-2 rounded text-sm text-gray-500/50"
+                />
 
-  <label className="block text-xs mt-2">Nomor Telepon</label>
-  <input
-    value={form.phone}
-    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-    placeholder="+62 838-7380-3436"
-    className="w-full border p-2 rounded text-sm text-gray-500/50"
-  />
+                <label className="block text-xs mt-2">Nomor Telepon</label>
+                <input
+                  value={form.phone}
+                  onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                  placeholder="+62 838-7380-3436"
+                  className="w-full border p-2 rounded text-sm text-gray-500/50"
+                />
 
-  <label className="block text-xs mt-2">Alamat</label>
-  <input
-    value={form.address}
-    onChange={(e) => setForm({ ...form, address: e.target.value })}
-    placeholder="jalan taman teratai 3 blok Hh 3 no. 18"
-    className="w-full border p-2 rounded text-sm text-gray-500/50"
-  />
+                <label className="block text-xs mt-2">Alamat</label>
+                <input
+                  value={form.address}
+                  onChange={(e) => setForm({ ...form, address: e.target.value })}
+                  placeholder="jalan taman teratai 3 blok Hh 3 no. 18"
+                  className="w-full border p-2 rounded text-sm text-gray-500/50"
+                />
 
-  <label className="block text-xs mt-2">Discount Code</label>
-  <input
-    value={form.code}
-    onChange={(e) => setForm({ ...form, code: e.target.value })}
-    placeholder="Masukkan kode diskon"
-    className="w-full border p-2 rounded text-sm text-gray-500/50"
-  />
-</div>
+                <label className="block text-xs mt-2">Discount Code</label>
+                <input
+                  value={form.code}
+                  onChange={(e) => setForm({ ...form, code: e.target.value })}
+                  placeholder="Masukkan kode diskon"
+                  className="w-full border p-2 rounded text-sm text-gray-500/50"
+                />
+              </div>
 
               {/* Quantity & Harga */}
               <div className="mt-3 flex items-center justify-between">
@@ -318,7 +335,7 @@ export default function Home() {
         </div>
       </div>
 
-{/* Popup Pesanan Diterima */}
+      {/* Popup Pesanan Diterima */}
       {showSuccessPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50">
           <div className="bg-white p-6 rounded-xl flex flex-col items-center gap-4 shadow-lg animate-fadeIn">
@@ -338,7 +355,7 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer className="mt-8 py-4 text-center text-sm text-gray-500 border-t border-gray-200">
+      <footer className="mt-8 py-4 text-center text-sm text-gray-500 border-t border-gray-200 relative z-10">
         Made by Kelompok-4
       </footer>
 
@@ -356,6 +373,17 @@ export default function Home() {
         @keyframes bounce {
           from { transform: translateY(0); }
           to { transform: translateY(-10px); }
+        }
+
+        /* Gradient background animation */
+        @keyframes gradientMove {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+        .animate-gradient-slow {
+          background-size: 200% 200%;
+          animation: gradientMove 15s ease infinite;
         }
       `}</style>
     </div>
