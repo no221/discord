@@ -674,15 +674,6 @@ export default function Home() {
   </div>
 )}
                 
-                <button
-                  onClick={() => {
-                    addToCart(selectedProduct, selectedVariant, qty)
-                    setQty(1)
-                  }}
-                  className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 font-semibold text-lg"
-                >
-                  + Add to Cart
-                </button>
               </div>
 
               <button
