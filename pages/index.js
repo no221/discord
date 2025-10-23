@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { products } from '@/data/product'
 
 function getDiscount(qty) {
@@ -33,9 +33,44 @@ function useAnimatedNumber(value, duration = 300) {
     }
 
     requestAnimationFrame(animate)
-  }, [value])
+  }, [value, duration])
 
   return display
+}
+
+// Fungsi untuk extract image ID dari berbagai URL
+const extractImageUrl = (url) => {
+  if (!url) return '';
+  
+  // Jika sudah URL lengkap, return langsung
+  if (url.startsWith('http')) return url;
+  
+  // Untuk Imgur URLs
+  if (url.includes('imgur.com')) {
+    // imgur.com/a/albumId -> perlu API call untuk get images
+    if (url.includes('/a/')) {
+      const albumId = url.split('/a/')[1]?.split('/')[0]?.split('?')[0];
+      return `https://i.imgur.com/${albumId}.jpg`; // Fallback ke album cover
+    }
+    // imgur.com/gallery/id
+    else if (url.includes('/gallery/')) {
+      const galleryId = url.split('/gallery/')[1]?.split('/')[0]?.split('?')[0];
+      return `https://i.imgur.com/${galleryId}.jpg`;
+    }
+    // i.imgur.com/imageId.jpg
+    else if (url.includes('i.imgur.com')) {
+      return url;
+    }
+    // imgur.com/imageId
+    else {
+      const imageId = url.split('imgur.com/')[1]?.split('/')[0]?.split('?')[0];
+      if (imageId) {
+        return `https://i.imgur.com/${imageId}.jpg`;
+      }
+    }
+  }
+  
+  return url;
 }
 
 export default function Home() {
@@ -112,27 +147,22 @@ export default function Home() {
     product.description.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // Calculate discount with voucher
-  const calculateDiscount = (quantity, voucherCode = '') => {
+  // Calculate discount with voucher - useCallback untuk prevent re-renders
+  const calculateDiscount = useCallback((quantity, voucherCode = '') => {
     let discountRate = getDiscount(quantity)
     
     if (voucherCode) {
       const voucherDiscount = voucherDiscounts[voucherCode.toLowerCase()]
       if (voucherDiscount) {
         discountRate = Math.max(discountRate, voucherDiscount)
-        setVoucherApplied(true)
-      } else {
-        setVoucherApplied(false)
       }
-    } else {
-      setVoucherApplied(false)
     }
     
     return discountRate
-  }
+  }, [])
 
   // Calculate price for product detail page
-  const calculateProductPrice = () => {
+  const calculateProductPrice = useCallback(() => {
     if (!selectedVariant) return { priceBeforeDiscount: 0, discountedPrice: 0, discountRate: 0 }
     
     const discountRate = calculateDiscount(qty, form.code)
@@ -140,16 +170,16 @@ export default function Home() {
     const discountedPrice = Math.round(priceBeforeDiscount * (1 - discountRate))
     
     return { priceBeforeDiscount, discountedPrice, discountRate }
-  }
+  }, [selectedVariant, qty, form.code, calculateDiscount])
 
   // Calculate total price for cart
-  const calculateTotalPrice = () => {
+  const calculateTotalPrice = useCallback(() => {
     return cart.reduce((total, item) => {
       const itemTotal = item.variant.price * item.quantity
       const discountRate = calculateDiscount(item.quantity, form.code)
       return total + Math.round(itemTotal * (1 - discountRate))
     }, 0)
-  }
+  }, [cart, form.code, calculateDiscount])
 
   // Calculate total items in cart
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0)
@@ -160,7 +190,7 @@ export default function Home() {
   const animatedPrice = useAnimatedNumber(discountedPrice, 300)
   const animatedTotalPrice = useAnimatedNumber(totalPrice, 500)
 
-  // Apply voucher effect
+  // Apply voucher effect - FIXED: Pindahkan useEffect ke bawah
   useEffect(() => {
     if (form.code && voucherDiscounts[form.code.toLowerCase()]) {
       setVoucherApplied(true)
@@ -169,26 +199,26 @@ export default function Home() {
     }
   }, [form.code])
 
-  // Image slider for product detail
+  // Image slider for product detail - FIXED: Pindahkan useEffect ke bawah
   useEffect(() => {
     if (selectedProduct && currentPage === 'product') {
       const interval = setInterval(() => {
-        handleImageChange((currentImageIndex + 1) % selectedProduct.images.length)
+        setCurrentImageIndex(prev => (prev + 1) % selectedProduct.images.length)
       }, 4000)
       return () => clearInterval(interval)
     }
   }, [selectedProduct, currentImageIndex, currentPage])
 
-  function handleImageChange(newIndex) {
+  const handleImageChange = useCallback((newIndex) => {
     setImageAnim(true)
     setTimeout(() => {
       setCurrentImageIndex(newIndex)
       setImageAnim(false)
     }, 300)
-  }
+  }, [])
 
   // Add to cart function
-  function addToCart(product, variant, quantity) {
+  const addToCart = useCallback((product, variant, quantity) => {
     const existingItem = cart.find(item => 
       item.product.id === product.id && item.variant.size === variant.size
     )
@@ -209,17 +239,17 @@ export default function Home() {
     
     // Show feedback
     setCartOpen(true)
-  }
+  }, [cart])
 
   // Remove from cart
-  function removeFromCart(productId, variantSize) {
+  const removeFromCart = useCallback((productId, variantSize) => {
     setCart(cart.filter(item => 
       !(item.product.id === productId && item.variant.size === variantSize)
     ))
-  }
+  }, [cart])
 
   // Update quantity in cart
-  function updateQuantity(productId, variantSize, newQuantity) {
+  const updateQuantity = useCallback((productId, variantSize, newQuantity) => {
     if (newQuantity < 1) return
     
     setCart(cart.map(item =>
@@ -227,20 +257,20 @@ export default function Home() {
         ? { ...item, quantity: newQuantity }
         : item
     ))
-  }
+  }, [cart])
 
   // Open product detail
-  function openProductDetail(product) {
+  const openProductDetail = useCallback((product) => {
     setSelectedProduct(product)
     setSelectedVariant(product.variants[1])
     setCurrentImageIndex(0)
     setQty(1)
     setCurrentPage('product')
     setCartOpen(false)
-  }
+  }, [])
 
   // Handle checkout
-  async function handleCheckout() {
+  const handleCheckout = useCallback(async () => {
     if (!form.paymentMethod) {
       alert('Pilih metode pembayaran terlebih dahulu!')
       return
@@ -268,9 +298,9 @@ export default function Home() {
     } catch {
       setStatus('error')
     }
-  }
+  }, [cart, form, totalPrice])
 
-  // Close cart when clicking outside
+  // Close cart when clicking outside - FIXED: Pindahkan useEffect ke bawah
   useEffect(() => {
     function handleClickOutside(event) {
       if (cartOpen && !event.target.closest('.cart-container') && !event.target.closest('.cart-icon')) {
@@ -284,6 +314,24 @@ export default function Home() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [cartOpen, paymentOpen])
+
+  // Render product image dengan support Imgur
+  const renderProductImage = (imageUrl, alt, className = "") => {
+    const processedUrl = extractImageUrl(imageUrl);
+    
+    return (
+      <img
+        src={processedUrl}
+        alt={alt}
+        className={className}
+        onError={(e) => {
+          // Fallback jika gambar error
+          e.target.src = '/api/placeholder/400/400';
+          e.target.alt = 'Gambar tidak tersedia';
+        }}
+      />
+    );
+  };
 
   return (
     <div className="min-h-screen p-4 md:p-6 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
@@ -381,7 +429,11 @@ export default function Home() {
                         
                         return (
                           <div key={index} className="flex items-center gap-3 py-3 border-b">
-                            <img src={item.product.images[0]} alt={item.product.name} className="w-12 h-12 object-cover rounded" />
+                            {renderProductImage(
+                              item.product.images[0], 
+                              item.product.name, 
+                              "w-12 h-12 object-cover rounded"
+                            )}
                             <div className="flex-1">
                               <div className="font-medium text-sm">{item.product.name}</div>
                               <div className="text-xs text-gray-600">Size: {item.variant.size}</div>
@@ -473,7 +525,11 @@ export default function Home() {
                       
                       return (
                         <div key={index} className="flex items-center gap-3 py-3 border-b">
-                          <img src={item.product.images[0]} alt={item.product.name} className="w-12 h-12 object-cover rounded" />
+                          {renderProductImage(
+                            item.product.images[0], 
+                            item.product.name, 
+                            "w-12 h-12 object-cover rounded"
+                          )}
                           <div className="flex-1">
                             <div className="font-medium text-sm">{item.product.name}</div>
                             <div className="text-xs text-gray-600">Size: {item.variant.size}</div>
@@ -555,11 +611,11 @@ export default function Home() {
                   className="bg-white p-4 rounded-lg shadow-lg backdrop-blur-sm bg-white/90 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
                   onClick={() => openProductDetail(product)}
                 >
-                  <img
-                    src={product.images[0]}
-                    alt={product.name}
-                    className="w-full h-48 object-cover rounded mb-3"
-                  />
+                  {renderProductImage(
+                    product.images[0],
+                    product.name,
+                    "w-full h-48 object-cover rounded mb-3"
+                  )}
                   <h3 className="font-semibold text-lg">{product.name}</h3>
                   <p className="text-sm text-gray-600 mt-1 line-clamp-2">{product.description}</p>
                   <p className="mt-2 text-lg font-bold text-orange-600">
@@ -587,13 +643,13 @@ export default function Home() {
             <section className="bg-white p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
               {/* Image Slider */}
               <div className="relative mb-4">
-                <img
-                  src={selectedProduct.images[currentImageIndex]}
-                  alt={selectedProduct.name}
-                  className={`w-full h-64 md:h-80 object-contain rounded transition-opacity duration-500 ${
+                {renderProductImage(
+                  selectedProduct.images[currentImageIndex],
+                  selectedProduct.name,
+                  `w-full h-64 md:h-80 object-contain rounded transition-opacity duration-500 ${
                     imageAnim ? 'opacity-0' : 'opacity-100'
-                  }`}
-                />
+                  }`
+                )}
                 
                 {/* Navigation Arrows */}
                 {selectedProduct.images.length > 1 && (
@@ -737,7 +793,11 @@ export default function Home() {
                       className="flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border border-transparent hover:border-orange-200 bg-orange-50/50"
                       onClick={() => openProductDetail(p)}
                     >
-                      <img src={p.images[0]} alt="thumb" className="w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg" />
+                      {renderProductImage(
+                        p.images[0],
+                        p.name,
+                        "w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg"
+                      )}
                       <div className="flex-1">
                         <div className="font-semibold text-sm md:text-base">{p.name}</div>
                         <div className="text-xs md:text-sm text-gray-600">Rp {p.variants[1].price.toLocaleString()}</div>
@@ -789,7 +849,11 @@ export default function Home() {
                       
                       return (
                         <div key={index} className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border rounded-lg bg-orange-50/30 animate-fade-in">
-                          <img src={item.product.images[0]} alt={item.product.name} className="w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg" />
+                          {renderProductImage(
+                            item.product.images[0],
+                            item.product.name,
+                            "w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg"
+                          )}
                           <div className="flex-1">
                             <div className="font-semibold text-sm md:text-base">{item.product.name}</div>
                             <div className="text-xs md:text-sm text-gray-600">Size: {item.variant.size}</div>
