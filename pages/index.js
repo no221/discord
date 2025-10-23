@@ -674,7 +674,7 @@ export default function Home() {
   </div>
 )}
                 
-              </div>
+              
 
               <button
                 onClick={() => setCurrentPage('home')}
