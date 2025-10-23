@@ -11,6 +11,15 @@ function getDiscount(qty) {
   return 0
 }
 
+// Pindahkan voucherDiscounts ke luar component atau di dalam component
+const voucherDiscounts = {
+  'kelompok4': 0.8,
+  'soccer50': 0.5,
+  'bola30': 0.3,
+  'football20': 0.2,
+  'steven10': 0.1
+}
+
 function useAnimatedNumber(value, duration = 300) {
   const [display, setDisplay] = useState(value)
   useEffect(() => {
@@ -85,7 +94,7 @@ export default function Home() {
     },
     {
       id: 'cod',
-      name: 'Cash Or Duel',
+      name: 'Cash On Delivery',
       description: 'Bayar di Tempat untuk memastikan kualitas barang',
       icon: '📦'
     },
@@ -102,6 +111,48 @@ export default function Home() {
     product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     product.description.toLowerCase().includes(searchTerm.toLowerCase())
   )
+
+  // Calculate discount with voucher
+  const calculateDiscount = (quantity, voucherCode = '') => {
+    let discountRate = getDiscount(quantity)
+    
+    if (voucherCode) {
+      const voucherDiscount = voucherDiscounts[voucherCode.toLowerCase()]
+      if (voucherDiscount) {
+        discountRate = Math.max(discountRate, voucherDiscount)
+      }
+    }
+    
+    return discountRate
+  }
+
+  // Calculate price for product detail page
+  const calculateProductPrice = () => {
+    if (!selectedVariant) return { priceBeforeDiscount: 0, discountedPrice: 0, discountRate: 0 }
+    
+    const discountRate = calculateDiscount(qty, form.code)
+    const priceBeforeDiscount = selectedVariant.price * qty
+    const discountedPrice = Math.round(priceBeforeDiscount * (1 - discountRate))
+    
+    return { priceBeforeDiscount, discountedPrice, discountRate }
+  }
+
+  // Calculate total price for cart
+  const calculateTotalPrice = () => {
+    return cart.reduce((total, item) => {
+      const itemTotal = item.variant.price * item.quantity
+      const discountRate = calculateDiscount(item.quantity, form.code)
+      return total + Math.round(itemTotal * (1 - discountRate))
+    }, 0)
+  }
+
+  // Calculate total items in cart
+  const totalItems = cart.reduce((total, item) => total + item.quantity, 0)
+
+  // Get calculated prices
+  const { priceBeforeDiscount, discountedPrice, discountRate } = calculateProductPrice()
+  const totalPrice = calculateTotalPrice()
+  const animatedPrice = useAnimatedNumber(discountedPrice, 300)
 
   // Image slider for product detail
   useEffect(() => {
@@ -162,47 +213,6 @@ export default function Home() {
         : item
     ))
   }
-// Hitung harga dengan discount
-let discountRate = getDiscount(qty)
-
-// Apply voucher discount if valid
-const voucherDiscounts = {
-  'kelompok4': 0.8,
-  'soccer50': 0.5,
-  'bola30': 0.3,
-  'football20': 0.2,
-  'steven10': 0.1
-}
-
-if (form.code) {
-  const voucherCode = form.code.toLowerCase()
-  const voucherDiscount = voucherDiscounts[voucherCode]
-  if (voucherDiscount) {
-    discountRate = Math.max(discountRate, voucherDiscount)
-  }
-}
-
-const priceBeforeDiscount = selected.variant.price * qty
-const discountedPrice = Math.round(priceBeforeDiscount * (1 - discountRate))
-  // Calculate total items in cart
-  const totalItems = cart.reduce((total, item) => total + item.quantity, 0)
-
-// Calculate total price with quantity, discount, and voucher
-const totalPrice = cart.reduce((total, item) => {
-  const itemTotal = item.variant.price * item.quantity
-  const quantityDiscount = getDiscount(item.quantity)
-  
-  let discountRate = quantityDiscount
-  if (form.code) {
-    const voucherCode = form.code.toLowerCase()
-    const voucherDiscount = voucherDiscounts[voucherCode]
-    if (voucherDiscount) {
-      discountRate = Math.max(discountRate, voucherDiscount)
-    }
-  }
-  
-  return total + Math.round(itemTotal * (1 - discountRate))
-}, 0)
 
   // Open product detail
   function openProductDetail(product) {
@@ -615,23 +625,54 @@ const totalPrice = cart.reduce((total, item) => {
                 </div>
               </div>
 
-              {/* Quantity & Add to Cart */}
-              <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
-                <div className="flex items-center gap-3 bg-orange-50 rounded-lg p-2 w-full sm:w-auto justify-center">
-                  <button
-                    onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
-                  >
-                    -
-                  </button>
-                  <span className="px-4 py-1 text-lg font-semibold min-w-8 text-center">{qty}</span>
-                  <button
-                    onClick={() => setQty(qty + 1)}
-                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
-                  >
-                    +
-                  </button>
-                </div>
+{/* Quantity & Add to Cart */}
+<div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
+  <div className="flex items-center gap-3 bg-orange-50 rounded-lg p-2 w-full sm:w-auto justify-center">
+    <button
+      onClick={() => setQty(Math.max(1, qty - 1))}
+      className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
+    >
+      -
+    </button>
+    <span className="px-4 py-1 text-lg font-semibold min-w-8 text-center">{qty}</span>
+    <button
+      onClick={() => setQty(qty + 1)}
+      className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
+    >
+      +
+    </button>
+  </div>
+  
+  <button
+    onClick={() => {
+      addToCart(selectedProduct, selectedVariant, qty)
+      setQty(1)
+    }}
+    className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 font-semibold text-lg"
+  >
+    + Add to Cart
+  </button>
+</div>
+
+{/* Harga dengan diskon */}
+{selectedVariant && (
+  <div className="mt-4 text-right">
+    {discountRate > 0 && (
+      <div className="text-sm text-gray-400 line-through">
+        Rp {priceBeforeDiscount.toLocaleString()}
+      </div>
+    )}
+    <div className="text-lg font-bold text-orange-600">
+      Rp {animatedPrice.toLocaleString()}
+    </div>
+    {discountRate > 0 && (
+      <div className="text-xs text-green-600">
+        Diskon {Math.round(discountRate * 100)}%
+        {form.code && ` (Voucher: ${form.code.toUpperCase()})`}
+      </div>
+    )}
+  </div>
+)}
                 
                 <button
                   onClick={() => {
