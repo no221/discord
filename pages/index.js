@@ -35,9 +35,9 @@ export default function Home() {
   const [selected, setSelected] = useState({ product: products[0], variant: products[0].variants[1] })
   const [qty, setQty] = useState(1)
   const [form, setForm] = useState({
-    name: 'Li fan',
-    phone: '+62 838-7380-3436',
-    address: 'jalan taman teratai 3 blok Hh 3 no. 18',
+    name: '',
+    phone: '',
+    address: '',
     code: ''
   })
   const [status, setStatus] = useState(null)
@@ -226,21 +226,39 @@ export default function Home() {
               </table>
 
               {/* Input & Quantity */}
-              <div className="mt-3">
-                <label className="block text-xs">Nama</label>
-                <input
-                  value={form.name}
-                  onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  className="w-full border p-2 rounded text-sm text-gray-500/50"
-                />
-                <label className="block text-xs mt-2">Discount Code</label>
-                <input
-                  value={form.code}
-                  onChange={(e) => setForm({ ...form, code: e.target.value })}
-                  placeholder="Masukkan kode diskon"
-                  className="w-full border p-2 rounded text-sm text-gray-500/50"
-                />
-              </div>
+<div className="mt-3">
+  <label className="block text-xs">Nama</label>
+  <input
+    value={form.name}
+    onChange={(e) => setForm({ ...form, name: e.target.value })}
+    placeholder="Li fan"
+    className="w-full border p-2 rounded text-sm text-gray-500/50"
+  />
+
+  <label className="block text-xs mt-2">Nomor Telepon</label>
+  <input
+    value={form.phone}
+    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+    placeholder="+62 838-7380-3436"
+    className="w-full border p-2 rounded text-sm text-gray-500/50"
+  />
+
+  <label className="block text-xs mt-2">Alamat</label>
+  <input
+    value={form.address}
+    onChange={(e) => setForm({ ...form, address: e.target.value })}
+    placeholder="jalan taman teratai 3 blok Hh 3 no. 18"
+    className="w-full border p-2 rounded text-sm text-gray-500/50"
+  />
+
+  <label className="block text-xs mt-2">Discount Code</label>
+  <input
+    value={form.code}
+    onChange={(e) => setForm({ ...form, code: e.target.value })}
+    placeholder="Masukkan kode diskon"
+    className="w-full border p-2 rounded text-sm text-gray-500/50"
+  />
+</div>
 
               {/* Quantity & Harga */}
               <div className="mt-3 flex items-center justify-between">
