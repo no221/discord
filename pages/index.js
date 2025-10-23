@@ -84,6 +84,12 @@ export default function Home() {
       icon: '🌎'
     },
     {
+      id: 'cod',
+      name: 'Cash Or Duel',
+      description: 'Bayar di Tempat untuk memastikan kualitas barang',
+      icon: '📦'
+    },
+    {
       id: 'card',
       name: 'Credit/Debit Card',
       description: 'Bayar dengan Kartu Kredit atau Debit',
@@ -156,16 +162,47 @@ export default function Home() {
         : item
     ))
   }
+// Hitung harga dengan discount
+let discountRate = getDiscount(qty)
 
+// Apply voucher discount if valid
+const voucherDiscounts = {
+  'kelompok4': 0.8,
+  'soccer50': 0.5,
+  'bola30': 0.3,
+  'football20': 0.2,
+  'steven10': 0.1
+}
+
+if (form.code) {
+  const voucherCode = form.code.toLowerCase()
+  const voucherDiscount = voucherDiscounts[voucherCode]
+  if (voucherDiscount) {
+    discountRate = Math.max(discountRate, voucherDiscount)
+  }
+}
+
+const priceBeforeDiscount = selected.variant.price * qty
+const discountedPrice = Math.round(priceBeforeDiscount * (1 - discountRate))
   // Calculate total items in cart
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0)
 
-  // Calculate total price with quantity and discount
-  const totalPrice = cart.reduce((total, item) => {
-    const itemTotal = item.variant.price * item.quantity
-    const discountRate = getDiscount(item.quantity)
-    return total + Math.round(itemTotal * (1 - discountRate))
-  }, 0)
+// Calculate total price with quantity, discount, and voucher
+const totalPrice = cart.reduce((total, item) => {
+  const itemTotal = item.variant.price * item.quantity
+  const quantityDiscount = getDiscount(item.quantity)
+  
+  let discountRate = quantityDiscount
+  if (form.code) {
+    const voucherCode = form.code.toLowerCase()
+    const voucherDiscount = voucherDiscounts[voucherCode]
+    if (voucherDiscount) {
+      discountRate = Math.max(discountRate, voucherDiscount)
+    }
+  }
+  
+  return total + Math.round(itemTotal * (1 - discountRate))
+}, 0)
 
   // Open product detail
   function openProductDetail(product) {
