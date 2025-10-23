@@ -72,6 +72,9 @@ export default function Home() {
         quantity
       }])
     }
+    
+    // Show feedback
+    setCartOpen(true)
   }
 
   // Remove from cart
@@ -81,14 +84,25 @@ export default function Home() {
     ))
   }
 
+  // Update quantity in cart
+  function updateQuantity(productId, variantSize, newQuantity) {
+    if (newQuantity < 1) return
+    
+    setCart(cart.map(item =>
+      item.product.id === productId && item.variant.size === variantSize
+        ? { ...item, quantity: newQuantity }
+        : item
+    ))
+  }
+
   // Calculate total items in cart
   const totalItems = cart.reduce((total, item) => total + item.quantity, 0)
 
-  // Calculate total price
+  // Calculate total price with quantity and discount
   const totalPrice = cart.reduce((total, item) => {
+    const itemTotal = item.variant.price * item.quantity
     const discountRate = getDiscount(item.quantity)
-    const priceBeforeDiscount = item.variant.price * item.quantity
-    return total + Math.round(priceBeforeDiscount * (1 - discountRate))
+    return total + Math.round(itemTotal * (1 - discountRate))
   }, 0)
 
   // Open product detail
@@ -97,6 +111,7 @@ export default function Home() {
     setSelectedVariant(product.variants[1])
     setQty(1)
     setCurrentPage('product')
+    setCartOpen(false) // Close cart when opening product detail
   }
 
   // Handle checkout
@@ -123,6 +138,18 @@ export default function Home() {
       setStatus('error')
     }
   }
+
+  // Close cart when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (cartOpen && !event.target.closest('.cart-container')) {
+        setCartOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [cartOpen])
 
   return (
     <div className="min-h-screen p-6 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
@@ -159,7 +186,10 @@ export default function Home() {
         <div className="flex items-center gap-4">
           <h1 
             className="text-2xl font-bold text-orange-700 flex items-center gap-2 animate-pulse-gentle cursor-pointer"
-            onClick={() => setCurrentPage('home')}
+            onClick={() => {
+              setCurrentPage('home')
+              setCartOpen(false)
+            }}
           >
             ⚽ Soccer Ball Shop - Steven
           </h1>
@@ -182,14 +212,14 @@ export default function Home() {
         </div>
 
         {/* Cart Icon */}
-        <div className="relative">
+        <div className="relative cart-container">
           <button
             onClick={() => setCartOpen(!cartOpen)}
-            className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative"
+            className="p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg"
           >
-            🛒
+            <span className="text-lg">🛒</span>
             {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-bounce">
+              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-bounce">
                 {totalItems}
               </span>
             )}
@@ -197,40 +227,67 @@ export default function Home() {
 
           {/* Cart Dropdown */}
           {cartOpen && (
-            <div className="absolute right-0 top-12 w-80 bg-white rounded-lg shadow-2xl border border-orange-100 z-50">
+            <div className="absolute right-0 top-14 w-96 bg-white rounded-lg shadow-2xl border border-orange-100 z-50 max-h-80 overflow-hidden">
               <div className="p-4">
-                <h3 className="font-semibold mb-3">Keranjang Belanja</h3>
+                <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
+                  🛒 Keranjang Belanja
+                </h3>
                 
                 {cart.length === 0 ? (
                   <p className="text-gray-500 text-center py-4">Keranjang kosong</p>
                 ) : (
                   <>
-                    <div className="max-h-60 overflow-y-auto">
-                      {cart.map((item, index) => (
-                        <div key={index} className="flex items-center gap-3 py-2 border-b">
-                          <img src={item.product.images[0]} alt={item.product.name} className="w-12 h-12 object-cover rounded" />
-                          <div className="flex-1">
-                            <div className="font-medium text-sm">{item.product.name}</div>
-                            <div className="text-xs text-gray-600">Size: {item.variant.size}</div>
-                            <div className="text-xs text-gray-600">Qty: {item.quantity}</div>
-                          </div>
-                          <div className="text-right">
-                            <div className="text-sm font-semibold">
-                              Rp {Math.round(item.variant.price * item.quantity * (1 - getDiscount(item.quantity))).toLocaleString()}
+                    <div className="max-h-48 overflow-y-auto">
+                      {cart.map((item, index) => {
+                        const itemTotal = item.variant.price * item.quantity
+                        const discountRate = getDiscount(item.quantity)
+                        const discountedPrice = Math.round(itemTotal * (1 - discountRate))
+                        
+                        return (
+                          <div key={index} className="flex items-center gap-3 py-3 border-b">
+                            <img src={item.product.images[0]} alt={item.product.name} className="w-12 h-12 object-cover rounded" />
+                            <div className="flex-1">
+                              <div className="font-medium text-sm">{item.product.name}</div>
+                              <div className="text-xs text-gray-600">Size: {item.variant.size}</div>
+                              <div className="flex items-center gap-2 mt-1">
+                                <button
+                                  onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
+                                  className="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300"
+                                >
+                                  -
+                                </button>
+                                <span className="text-xs">{item.quantity}</span>
+                                <button
+                                  onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
+                                  className="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300"
+                                >
+                                  +
+                                </button>
+                              </div>
                             </div>
-                            <button
-                              onClick={() => removeFromCart(item.product.id, item.variant.size)}
-                              className="text-red-500 text-xs hover:text-red-700"
-                            >
-                              Hapus
-                            </button>
+                            <div className="text-right">
+                              <div className="text-sm font-semibold">
+                                Rp {discountedPrice.toLocaleString()}
+                              </div>
+                              {discountRate > 0 && (
+                                <div className="text-xs text-green-600">
+                                  Diskon {Math.round(discountRate * 100)}%
+                                </div>
+                              )}
+                              <button
+                                onClick={() => removeFromCart(item.product.id, item.variant.size)}
+                                className="text-red-500 text-xs hover:text-red-700 mt-1"
+                              >
+                                Hapus
+                              </button>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                     
                     <div className="mt-3 pt-3 border-t">
-                      <div className="flex justify-between font-semibold">
+                      <div className="flex justify-between font-semibold text-lg">
                         <span>Total:</span>
                         <span>Rp {totalPrice.toLocaleString()}</span>
                       </div>
@@ -239,9 +296,9 @@ export default function Home() {
                           setCartOpen(false)
                           setCurrentPage('cart')
                         }}
-                        className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300"
+                        className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold"
                       >
-                        Checkout
+                        Checkout ({cart.length} items)
                       </button>
                     </div>
                   </>
@@ -262,7 +319,7 @@ export default function Home() {
               {filteredProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-white p-4 rounded-lg shadow-lg backdrop-blur-sm bg-white/90 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                  className="bg-white p-4 rounded-lg shadow-lg backdrop-blur-sm bg-white/90 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
                   onClick={() => openProductDetail(product)}
                 >
                   <img
@@ -271,7 +328,7 @@ export default function Home() {
                     className="w-full h-48 object-cover rounded mb-3"
                   />
                   <h3 className="font-semibold text-lg">{product.name}</h3>
-                  <p className="text-sm text-gray-600 mt-1">{product.description}</p>
+                  <p className="text-sm text-gray-600 mt-1 line-clamp-2">{product.description}</p>
                   <p className="mt-2 text-lg font-bold text-orange-600">
                     Rp {product.variants[1].price.toLocaleString()}
                   </p>
@@ -280,9 +337,9 @@ export default function Home() {
                       e.stopPropagation()
                       addToCart(product, product.variants[1], 1)
                     }}
-                    className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300"
+                    className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105"
                   >
-                    Add to Cart
+                    + Add to Cart
                   </button>
                 </div>
               ))}
@@ -294,48 +351,51 @@ export default function Home() {
         {currentPage === 'product' && selectedProduct && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Product Detail */}
-            <section className="bg-white p-4 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
+            <section className="bg-white p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
               <img
                 src={selectedProduct.images[0]}
                 alt={selectedProduct.name}
-                className="w-full h-64 object-contain rounded mb-3"
+                className="w-full h-80 object-contain rounded mb-4"
               />
-              <h2 className="text-xl font-semibold">{selectedProduct.name}</h2>
-              <p className="text-sm text-gray-600 mt-1">{selectedProduct.description}</p>
+              <h2 className="text-2xl font-semibold">{selectedProduct.name}</h2>
+              <p className="text-gray-600 mt-2">{selectedProduct.description}</p>
               
               {/* Variant Selection */}
-              <div className="mt-4">
-                <h4 className="font-semibold mb-2">Pilih Size:</h4>
-                <div className="flex gap-2">
+              <div className="mt-6">
+                <h4 className="font-semibold mb-3">Pilih Size:</h4>
+                <div className="flex flex-wrap gap-3">
                   {selectedProduct.variants.map((variant) => (
                     <button
                       key={variant.size}
                       onClick={() => setSelectedVariant(variant)}
-                      className={`px-4 py-2 border rounded-lg transition-all duration-300 ${
+                      className={`px-4 py-3 border-2 rounded-lg transition-all duration-300 font-semibold ${
                         selectedVariant.size === variant.size
-                          ? 'bg-orange-500 text-white border-orange-500'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-orange-500'
+                          ? 'bg-orange-500 text-white border-orange-500 shadow-lg'
+                          : 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
                       }`}
                     >
-                      {variant.size} - Rp {variant.price.toLocaleString()}
+                      {variant.size}<br/>
+                      <span className="text-sm font-normal">
+                        Rp {variant.price.toLocaleString()}
+                      </span>
                     </button>
                   ))}
                 </div>
               </div>
 
               {/* Quantity & Add to Cart */}
-              <div className="mt-6 flex items-center gap-4">
-                <div className="flex items-center gap-2">
+              <div className="mt-8 flex items-center gap-4">
+                <div className="flex items-center gap-3 bg-orange-50 rounded-lg p-2">
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="px-3 py-1 border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300"
+                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
                   >
                     -
                   </button>
-                  <span className="px-4 py-1 bg-orange-50 rounded-lg">{qty}</span>
+                  <span className="px-4 py-1 text-lg font-semibold min-w-8 text-center">{qty}</span>
                   <button
                     onClick={() => setQty(qty + 1)}
-                    className="px-3 py-1 border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300"
+                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold"
                   >
                     +
                   </button>
@@ -346,46 +406,46 @@ export default function Home() {
                     addToCart(selectedProduct, selectedVariant, qty)
                     setQty(1)
                   }}
-                  className="flex-1 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300"
+                  className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 font-semibold text-lg"
                 >
-                  Add to Cart
+                  + Add to Cart
                 </button>
               </div>
 
               <button
                 onClick={() => setCurrentPage('home')}
-                className="w-full mt-3 py-2 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300"
+                className="w-full mt-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300 font-semibold"
               >
-                Kembali ke Home
+                ← Kembali ke Home
               </button>
             </section>
 
             {/* You May Like This Too */}
-            <aside className="bg-white p-4 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
-              <h3 className="font-semibold mb-4">You may like this too</h3>
-              <div className="grid grid-cols-1 gap-3">
+            <aside className="bg-white p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
+              <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
+              <div className="grid grid-cols-1 gap-4">
                 {products
                   .filter(p => p.id !== selectedProduct.id)
                   .slice(0, 3)
                   .map((p) => (
                     <div
                       key={p.id}
-                      className="flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded p-2 border border-transparent hover:border-orange-200"
+                      className="flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border border-transparent hover:border-orange-200 bg-orange-50/50"
                       onClick={() => openProductDetail(p)}
                     >
-                      <img src={p.images[0]} alt="thumb" className="w-16 h-16 object-cover rounded" />
+                      <img src={p.images[0]} alt="thumb" className="w-16 h-16 object-cover rounded-lg" />
                       <div className="flex-1">
-                        <div className="font-medium">{p.name}</div>
+                        <div className="font-semibold">{p.name}</div>
                         <div className="text-sm text-gray-600">Rp {p.variants[1].price.toLocaleString()}</div>
                       </div>
                       <button
-                        className="text-sm px-3 py-1 border rounded hover:bg-orange-500 hover:text-white transition-all duration-300"
+                        className="text-sm px-3 py-2 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110"
                         onClick={(e) => {
                           e.stopPropagation()
                           addToCart(p, p.variants[1], 1)
                         }}
                       >
-                        Tambah
+                        + Tambah
                       </button>
                     </div>
                   ))}
@@ -396,83 +456,120 @@ export default function Home() {
 
         {/* Cart/Checkout Page */}
         {currentPage === 'cart' && (
-          <div className="max-w-2xl mx-auto bg-white rounded-lg shadow-xl p-6 backdrop-blur-sm bg-white/90">
-            <h2 className="text-xl font-semibold mb-4">Checkout</h2>
+          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6 backdrop-blur-sm bg-white/90">
+            <h2 className="text-2xl font-semibold mb-6 flex items-center gap-2">
+              🛒 Checkout
+            </h2>
             
             {cart.length === 0 ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">Keranjang Anda kosong</p>
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">🛒</div>
+                <p className="text-gray-500 text-lg mb-6">Keranjang Anda kosong</p>
                 <button
                   onClick={() => setCurrentPage('home')}
-                  className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300"
+                  className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold"
                 >
                   Belanja Sekarang
                 </button>
               </div>
             ) : (
-              <>
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Cart Items */}
-                <div className="space-y-4 mb-6">
-                  {cart.map((item, index) => (
-                    <div key={index} className="flex items-center gap-4 p-4 border rounded-lg">
-                      <img src={item.product.images[0]} alt={item.product.name} className="w-16 h-16 object-cover rounded" />
-                      <div className="flex-1">
-                        <div className="font-semibold">{item.product.name}</div>
-                        <div className="text-sm text-gray-600">Size: {item.variant.size}</div>
-                        <div className="text-sm text-gray-600">Qty: {item.quantity}</div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-semibold">
-                          Rp {Math.round(item.variant.price * item.quantity * (1 - getDiscount(item.quantity))).toLocaleString()}
+                <div className="lg:col-span-2">
+                  <h3 className="font-semibold text-lg mb-4">Items dalam Keranjang</h3>
+                  <div className="space-y-4">
+                    {cart.map((item, index) => {
+                      const itemTotal = item.variant.price * item.quantity
+                      const discountRate = getDiscount(item.quantity)
+                      const discountedPrice = Math.round(itemTotal * (1 - discountRate))
+                      
+                      return (
+                        <div key={index} className="flex items-center gap-4 p-4 border rounded-lg bg-orange-50/30">
+                          <img src={item.product.images[0]} alt={item.product.name} className="w-20 h-20 object-cover rounded-lg" />
+                          <div className="flex-1">
+                            <div className="font-semibold">{item.product.name}</div>
+                            <div className="text-sm text-gray-600">Size: {item.variant.size}</div>
+                            <div className="flex items-center gap-3 mt-2">
+                              <button
+                                onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
+                                className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white"
+                              >
+                                -
+                              </button>
+                              <span className="font-semibold">{item.quantity}</span>
+                              <button
+                                onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
+                                className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white"
+                              >
+                                +
+                              </button>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-semibold text-lg">
+                              Rp {discountedPrice.toLocaleString()}
+                            </div>
+                            {discountRate > 0 && (
+                              <div className="text-sm text-green-600">
+                                Diskon {Math.round(discountRate * 100)}%
+                              </div>
+                            )}
+                            <div className="text-sm text-gray-500 line-through">
+                              Rp {itemTotal.toLocaleString()}
+                            </div>
+                            <button
+                              onClick={() => removeFromCart(item.product.id, item.variant.size)}
+                              className="text-red-500 text-sm hover:text-red-700 mt-1"
+                            >
+                              Hapus
+                            </button>
+                          </div>
                         </div>
-                        <button
-                          onClick={() => removeFromCart(item.product.id, item.variant.size)}
-                          className="text-red-500 text-sm hover:text-red-700"
-                        >
-                          Hapus
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                      )
+                    })}
+                  </div>
                 </div>
 
                 {/* Customer Form */}
-                <div className="space-y-4">
-                  <h3 className="font-semibold">Informasi Pelanggan</h3>
+                <div className="space-y-6">
+                  <h3 className="font-semibold text-lg">Informasi Pelanggan</h3>
                   
                   <div>
-                    <label className="block text-sm font-medium mb-1">Nama</label>
+                    <label className="block text-sm font-medium mb-2">Nama Lengkap *</label>
                     <input
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="Masukkan nama lengkap"
                       className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Nomor Telepon</label>
+                    <label className="block text-sm font-medium mb-2">Nomor Telepon *</label>
                     <input
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
                       placeholder="Masukkan nomor telepon"
                       className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Alamat</label>
+                    <label className="block text-sm font-medium mb-2">Alamat Lengkap *</label>
                     <textarea
                       value={form.address}
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
-                      placeholder="Masukkan alamat lengkap"
+                      placeholder="Masukkan alamat lengkap untuk pengiriman"
                       rows="3"
                       className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      required
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium mb-1">Kode Diskon (Opsional)</label>
+                    <label className="block text-sm font-medium mb-2">Kode Diskon (Opsional)</label>
                     <input
                       value={form.code}
                       onChange={(e) => setForm({ ...form, code: e.target.value })}
@@ -484,8 +581,12 @@ export default function Home() {
                   {/* Total */}
                   <div className="border-t pt-4">
                     <div className="flex justify-between text-lg font-semibold">
+                      <span>Total Items:</span>
+                      <span>{totalItems} items</span>
+                    </div>
+                    <div className="flex justify-between text-xl font-bold mt-2">
                       <span>Total Pembayaran:</span>
-                      <span>Rp {totalPrice.toLocaleString()}</span>
+                      <span className="text-orange-600">Rp {totalPrice.toLocaleString()}</span>
                     </div>
                   </div>
 
@@ -493,20 +594,20 @@ export default function Home() {
                   <div className="flex gap-3 mt-6">
                     <button
                       onClick={() => setCurrentPage('home')}
-                      className="flex-1 py-3 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300"
+                      className="flex-1 py-3 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300 font-semibold"
                     >
-                      Kembali Belanja
+                      ← Kembali
                     </button>
                     <button
                       onClick={handleCheckout}
                       disabled={!form.name || !form.phone || !form.address}
-                      className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300"
+                      className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg"
                     >
-                      Bayar Sekarang
+                      💳 Bayar Sekarang
                     </button>
                   </div>
                 </div>
-              </>
+              </div>
             )}
           </div>
         )}
@@ -515,14 +616,16 @@ export default function Home() {
       {/* Success Popup */}
       {showSuccessPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 backdrop-blur-sm">
-          <div className="bg-white p-6 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border border-orange-200">
+          <div className="bg-white p-8 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border border-orange-200 max-w-md text-center">
             <div className="text-6xl text-green-500 animate-bounce">✓</div>
-            <div className="text-lg font-semibold">Pesananmu diterima!</div>
+            <h3 className="text-2xl font-semibold">Pesanan Berhasil!</h3>
+            <p className="text-gray-600">Terima kasih telah berbelanja di Soccer Ball Shop</p>
             <button
-              className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105"
+              className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 font-semibold"
               onClick={() => {
                 setShowSuccessPopup(false)
                 setCurrentPage('home')
+                setForm({ name: '', phone: '', address: '', code: '' })
               }}
             >
               Kembali ke Home
@@ -625,6 +728,12 @@ export default function Home() {
         @keyframes spin {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
+        }
+        .line-clamp-2 {
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
       `}</style>
     </div>
