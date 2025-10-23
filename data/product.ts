@@ -8,9 +8,9 @@ export const products = [
       { size: 6, price: 299000 },
     ],
     images: [
-      'https://imgur.com/a/6gHBs2t',
-      'https://imgur.com/a/Md58val',
-      'https://imgur.com/a/4j0lwKT'
+      'https://cdn.discordapp.com/attachments/1419839079222218772/1430939051833430066/images_16.jpg?ex=68fb9957&is=68fa47d7&hm=c572ae3d890b1e7a5c8a356f2408b6c2901d2b14883183babd7f5214af876486&',
+      'https://cdn.discordapp.com/attachments/1419839079222218772/1430527475351556146/images_11.jpg?ex=68fb6b88&is=68fa1a08&hm=aa05fb7750424428f0de1b0f9874e59f70477e76f264e6c0d6c736fcea64f69c&',
+      'https://cdn.discordapp.com/attachments/1419839079222218772/1430527475972182046/images_9.jpg?ex=68fb6b88&is=68fa1a08&hm=a00d603ae583c5a0f84fea2444db63c3d94609f07d818a07ff55aaa2da87f524&'
     ],
     description: 'Bola Futsal Pro dibuat dari bahan sintetis premium yang tahan lama dan ringan, memudahkan kontrol bola saat dribbling maupun passing. Cocok untuk latihan intensif maupun pertandingan futsal indoor dan outdoor. Permukaan yang halus dan jahitan presisi memberikan pantulan yang konsisten serta akurasi tendangan yang lebih tinggi.',
   },
