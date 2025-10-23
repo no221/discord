@@ -177,12 +177,12 @@ export default function Home() {
 
       <header className="flex items-center justify-between mb-6 relative z-10">
         <h1 className="text-2xl font-bold text-orange-700 flex items-center gap-2 animate-pulse-gentle">
-          ⚽ Soccer Ball Shop - Steven
+          ⚽ Soccer Ball Shop - Kelompok 4
         </h1>
       </header>
 
       <main className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
-        {/* Product detail */}
+        {/* bagian detail*/}
         <section className={`bg-white p-4 rounded-lg shadow-xl backdrop-blur-sm bg-white/90 transition-all duration-500 ${
           productChangeAnim ? 'scale-95 opacity-50' : 'scale-100 opacity-100'
         }`}>
@@ -412,7 +412,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="mt-8 py-4 text-center text-sm text-gray-500 border-t border-gray-200 relative z-10 backdrop-blur-sm bg-white/50">
-        Made by Kelompok-4
+        Made with love by Kelompok-4
       </footer>
 
       <style jsx>{`
