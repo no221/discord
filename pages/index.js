@@ -920,21 +920,20 @@ const Footer = () => (
             </div>
           )}
 
-          {/* Cart Icon - Desktop */}
-          <div className="hidden md:block relative">
-            <button
-<button
-  onClick={() => setCartOpen(!cartOpen)}
-  className="cart-icon p-3 md:p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40 transform hover:scale-105 active:scale-95"
-  style={{ maxWidth: '100%', overflow: 'hidden' }}
->
-              <span className="text-lg">🛒</span>
-              {totalItems > 0 && (
-                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-cart-bounce">
-                  <AnimatedQuantity quantity={totalItems} />
-                </span>
-              )}
-            </button>
+{/* Cart Icon - Desktop */}
+<div className="hidden md:block relative">
+  <button
+    onClick={() => setCartOpen(!cartOpen)}
+    className="cart-icon p-3 md:p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40 transform hover:scale-105 active:scale-95"
+    style={{ maxWidth: '100%', overflow: 'hidden' }}
+  >
+    <span className="text-lg">🛒</span>
+    {totalItems > 0 && (
+      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-cart-bounce">
+        <AnimatedQuantity quantity={totalItems} />
+      </span>
+    )}
+  </button>
 
             {/* Cart Dropdown */}
             {cartOpen && (
