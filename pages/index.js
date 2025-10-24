@@ -153,15 +153,14 @@ const LoadingScreen = () => (
     ></script>
 
     {/* Animasi bola Lottie */}
-    <dotlottie-wc
-      src="https://lottie.host/1c3064dd-d28a-47fe-87a0-02568900c10f/bLwdshhf87.lottie"
-      speed="1"
-      style="width: 300px; height: 300px"
-      mode="forward"
-      loop
-      autoplay
-    ></dotlottie-wc>
-
+<dotlottie-wc
+  src="https://lottie.host/1c3064dd-d28a-47fe-87a0-02568900c10f/bLwdshhf87.lottie"
+  speed="1"
+  style={{ width: '300px', height: '300px' }} // ✅ BENAR
+  mode="forward"
+  loop
+  autoplay
+></dotlottie-wc>
     {/* Text animasi garis geser */}
     <div className="mt-4 text-center">
       <h2 className="text-3xl font-bold text-orange-700 relative overflow-hidden inline-block">
