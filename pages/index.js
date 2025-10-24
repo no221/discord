@@ -182,12 +182,12 @@ const LoadingScreen = () => (
       autoplay
     ></dotlottie-wc>
     
-    {/* Text animasi garis geser */}
-    <div className="mt-4 text-center">
-      <h2 className="text-3xl font-bold text-orange-700 dark:text-orange-300 relative overflow-hidden inline-block">
+    {/* Text animasi - diatur vertikal dengan flex-col */}
+    <div className="flex flex-col items-center justify-center mt-4 text-center">
+      <h2 className="text-3xl font-bold text-orange-700 dark:text-orange-300 relative overflow-hidden">
         <span className="inline-block animate-slide-mask">Selamat Datang!</span>
       </h2>
-      <p className="text-lg text-orange-600 dark:text-orange-400 mt-2 relative overflow-hidden inline-block">
+      <p className="text-lg text-orange-600 dark:text-orange-400 mt-4 relative overflow-hidden">
         <span className="inline-block animate-slide-mask-delayed">Made By Kelompok 4</span>
       </p>
     </div>
@@ -220,28 +220,19 @@ const LoadingScreen = () => (
 const ThemeToggle = ({ theme, toggleTheme }) => (
   <button
     onClick={toggleTheme}
-    className="relative w-12 h-6 bg-gray-300 dark:bg-gray-600 rounded-full p-1 transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+    className="relative w-12 h-6 bg-gradient-to-r from-orange-400 to-orange-500 dark:from-gray-600 dark:to-gray-700 rounded-full p-1 transition-all duration-500 focus:outline-none focus:ring-2 focus:ring-orange-500 shadow-lg"
     aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
   >
-    <div className={`absolute top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full bg-white dark:bg-gray-300 shadow-lg transition-all duration-500 ${
+    <div className={`absolute top-1/2 transform -translate-y-1/2 w-4 h-4 rounded-full bg-white dark:bg-gray-300 shadow-lg transition-all duration-500 flex items-center justify-center ${
       theme === 'light' ? 'left-1' : 'left-7'
     }`}>
       {/* Icons inside toggle */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        {theme === 'light' ? (
-          <span className="text-yellow-500 text-xs">☀️</span>
-        ) : (
-          <span className="text-gray-700 text-xs">🌙</span>
-        )}
-      </div>
+      {theme === 'light' ? (
+        <span className="text-yellow-500 text-xs">☀️</span>
+      ) : (
+        <span className="text-gray-700 text-xs">🌙</span>
+      )}
     </div>
-    
-    {/* Background gradient transition */}
-    <div className={`absolute inset-0 rounded-full transition-all duration-500 ${
-      theme === 'light' 
-        ? 'bg-gradient-to-r from-yellow-200 to-orange-200' 
-        : 'bg-gradient-to-r from-blue-400 to-purple-600'
-    }`} />
   </button>
 );
 
@@ -331,14 +322,12 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle page transitions
+  // Handle page transitions tanpa fade out yang aneh
   const navigateToPage = useCallback((page) => {
     setPageTransition(true);
     setTimeout(() => {
       setCurrentPage(page);
-      setTimeout(() => {
-        setPageTransition(false);
-      }, 300);
+      setPageTransition(false);
     }, 300);
   }, []);
 
@@ -646,7 +635,7 @@ export default function Home() {
 
     return (
       <div key={`${item.product.id}-${item.variant.size}-${index}-${priceUpdateKey}`} 
-           className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-orange-50/30 dark:bg-orange-900/20 animate-item-slide-in">
+           className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border border-gray-200 dark:border-gray-600 rounded-lg bg-orange-50/30 dark:bg-gray-700/50 animate-item-slide-in">
         {renderProductImage(
           item.product.images[0],
           item.product.name,
@@ -658,14 +647,14 @@ export default function Home() {
           <div className="flex items-center gap-2 md:gap-3 mt-2">
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
-              className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-500 dark:hover:bg-orange-600 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95 text-gray-800 dark:text-gray-200"
+              className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded hover:bg-orange-500 dark:hover:bg-orange-600 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95 text-gray-800 dark:text-gray-200"
             >
               -
             </button>
             <AnimatedQuantity quantity={item.quantity} />
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
-              className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded hover:bg-orange-500 dark:hover:bg-orange-600 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95 text-gray-800 dark:text-gray-200"
+              className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded hover:bg-orange-500 dark:hover:bg-orange-600 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95 text-gray-800 dark:text-gray-200"
             >
               +
             </button>
@@ -723,7 +712,7 @@ export default function Home() {
             ].map((member) => (
               <div
                 key={member.name}
-                className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-all duration-300 transform hover:scale-105"
+                className="flex items-center gap-3 p-3 bg-orange-50 dark:bg-gray-700 rounded-lg hover:bg-orange-100 dark:hover:bg-gray-600 transition-all duration-300 transform hover:scale-105"
               >
                 <div className="w-10 h-10 bg-orange-500 dark:bg-orange-600 rounded-full flex items-center justify-center text-white font-bold">
                   {member.name.charAt(0)}
@@ -740,7 +729,7 @@ export default function Home() {
         {/* TENTANG PROYEK */}
         <div className="animate-slide-in-right">
           <h2 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mb-4">Tentang Proyek</h2>
-          <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 p-6 rounded-lg border border-orange-200 dark:border-orange-700">
+          <div className="bg-gradient-to-br from-orange-50 to-amber-50 dark:from-gray-700 dark:to-gray-600 p-6 rounded-lg border border-orange-200 dark:border-gray-600">
             <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
               <strong>Made By Kelompok 4</strong>
             </p>
@@ -765,7 +754,7 @@ export default function Home() {
             href="https://wa.me/6285156431675"
             target="_blank"
             rel="noopener noreferrer"
-            className="relative overflow-hidden flex items-center gap-3 p-4 bg-green-50 dark:bg-green-900/30 rounded-lg hover:bg-green-100 dark:hover:bg-green-900/50 transition-all duration-300 transform hover:scale-105 active:animate-ripple"
+            className="relative overflow-hidden flex items-center gap-3 p-4 bg-green-50 dark:bg-gray-700 rounded-lg hover:bg-green-100 dark:hover:bg-gray-600 transition-all duration-300 transform hover:scale-105 active:animate-ripple"
           >
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
@@ -781,7 +770,7 @@ export default function Home() {
           {/* Email */}
           <a
             href="mailto:rndm942@yahoo.com"
-            className="relative overflow-hidden flex items-center gap-3 p-4 bg-red-50 dark:bg-red-900/30 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/50 transition-all duration-300 transform hover:scale-105 active:animate-ripple"
+            className="relative overflow-hidden flex items-center gap-3 p-4 bg-red-50 dark:bg-gray-700 rounded-lg hover:bg-red-100 dark:hover:bg-gray-600 transition-all duration-300 transform hover:scale-105 active:animate-ripple"
           >
             <img
               src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
@@ -836,7 +825,7 @@ export default function Home() {
             className="text-center cursor-pointer group"
             onClick={() => navigateToPage('about')}
           >
-            <div className="inline-block p-4 bg-orange-50 dark:bg-orange-900/30 rounded-lg hover:bg-orange-100 dark:hover:bg-orange-900/50 transition-all duration-300 transform hover:scale-105">
+            <div className="inline-block p-4 bg-orange-50 dark:bg-gray-700 rounded-lg hover:bg-orange-100 dark:hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
               <div className="text-sm text-gray-600 dark:text-gray-400 mb-2 group-hover:text-orange-600 dark:group-hover:text-orange-400 transition-colors">
                 Made by
               </div>
@@ -917,11 +906,11 @@ export default function Home() {
           </div>
         </div>
         
-        <div className="absolute top-10 left-10 w-8 h-8 bg-orange-400 rounded-full animate-float1 opacity-70 shadow-lg"></div>
-        <div className="absolute top-40 right-20 w-12 h-12 bg-amber-500 rounded-full animate-float2 opacity-60 shadow-lg"></div>
-        <div className="absolute bottom-32 left-20 w-6 h-6 bg-orange-300 rounded-full animate-float3 opacity-80 shadow-md"></div>
-        <div className="absolute bottom-20 right-32 w-10 h-10 bg-red-400 rounded-full animate-float4 opacity-70 shadow-lg"></div>
-        <div className="absolute top-64 left-1/4 w-7 h-7 bg-yellow-400 rounded-full animate-float5 opacity-75 shadow-md"></div>
+        <div className="absolute top-10 left-10 w-8 h-8 bg-orange-400 dark:bg-gray-600 rounded-full animate-float1 opacity-70 shadow-lg"></div>
+        <div className="absolute top-40 right-20 w-12 h-12 bg-amber-500 dark:bg-gray-500 rounded-full animate-float2 opacity-60 shadow-lg"></div>
+        <div className="absolute bottom-32 left-20 w-6 h-6 bg-orange-300 dark:bg-gray-400 rounded-full animate-float3 opacity-80 shadow-md"></div>
+        <div className="absolute bottom-20 right-32 w-10 h-10 bg-red-400 dark:bg-gray-600 rounded-full animate-float4 opacity-70 shadow-lg"></div>
+        <div className="absolute top-64 left-1/4 w-7 h-7 bg-yellow-400 dark:bg-gray-500 rounded-full animate-float5 opacity-75 shadow-md"></div>
       </div>
 
       {/* Header dengan Search dan Cart */}
@@ -969,9 +958,9 @@ export default function Home() {
                 placeholder="Cari produk..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
               />
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500">
                 🔍
               </div>
             </div>
@@ -1127,7 +1116,7 @@ export default function Home() {
               {filteredProducts.map((product) => (
                 <div
                   key={product.id}
-                  className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1"
+                  className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 border border-orange-100 dark:border-gray-600"
                   onClick={() => openProductDetail(product)}
                 >
                   {renderProductImage(
@@ -1142,7 +1131,7 @@ export default function Home() {
                   {product.tags && product.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {product.tags.slice(0, 3).map(tag => (
-                        <span key={tag} className="px-2 py-1 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 text-xs rounded">
+                        <span key={tag} className="px-2 py-1 bg-orange-100 dark:bg-gray-700 text-orange-700 dark:text-orange-300 text-xs rounded">
                           #{tag}
                         </span>
                       ))}
@@ -1157,7 +1146,7 @@ export default function Home() {
                       e.stopPropagation()
                       addToCart(product, product.variants[1], 1)
                     }}
-                    className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95"
+                    className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
                   >
                     + Add to Cart
                   </button>
@@ -1173,7 +1162,7 @@ export default function Home() {
             pageTransition ? 'animate-page-exit' : 'animate-page-enter'
           }`}>
             {/* Product Detail dengan Image Slider */}
-            <section className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 transition-colors duration-500">
+            <section className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 transition-colors duration-500 border border-orange-100 dark:border-gray-600">
               {/* Image Slider */}
               <div className="relative mb-4">
                 {renderProductImage(
@@ -1227,7 +1216,7 @@ export default function Home() {
               {selectedProduct.tags && selectedProduct.tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-3">
                   {selectedProduct.tags.map(tag => (
-                    <span key={tag} className="px-3 py-1 bg-orange-100 dark:bg-orange-900/50 text-orange-700 dark:text-orange-300 text-sm rounded-full">
+                    <span key={tag} className="px-3 py-1 bg-orange-100 dark:bg-gray-700 text-orange-700 dark:text-orange-300 text-sm rounded-full">
                       #{tag}
                     </span>
                   ))}
@@ -1259,17 +1248,17 @@ export default function Home() {
 
               {/* Quantity & Add to Cart */}
               <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
-                <div className="flex items-center gap-3 bg-orange-50 dark:bg-orange-900/30 rounded-lg p-2 w-full sm:w-auto justify-center">
+                <div className="flex items-center gap-3 bg-orange-50 dark:bg-gray-700 rounded-lg p-2 w-full sm:w-auto justify-center">
                   <button
                     onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-orange-500 dark:hover:bg-orange-600 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 text-gray-800 dark:text-gray-200"
+                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-orange-500 dark:hover:bg-orange-600 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 text-gray-800 dark:text-gray-200"
                   >
                     -
                   </button>
                   <AnimatedQuantity quantity={qty} />
                   <button
                     onClick={() => setQty(qty + 1)}
-                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-orange-500 dark:hover:bg-orange-600 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 text-gray-800 dark:text-gray-200"
+                    className="w-8 h-8 flex items-center justify-center bg-white dark:bg-gray-600 border border-gray-300 dark:border-gray-500 rounded-lg hover:bg-orange-500 dark:hover:bg-orange-600 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 text-gray-800 dark:text-gray-200"
                   >
                     +
                   </button>
@@ -1288,7 +1277,7 @@ export default function Home() {
 
               {/* Harga dengan diskon dan animasi */}
               {selectedVariant && (
-                <div className="mt-4 p-4 bg-orange-50 dark:bg-orange-900/30 rounded-lg animate-price-change transition-colors duration-500">
+                <div className="mt-4 p-4 bg-orange-50 dark:bg-gray-700 rounded-lg animate-price-change transition-colors duration-500">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-600 dark:text-gray-400">Harga Total:</div>
                     <div className="text-right">
@@ -1318,20 +1307,20 @@ export default function Home() {
 
               <button
                 onClick={() => navigateToPage('home')}
-                className="w-full mt-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
+                className="w-full mt-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 dark:hover:bg-gray-700 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
               >
                 ← Kembali ke Home
               </button>
             </section>
 
             {/* You May Like This Too */}
-            <aside className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 transition-colors duration-500">
+            <aside className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 transition-colors duration-500 border border-orange-100 dark:border-gray-600">
               <h3 className="font-semibold text-lg mb-4 text-gray-800 dark:text-gray-200">You may like this too</h3>
               <div className="grid grid-cols-1 gap-3 md:gap-4">
                 {getRecommendedProducts(selectedProduct).map((p) => (
                   <div
                     key={p.id}
-                    className="flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border border-transparent hover:border-orange-200 dark:hover:border-orange-700 bg-orange-50/50 dark:bg-orange-900/20 transform hover:-translate-y-1"
+                    className="flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border border-transparent hover:border-orange-200 dark:hover:border-gray-600 bg-orange-50/50 dark:bg-gray-700/50 transform hover:-translate-y-1"
                     onClick={() => openProductDetail(p)}
                   >
                     {renderProductImage(
@@ -1348,7 +1337,7 @@ export default function Home() {
                       {p.tags && p.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1 mt-1">
                           {p.tags.slice(0, 2).map(tag => (
-                            <span key={tag} className="px-1 py-0.5 bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 text-xs rounded">
+                            <span key={tag} className="px-1 py-0.5 bg-orange-200 dark:bg-gray-600 text-orange-800 dark:text-orange-200 text-xs rounded">
                               #{tag}
                             </span>
                           ))}
@@ -1373,7 +1362,7 @@ export default function Home() {
 
         {/* Cart/Checkout Page */}
         {currentPage === 'cart' && (
-          <div className={`max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 transition-colors duration-500 ${
+          <div className={`max-w-4xl mx-auto bg-white dark:bg-gray-800 rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm bg-white/90 dark:bg-gray-800/90 transition-colors duration-500 border border-orange-100 dark:border-gray-600 ${
             pageTransition ? 'animate-page-exit' : 'animate-page-enter'
           }`}>
             <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 flex items-center gap-2 text-gray-800 dark:text-gray-200">
@@ -1413,7 +1402,7 @@ export default function Home() {
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
                       placeholder="Masukkan nama lengkap"
-                      className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                       required
                     />
                   </div>
@@ -1424,7 +1413,7 @@ export default function Home() {
                       value={form.phone}
                       onChange={(e) => setForm({ ...form, phone: e.target.value })}
                       placeholder="Masukkan nomor telepon"
-                      className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                       required
                     />
                   </div>
@@ -1436,7 +1425,7 @@ export default function Home() {
                       onChange={(e) => setForm({ ...form, address: e.target.value })}
                       placeholder="Masukkan alamat lengkap untuk pengiriman"
                       rows="3"
-                      className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                       required
                     />
                   </div>
@@ -1447,7 +1436,7 @@ export default function Home() {
                       value={form.code}
                       onChange={(e) => setForm({ ...form, code: e.target.value })}
                       placeholder="Masukkan kode diskon"
-                      className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      className="w-full border border-gray-300 dark:border-gray-600 p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
                     />
                     {voucherApplied && (
                       <div className="text-sm text-green-600 dark:text-green-400 mt-1 animate-pulse">
@@ -1474,7 +1463,7 @@ export default function Home() {
                           'Pilih metode pembayaran'
                         }
                       </span>
-                      <span className={`transition-transform duration-300 ${paymentOpen ? 'rotate-180' : ''}`}>▼</span>
+                      <span className={`transition-transform duration-300 ${paymentOpen ? 'rotate-180' : ''} text-gray-600 dark:text-gray-400`}>▼</span>
                     </button>
                     
                     {paymentOpen && (
@@ -1486,8 +1475,8 @@ export default function Home() {
                               setForm({ ...form, paymentMethod: method.id })
                               setPaymentOpen(false)
                             }}
-                            className={`p-3 border-b border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-all duration-200 transform hover:scale-105 ${
-                              form.paymentMethod === method.id ? 'bg-orange-100 dark:bg-orange-900/50 border-orange-500' : ''
+                            className={`p-3 border-b border-gray-200 dark:border-gray-600 cursor-pointer hover:bg-orange-50 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-105 ${
+                              form.paymentMethod === method.id ? 'bg-orange-100 dark:bg-gray-600 border-orange-500' : ''
                             }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1530,7 +1519,7 @@ export default function Home() {
                   <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
                     <button
                       onClick={() => navigateToPage('home')}
-                      className="flex-1 py-3 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-900/30 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
+                      className="flex-1 py-3 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 dark:hover:bg-gray-700 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
                     >
                       ← Kembali
                     </button>
@@ -1552,7 +1541,7 @@ export default function Home() {
       {/* Success Popup */}
       {showSuccessPopup && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 backdrop-blur-sm p-4">
-          <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border border-orange-200 dark:border-orange-700 max-w-md w-full text-center transition-colors duration-500">
+          <div className="bg-white dark:bg-gray-800 p-6 md:p-8 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border border-orange-200 dark:border-gray-600 max-w-md w-full text-center transition-colors duration-500">
             <div className="text-6xl text-green-500 animate-bounce">✓</div>
             <h3 className="text-xl md:text-2xl font-semibold text-gray-800 dark:text-gray-200">Pesanan Berhasil!</h3>
             <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
@@ -1755,16 +1744,16 @@ export default function Home() {
           100% { transform: scale(1); }
         }
         .animate-page-enter {
-          animation: pageEnter 0.6s ease-out forwards;
+          animation: pageEnter 0.3s ease-out forwards;
         }
         @keyframes pageEnter {
           from { 
             opacity: 0; 
-            transform: scale(0.8) translateY(20px); 
+            transform: translateY(10px); 
           }
           to { 
             opacity: 1; 
-            transform: scale(1) translateY(0); 
+            transform: translateY(0); 
           }
         }
         .animate-page-exit {
@@ -1773,11 +1762,11 @@ export default function Home() {
         @keyframes pageExit {
           from { 
             opacity: 1; 
-            transform: scale(1) translateY(0); 
+            transform: translateY(0); 
           }
           to { 
             opacity: 0; 
-            transform: scale(0.9) translateY(-10px); 
+            transform: translateY(-10px); 
           }
         }
         .line-clamp-2 {
