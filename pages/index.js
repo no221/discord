@@ -936,12 +936,17 @@ const Footer = () => (
   </button>
 
             {/* Cart Dropdown */}
-            {cartOpen && (
-              <div className="cart-container fixed md:absolute right-2 top-16 md:right-0 md:top-14 w-[90vw] sm:w-80 md:w-96 bg-white rounded-lg shadow-2xl border border-orange-100 z-50 max-h-80 overflow-hidden animate-dropdown">
-                <div className="p-4">
-                  <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
-                    🛒 Keranjang Belanja
-                  </h3>
+{cartOpen && (
+  <div
+    className="cart-container fixed md:absolute right-1/2 md:right-0 top-16 md:top-14 w-[92vw] sm:w-80 md:w-96 bg-white rounded-lg shadow-2xl border border-orange-100 z-50 max-h-[70vh] overflow-y-auto animate-dropdown
+               md:translate-x-[calc(50%-1rem)] md:translate-y-0"
+  >
+    <div className="p-4">
+      <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
+        🛒 Keranjang Belanja
+      </h3>
+
+
                   
                   {cart.length === 0 ? (
                     <p className="text-gray-500 text-center py-4">Keranjang kosong</p>
