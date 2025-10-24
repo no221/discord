@@ -1424,16 +1424,17 @@ const Footer = () => (
                               form.paymentMethod === method.id ? 'bg-orange-100 border-orange-500' : ''
                             }`}
                           >
-                            <div className="flex items-center gap-3">
-<img
-  src={method.icon}
-  alt={method.name}
-  className="w-6 h-6 object-contain"
-/>
-                                <div className="font-semibold">{method.name}</div>
-                                <div className="text-xs text-gray-600">{method.description}</div>
-                              </div>
-                            </div>
+<div className="flex items-center gap-3">
+  <img
+    src={method.icon}
+    alt={method.name}
+    className="w-6 h-6 object-contain"
+  />
+  <div>
+    <div className="font-semibold">{method.name}</div>
+    <div className="text-xs text-gray-600">{method.description}</div>
+  </div>
+</div>
                           </div>
                         ))}
                       </div>
