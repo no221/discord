@@ -223,50 +223,50 @@ export default function Home() {
   const [pageTransition, setPageTransition] = useState(false)
 
   // Payment methods data
-  const paymentMethods = [
-    {
-      id: 'shopeepay',
-      name: 'ShopeePay',
-      description: 'Bayar dengan saldo ShopeePay',
-      icon: '🛍️'
-    },
-    {
-      id: 'dana',
-      name: 'DANA',
-      description: 'Bayar dengan DANA - Cepat & Aman',
-      icon: '💜'
-    },
-    {
-      id: 'ovo',
-      name: 'OVO',
-      description: 'Bayar dengan OVO - Cashless Payment',
-      icon: '🔵'
-    },
-    {
-      id: 'linkaja',
-      name: 'LinkAja',
-      description: 'Bayar dengan LinkAja - Satu untuk Semua',
-      icon: '🔗'
-    },
-    {
-      id: 'paypal',
-      name: 'PayPal',
-      description: 'Bayar dengan PayPal - International Payment',
-      icon: '🌎'
-    },
-    {
-      id: 'cod',
-      name: 'Cash On Delivery',
-      description: 'Bayar di Tempat untuk memastikan kualitas barang',
-      icon: '📦'
-    },
-    {
-      id: 'card',
-      name: 'Credit/Debit Card',
-      description: 'Bayar dengan Kartu Kredit atau Debit',
-      icon: '💳'
-    }
-  ]
+const paymentMethods = [
+  {
+    id: 'shopeepay',
+    name: 'ShopeePay',
+    description: 'Bayar dengan saldo ShopeePay',
+    icon: 'https://upload.wikimedia.org/wikipedia/commons/3/3b/ShopeePay_logo.svg'
+  },
+  {
+    id: 'dana',
+    name: 'DANA',
+    description: 'Bayar dengan DANA - Cepat & Aman',
+    icon: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Dana_logo.svg'
+  },
+  {
+    id: 'ovo',
+    name: 'OVO',
+    description: 'Bayar dengan OVO - Cashless Payment',
+    icon: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Logo_ovo_purple.svg'
+  },
+  {
+    id: 'linkaja',
+    name: 'LinkAja',
+    description: 'Bayar dengan LinkAja - Satu untuk Semua',
+    icon: 'https://upload.wikimedia.org/wikipedia/commons/2/27/LinkAja_Logo.svg'
+  },
+  {
+    id: 'paypal',
+    name: 'PayPal',
+    description: 'Bayar dengan PayPal - International Payment',
+    icon: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg'
+  },
+  {
+    id: 'cod',
+    name: 'Cash On Delivery',
+    description: 'Bayar di Tempat untuk memastikan kualitas barang',
+    icon: 'https://cdn-icons-png.flaticon.com/512/679/679720.png'
+  },
+  {
+    id: 'card',
+    name: 'Credit/Debit Card',
+    description: 'Bayar dengan Kartu Kredit atau Debit',
+    icon: 'https://cdn-icons-png.flaticon.com/512/633/633611.png'
+  }
+]
 
   // Get all unique tags from products
   const allTags = ['all', ...new Set(products.flatMap(product => product.tags || []))]
