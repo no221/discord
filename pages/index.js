@@ -937,7 +937,7 @@ const Footer = () => (
 
             {/* Cart Dropdown */}
             {cartOpen && (
-              <div className="cart-container absolute right-0 top-14 w-80 md:w-96 bg-white rounded-lg shadow-2xl border border-orange-100 z-50 max-h-80 overflow-hidden animate-dropdown">
+              <div className="cart-container fixed md:absolute right-2 top-16 md:right-0 md:top-14 w-[90vw] sm:w-80 md:w-96 bg-white rounded-lg shadow-2xl border border-orange-100 z-50 max-h-80 overflow-hidden animate-dropdown">
                 <div className="p-4">
                   <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
                     🛒 Keranjang Belanja
