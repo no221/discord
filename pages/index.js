@@ -777,58 +777,83 @@ const AboutPage = () => (
   </div>
 );
   // Footer Component
-  const Footer = () => (
-    <footer className="mt-8 py-6 border-t border-gray-200 relative z-10 backdrop-blur-sm bg-white/50">
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Made By Section */}
-          <div 
-            className="text-center cursor-pointer group"
-            onClick={() => navigateToPage('about')}
-          >
-            <div className="inline-block p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
-              <div className="text-sm text-gray-600 mb-2 group-hover:text-orange-600 transition-colors">
-                Made by
-              </div>
-              <div className="font-semibold text-orange-700 group-hover:text-orange-800 transition-colors">
-                Kelompok 4
-              </div>
-              <div className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors">
-                Klik untuk info lebih lanjut →
-              </div>
+  
+const Footer = () => (
+  <footer className="mt-8 py-6 border-t border-gray-200 relative z-10 backdrop-blur-sm bg-white/50">
+    <div className="max-w-6xl mx-auto px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        {/* Made By Section */}
+        <div 
+          className="text-center cursor-pointer group"
+          onClick={() => navigateToPage('about')}
+        >
+          <div className="inline-block p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
+            <div className="text-sm text-gray-600 mb-2 group-hover:text-orange-600 transition-colors">
+              Made by
             </div>
-          </div>
-
-          {/* Contact Section */}
-          <div className="text-center">
-            <div className="flex justify-center gap-6">
-              <div className="flex items-center gap-2 text-green-600">
-                <span className="text-lg">📱</span>
-                <div className="text-left">
-                  <div className="text-xs text-gray-500">WhatsApp</div>
-                  <div className="text-sm font-medium">+62 851-5601-2891</div>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 text-red-600">
-                <span className="text-lg">✉️</span>
-                <div className="text-left">
-                  <div className="text-xs text-gray-500">Email</div>
-                  <div className="text-sm font-medium">rndm942@yahoo.com</div>
-                </div>
-              </div>
+            <div className="font-semibold text-orange-700 group-hover:text-orange-800 transition-colors">
+              Kelompok 4
+            </div>
+            <div className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors">
+              Klik untuk info lebih lanjut →
             </div>
           </div>
         </div>
-        
-        <div className="text-center mt-4 pt-4 border-t border-gray-200">
-          <p className="text-xs text-gray-500">
-            © 2024 Soccer Ball Shop. All rights reserved.
-          </p>
+
+        {/* Contact Section */}
+        <div className="text-center">
+          <div className="flex justify-center gap-8">
+            
+            {/* WhatsApp */}
+            <a
+              href="https://wa.me/6285156431675"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-all duration-300 transform hover:scale-105"
+            >
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+                alt="WhatsApp"
+                className="w-6 h-6"
+              />
+              <div className="text-left">
+                <div className="text-xs text-gray-500">WhatsApp</div>
+                <div className="text-sm font-medium text-gray-700">0851-5643-1675</div>
+              </div>
+            </a>
+
+            {/* Email */}
+            <a
+              href="mailto:rndm942@yahoo.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-red-600 hover:text-red-700 transition-all duration-300 transform hover:scale-105"
+            >
+              <img
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
+                alt="Email"
+                className="w-6 h-6"
+              />
+              <div className="text-left">
+                <div className="text-xs text-gray-500">Email</div>
+                <div className="text-sm font-medium text-gray-700">rndm942@yahoo.com</div>
+              </div>
+            </a>
+
+          </div>
         </div>
       </div>
-    </footer>
-  )
 
+      {/* Copyright */}
+      <div className="text-center mt-4 pt-4 border-t border-gray-200">
+        <p className="text-xs text-gray-500">
+          © 2025 Soccer Ball Shop. All rights reserved.
+        </p>
+      </div>
+    </div>
+  </footer>
+);
   if (isLoading) {
     return <LoadingScreen />;
   }
