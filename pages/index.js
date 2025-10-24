@@ -1425,8 +1425,11 @@ const Footer = () => (
                             }`}
                           >
                             <div className="flex items-center gap-3">
-                              <span className="text-xl">{method.icon}</span>
-                              <div>
+<img
+  src={method.icon}
+  alt={method.name}
+  className="w-6 h-6 object-contain"
+/>
                                 <div className="font-semibold">{method.name}</div>
                                 <div className="text-xs text-gray-600">{method.description}</div>
                               </div>
