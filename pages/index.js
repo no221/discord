@@ -666,28 +666,28 @@ export default function Home() {
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">D</div>
               <div>
                 <div className="font-semibold">Darren</div>
-                <div className="text-sm text-gray-600">Frontend Developer</div>
+                <div className="text-sm text-gray-600">Project Manager</div>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">I</div>
               <div>
                 <div className="font-semibold">Isabel</div>
-                <div className="text-sm text-gray-600">UI/UX Designer</div>
+                <div className="text-sm text-gray-600">Project Manager</div>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">S</div>
               <div>
                 <div className="font-semibold">Steven</div>
-                <div className="text-sm text-gray-600">Backend Developer</div>
+                <div className="text-sm text-gray-600">UI Designer</div>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">S</div>
               <div>
                 <div className="font-semibold">Sultanto</div>
-                <div className="text-sm text-gray-600">Project Manager</div>
+                <div className="text-sm text-gray-600">UX Designer Frontend/backend manager</div>
               </div>
             </div>
           </div>
