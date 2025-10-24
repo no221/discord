@@ -144,50 +144,74 @@ const extractImageUrl = (url) => {
 }
 
 // Loading Component dengan animasi bola sepak dribbling yang realistic
-const LoadingScreen = () => (
-  <div className="fixed inset-0 bg-gradient-to-br from-white via-orange-50 to-amber-100 animate-gradient-flow flex items-center justify-center z-50">
-    <div className="text-center">
-      {/* Bola sepak dengan animasi dribbling yang realistic */}
-      <div className="relative mb-8">
-        <div className="w-24 h-24 bg-white rounded-full shadow-2xl animate-dribble mx-auto relative z-10 border-4 border-gray-800">
-          {/* Pattern bola sepak - pentagon dan hexagon */}
-          <div className="absolute inset-0 rounded-full overflow-hidden">
-            {/* Garis hitam pattern bola sepak */}
-            <div className="absolute top-1/2 left-0 w-full h-1 bg-black transform -translate-y-1/2"></div>
-            <div className="absolute top-1/2 left-0 w-full h-1 bg-black transform -translate-y-1/2 rotate-90"></div>
-            <div className="absolute top-1/2 left-0 w-full h-1 bg-black transform -translate-y-1/2 rotate-45"></div>
-            <div className="absolute top-1/2 left-0 w-full h-1 bg-black transform -translate-y-1/2 rotate-135"></div>
-            
-            {/* Pentagon di tengah */}
-            <div className="absolute top-1/2 left-1/2 w-8 h-8 bg-black transform -translate-x-1/2 -translate-y-1/2 clip-pentagon"></div>
-            
-            {/* Hexagon di sekeliling */}
-            <div className="absolute top-2 left-1/2 w-6 h-6 bg-black transform -translate-x-1/2 clip-hexagon"></div>
-            <div className="absolute bottom-2 left-1/2 w-6 h-6 bg-black transform -translate-x-1/2 clip-hexagon"></div>
-            <div className="absolute top-1/2 left-2 w-6 h-6 bg-black transform -translate-y-1/2 clip-hexagon"></div>
-            <div className="absolute top-1/2 right-2 w-6 h-6 bg-black transform -translate-y-1/2 clip-hexagon"></div>
+const LoadingScreen = () => {
+  useEffect(() => {
+    // Load Lottie script dynamically
+    const script = document.createElement('script')
+    script.src = 'https://unpkg.com/@lottiefiles/dotlottie-wc@0.7.1/dist/dotlottie-wc.js'
+    script.type = 'module'
+    document.head.appendChild(script)
+
+    return () => {
+      // Cleanup
+      if (document.head.contains(script)) {
+        document.head.removeChild(script)
+      }
+    }
+  }, [])
+
+  return (
+    <div className="fixed inset-0 bg-gradient-to-br from-white via-orange-50 to-amber-100 animate-gradient-flow flex items-center justify-center z-50">
+      <div className="text-center">
+        {/* Lottie Animation */}
+        <div className="mb-6 flex justify-center">
+          <div className="w-64 h-64">
+            <dotlottie-player
+              src="https://lottie.host/1c3064dd-d28a-47fe-87a0-02568900c10f/bLwdshhf87.lottie"
+              background="transparent"
+              speed="1"
+              style={{ width: '100%', height: '100%' }}
+              loop
+              autoplay
+            ></dotlottie-player>
           </div>
         </div>
-        {/* Shadow bawah bola yang realistic */}
-        <div className="w-20 h-4 bg-gray-600 blur-md rounded-full mx-auto mt-4 animate-shadow-dribble opacity-50"></div>
-      </div>
-      
-      {/* Text dengan animasi slider */}
-      <div className="overflow-hidden">
-        <div className="animate-text-slide-up">
-          <h2 className="text-3xl font-bold text-orange-700 mb-2">
-            Selamat Datang!
-          </h2>
+        
+        {/* Text dengan animasi bertahap */}
+        <div className="space-y-4">
+          <div className="overflow-hidden">
+            <div className="animate-text-slide-up transform transition-all duration-700">
+              <h2 className="text-4xl font-bold text-orange-700 mb-2 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                Selamat Datang!
+              </h2>
+            </div>
+          </div>
+          
+          <div className="overflow-hidden">
+            <div className="animate-text-slide-up-delayed transform transition-all duration-700">
+              <p className="text-xl text-orange-600 font-semibold">
+                Made By Kelompok 4
+              </p>
+            </div>
+          </div>
+
+          <div className="overflow-hidden">
+            <div className="animate-text-slide-up-more-delayed transform transition-all duration-700">
+              <p className="text-lg text-orange-500 mt-4">
+                ⚽ Soccer Ball Shop ⚽
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="animate-text-slide-up-delayed">
-          <p className="text-lg text-orange-600">
-            Made By Kelompok 4
-          </p>
+
+        {/* Loading bar */}
+        <div className="mt-8 w-64 mx-auto bg-orange-200 rounded-full h-2">
+          <div className="animate-loading-bar h-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
         </div>
       </div>
     </div>
-  </div>
-);
+  )
+};
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home')
@@ -1444,7 +1468,6 @@ export default function Home() {
 
       {/* Footer */}
       {currentPage !== 'about' && <Footer />}
-
       <style jsx>{`
         .animate-fadeIn {
           animation: fadeIn 0.3s ease-out forwards;
@@ -1633,26 +1656,6 @@ export default function Home() {
             transform: scale(0.9) translateY(-10px); 
           }
         }
-        .animate-dribble {
-          animation: dribble 1s ease-in-out infinite;
-        }
-        @keyframes dribble {
-          0% { transform: translateY(0) rotate(0deg); }
-          25% { transform: translateY(-40px) rotate(90deg); }
-          50% { transform: translateY(-20px) rotate(180deg); }
-          75% { transform: translateY(-35px) rotate(270deg); }
-          100% { transform: translateY(0) rotate(360deg); }
-        }
-        .animate-shadow-dribble {
-          animation: shadowDribble 1s ease-in-out infinite;
-        }
-        @keyframes shadowDribble {
-          0% { transform: scale(0.8); opacity: 0.3; }
-          25% { transform: scale(1.1); opacity: 0.6; }
-          50% { transform: scale(0.9); opacity: 0.4; }
-          75% { transform: scale(1.05); opacity: 0.5; }
-          100% { transform: scale(0.8); opacity: 0.3; }
-        }
         .animate-gradient-flow {
           animation: gradientFlow 3s ease-in-out infinite;
           background-size: 200% 200%;
@@ -1663,20 +1666,40 @@ export default function Home() {
           100% { background-position: 0% 50%; }
         }
         .animate-text-slide-up {
-          animation: textSlideUp 0.8s ease-out 0.5s both;
+          animation: textSlideUp 0.8s ease-out 0.3s both;
         }
         @keyframes textSlideUp {
           from { 
             opacity: 0; 
-            transform: translateY(30px); 
+            transform: translateY(40px) scale(0.9); 
           }
           to { 
             opacity: 1; 
-            transform: translateY(0); 
+            transform: translateY(0) scale(1); 
           }
         }
         .animate-text-slide-up-delayed {
-          animation: textSlideUp 0.8s ease-out 1s both;
+          animation: textSlideUp 0.8s ease-out 0.6s both;
+        }
+        .animate-text-slide-up-more-delayed {
+          animation: textSlideUp 0.8s ease-out 0.9s both;
+        }
+        .animate-loading-bar {
+          animation: loadingBar 2s ease-in-out infinite;
+        }
+        @keyframes loadingBar {
+          0% { 
+            width: 0%;
+            transform: translateX(-100%);
+          }
+          50% {
+            width: 100%;
+            transform: translateX(0%);
+          }
+          100% {
+            width: 100%;
+            transform: translateX(100%);
+          }
         }
         .animate-fade-in-up {
           animation: fadeInUp 0.6s ease-out;
@@ -1708,12 +1731,6 @@ export default function Home() {
         }
         .animate-fade-in-up-delayed {
           animation: fadeInUp 0.6s ease-out 0.4s both;
-        }
-        .clip-pentagon {
-          clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-        }
-        .clip-hexagon {
-          clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
         }
         .line-clamp-2 {
           display: -webkit-box;
