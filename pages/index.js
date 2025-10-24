@@ -39,7 +39,7 @@ function useAnimatedNumber(value, duration = 300) {
 }
 
 // Custom hook untuk animasi harga per item di cart
-function useItemPriceAnimation(price, duration = 300) {
+function useItemPriceAnimation(price, trigger) {
   const [displayPrice, setDisplayPrice] = useState(price)
   
   useEffect(() => {
@@ -48,41 +48,46 @@ function useItemPriceAnimation(price, duration = 300) {
     const diff = price - initial
 
     function animate(time) {
-      const progress = Math.min((time - start) / duration, 1)
+      const progress = Math.min((time - start) / 300, 1)
       setDisplayPrice(Math.round(initial + diff * progress))
       if (progress < 1) requestAnimationFrame(animate)
     }
 
     requestAnimationFrame(animate)
-  }, [price, duration])
+  }, [price, trigger])
 
   return displayPrice
+}
+
+// Custom hook untuk animasi quantity
+function useQuantityAnimation(quantity) {
+  const [displayQty, setDisplayQty] = useState(quantity)
+  
+  useEffect(() => {
+    setDisplayQty(quantity)
+  }, [quantity])
+
+  return displayQty
 }
 
 // Fungsi untuk extract image ID dari berbagai URL
 const extractImageUrl = (url) => {
   if (!url) return '';
   
-  // Jika sudah URL lengkap, return langsung
   if (url.startsWith('http')) return url;
   
-  // Untuk Imgur URLs
   if (url.includes('imgur.com')) {
-    // imgur.com/a/albumId -> perlu API call untuk get images
     if (url.includes('/a/')) {
       const albumId = url.split('/a/')[1]?.split('/')[0]?.split('?')[0];
-      return `https://i.imgur.com/${albumId}.jpg`; // Fallback ke album cover
+      return `https://i.imgur.com/${albumId}.jpg`;
     }
-    // imgur.com/gallery/id
     else if (url.includes('/gallery/')) {
       const galleryId = url.split('/gallery/')[1]?.split('/')[0]?.split('?')[0];
       return `https://i.imgur.com/${galleryId}.jpg`;
     }
-    // i.imgur.com/imageId.jpg
     else if (url.includes('i.imgur.com')) {
       return url;
     }
-    // imgur.com/imageId
     else {
       const imageId = url.split('imgur.com/')[1]?.split('/')[0]?.split('?')[0];
       if (imageId) {
@@ -115,7 +120,8 @@ export default function Home() {
   const [imageAnim, setImageAnim] = useState(false)
   const [paymentOpen, setPaymentOpen] = useState(false)
   const [voucherApplied, setVoucherApplied] = useState(false)
-  const [priceUpdateKey, setPriceUpdateKey] = useState(0) // Untuk trigger animasi
+  const [priceUpdateKey, setPriceUpdateKey] = useState(0)
+  const [quantityUpdateKey, setQuantityUpdateKey] = useState(0)
 
   // Payment methods data
   const paymentMethods = [
@@ -169,7 +175,7 @@ export default function Home() {
     product.description.toLowerCase().includes(searchTerm.toLowerCase())
   )
 
-  // Calculate discount with voucher - useCallback untuk prevent re-renders
+  // Calculate discount with voucher
   const calculateDiscount = useCallback((quantity, voucherCode = '') => {
     let discountRate = getDiscount(quantity)
     
@@ -267,10 +273,10 @@ export default function Home() {
       }])
     }
     
-    // Trigger animasi harga
+    // Trigger animasi
     setPriceUpdateKey(prev => prev + 1)
+    setQuantityUpdateKey(prev => prev + 1)
     
-    // Show feedback
     setCartOpen(true)
   }, [cart])
 
@@ -292,8 +298,9 @@ export default function Home() {
         : item
     ))
     
-    // Trigger animasi harga
+    // Trigger animasi
     setPriceUpdateKey(prev => prev + 1)
+    setQuantityUpdateKey(prev => prev + 1)
   }, [cart])
 
   // Open product detail
@@ -362,7 +369,6 @@ export default function Home() {
         alt={alt}
         className={className}
         onError={(e) => {
-          // Fallback jika gambar error
           e.target.src = '/api/placeholder/400/400';
           e.target.alt = 'Gambar tidak tersedia';
         }}
@@ -373,8 +379,8 @@ export default function Home() {
   // Component untuk cart item dengan animasi harga
   const CartItemWithAnimation = ({ item, index }) => {
     const { itemTotal, discountedPrice, discountRate } = calculateItemPrice(item)
-    const animatedItemPrice = useItemPriceAnimation(discountedPrice, 300)
-    const animatedOriginalPrice = useItemPriceAnimation(itemTotal, 300)
+    const animatedItemPrice = useItemPriceAnimation(discountedPrice, priceUpdateKey)
+    const displayQty = useQuantityAnimation(item.quantity)
 
     return (
       <div key={`${item.product.id}-${item.variant.size}-${index}-${priceUpdateKey}`} 
@@ -394,7 +400,9 @@ export default function Home() {
             >
               -
             </button>
-            <span className="text-xs font-semibold animate-quantity-change">{item.quantity}</span>
+            <span className="text-xs font-semibold min-w-4 text-center animate-quantity-pop">
+              {displayQty}
+            </span>
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
               className="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300 transition-all duration-200 transform hover:scale-110"
@@ -404,18 +412,18 @@ export default function Home() {
           </div>
         </div>
         <div className="text-right">
-          <div className="text-sm font-semibold text-orange-600 animate-price-bounce">
+          <div className="text-sm font-semibold text-orange-600 animate-price-change">
             Rp {animatedItemPrice.toLocaleString()}
           </div>
           {discountRate > 0 && (
-            <div className="text-xs text-green-600 animate-fade-in">
+            <div className="text-xs text-green-600">
               Diskon {Math.round(discountRate * 100)}%
               {voucherApplied && ` (Voucher)`}
             </div>
           )}
           {discountRate > 0 && (
-            <div className="text-xs text-gray-400 line-through animate-strike">
-              Rp {animatedOriginalPrice.toLocaleString()}
+            <div className="text-xs text-gray-400 line-through">
+              Rp {itemTotal.toLocaleString()}
             </div>
           )}
           <button
@@ -432,8 +440,8 @@ export default function Home() {
   // Component untuk cart item di checkout page
   const CheckoutCartItem = ({ item, index }) => {
     const { itemTotal, discountedPrice, discountRate } = calculateItemPrice(item)
-    const animatedItemPrice = useItemPriceAnimation(discountedPrice, 300)
-    const animatedOriginalPrice = useItemPriceAnimation(itemTotal, 300)
+    const animatedItemPrice = useItemPriceAnimation(discountedPrice, priceUpdateKey)
+    const displayQty = useQuantityAnimation(item.quantity)
 
     return (
       <div key={`${item.product.id}-${item.variant.size}-${index}-${priceUpdateKey}`} 
@@ -453,7 +461,9 @@ export default function Home() {
             >
               -
             </button>
-            <span className="font-semibold animate-quantity-change">{item.quantity}</span>
+            <span className="font-semibold min-w-6 text-center animate-quantity-pop">
+              {displayQty}
+            </span>
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
               className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110"
@@ -463,18 +473,18 @@ export default function Home() {
           </div>
         </div>
         <div className="text-right">
-          <div className="font-semibold text-base md:text-lg text-orange-600 animate-price-bounce">
+          <div className="font-semibold text-base md:text-lg text-orange-600 animate-price-change">
             Rp {animatedItemPrice.toLocaleString()}
           </div>
           {discountRate > 0 && (
-            <div className="text-xs text-green-600 animate-fade-in">
+            <div className="text-xs text-green-600">
               Diskon {Math.round(discountRate * 100)}%
               {voucherApplied && ` (Voucher)`}
             </div>
           )}
           {discountRate > 0 && (
-            <div className="text-xs text-gray-400 line-through animate-strike">
-              Rp {animatedOriginalPrice.toLocaleString()}
+            <div className="text-xs text-gray-400 line-through">
+              Rp {itemTotal.toLocaleString()}
             </div>
           )}
           <button
@@ -490,7 +500,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen p-4 md:p-6 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
-      {/* Enhanced Animated Background Elements */}
+      {/* Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 -left-10 w-20 h-20 opacity-20 animate-spin-slow">
           <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
@@ -500,12 +510,9 @@ export default function Home() {
         
         <div className="absolute top-10 left-10 w-8 h-8 bg-orange-400 rounded-full animate-float1 opacity-70 shadow-lg"></div>
         <div className="absolute top-40 right-20 w-12 h-12 bg-amber-500 rounded-full animate-float2 opacity-60 shadow-lg"></div>
-        <div className="absolute bottom-32 left-20 w-6 h-6 bg-orange-300 rounded-full animate-float3 opacity-80 shadow-md"></div>
-        <div className="absolute bottom-20 right-32 w-10 h-10 bg-red-400 rounded-full animate-float4 opacity-70 shadow-lg"></div>
-        <div className="absolute top-64 left-1/4 w-7 h-7 bg-yellow-400 rounded-full animate-float5 opacity-75 shadow-md"></div>
       </div>
 
-      {/* Header dengan Search dan Cart */}
+      {/* Header */}
       <header className="flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0">
         <div className="flex items-center justify-between w-full md:w-auto">
           <h1 
@@ -534,7 +541,7 @@ export default function Home() {
           </div>
         </div>
         
-        {/* Search Bar - hanya muncul di homepage */}
+        {/* Search Bar */}
         {currentPage === 'home' && (
           <div className="relative w-full md:w-64">
             <input
@@ -585,7 +592,7 @@ export default function Home() {
                     <div className="mt-3 pt-3 border-t">
                       <div className="flex justify-between font-semibold text-lg">
                         <span>Total:</span>
-                        <span className="text-orange-600 animate-price-bounce">Rp {animatedTotalPrice.toLocaleString()}</span>
+                        <span className="text-orange-600 animate-price-change">Rp {animatedTotalPrice.toLocaleString()}</span>
                       </div>
                       {voucherApplied && (
                         <div className="text-sm text-green-600 mt-1 animate-pulse">
@@ -633,7 +640,7 @@ export default function Home() {
                   <div className="mt-4 pt-4 border-t">
                     <div className="flex justify-between font-semibold text-lg">
                       <span>Total:</span>
-                      <span className="text-orange-600 animate-price-bounce">Rp {animatedTotalPrice.toLocaleString()}</span>
+                      <span className="text-orange-600 animate-price-change">Rp {animatedTotalPrice.toLocaleString()}</span>
                     </div>
                     {voucherApplied && (
                       <div className="text-sm text-green-600 mt-1 animate-pulse">
@@ -698,7 +705,7 @@ export default function Home() {
         {/* Product Detail Page */}
         {currentPage === 'product' && selectedProduct && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
-            {/* Product Detail dengan Image Slider */}
+            {/* Product Detail */}
             <section className="bg-white p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
               {/* Image Slider */}
               <div className="relative mb-4">
@@ -710,7 +717,6 @@ export default function Home() {
                   }`
                 )}
                 
-                {/* Navigation Arrows */}
                 {selectedProduct.images.length > 1 && (
                   <>
                     <button
@@ -728,7 +734,6 @@ export default function Home() {
                   </>
                 )}
                 
-                {/* Image Indicators */}
                 {selectedProduct.images.length > 1 && (
                   <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
                     {selectedProduct.images.map((_, index) => (
@@ -781,7 +786,7 @@ export default function Home() {
                   >
                     -
                   </button>
-                  <span className="px-4 py-1 text-lg font-semibold min-w-8 text-center animate-quantity-change">{qty}</span>
+                  <span className="px-4 py-1 text-lg font-semibold min-w-8 text-center animate-quantity-pop">{qty}</span>
                   <button
                     onClick={() => setQty(qty + 1)}
                     className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110"
@@ -801,22 +806,22 @@ export default function Home() {
                 </button>
               </div>
 
-              {/* Harga dengan diskon dan animasi */}
+              {/* Harga dengan animasi */}
               {selectedVariant && (
                 <div className="mt-4 p-4 bg-orange-50 rounded-lg animate-price-change">
                   <div className="flex items-center justify-between">
                     <div className="text-sm text-gray-600">Harga Total:</div>
                     <div className="text-right">
                       {discountRate > 0 && (
-                        <div className="text-sm text-gray-400 line-through animate-strike">
+                        <div className="text-sm text-gray-400 line-through">
                           Rp {priceBeforeDiscount.toLocaleString()}
                         </div>
                       )}
-                      <div className="text-lg font-bold text-orange-600 animate-price-bounce">
+                      <div className="text-lg font-bold text-orange-600 animate-price-change">
                         Rp {animatedPrice.toLocaleString()}
                       </div>
                       {discountRate > 0 && (
-                        <div className="text-xs text-green-600 animate-fade-in">
+                        <div className="text-xs text-green-600">
                           🎉 Diskon {Math.round(discountRate * 100)}%
                           {voucherApplied && ` (Voucher: ${form.code.toUpperCase()})`}
                         </div>
@@ -1008,14 +1013,14 @@ export default function Home() {
                   </div>
 
                   {/* Total */}
-                  <div className="border-t pt-4 animate-total-update">
+                  <div className="border-t pt-4">
                     <div className="flex justify-between text-lg font-semibold">
                       <span>Total Items:</span>
                       <span>{totalItems} items</span>
                     </div>
                     <div className="flex justify-between text-xl font-bold mt-2">
                       <span>Total Pembayaran:</span>
-                      <span className="text-orange-600 animate-price-bounce">
+                      <span className="text-orange-600 animate-price-change">
                         Rp {animatedTotalPrice.toLocaleString()}
                       </span>
                     </div>
@@ -1099,38 +1104,6 @@ export default function Home() {
         .animate-float2 {
           animation: float2 8s ease-in-out infinite;
         }
-        .animate-float3 {
-          animation: float3 7s ease-in-out infinite;
-        }
-        .animate-float4 {
-          animation: float4 10s ease-in-out infinite;
-        }
-        .animate-float5 {
-          animation: float5 9s ease-in-out infinite;
-        }
-        @keyframes float1 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          33% { transform: translateY(-30px) translateX(20px) rotate(120deg); }
-          66% { transform: translateY(15px) translateX(-15px) rotate(240deg); }
-        }
-        @keyframes float2 {
-          0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
-          50% { transform: translateY(25px) translateX(-25px) scale(1.1); }
-        }
-        @keyframes float3 {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          25% { transform: translateY(-20px) translateX(-10px); }
-          75% { transform: translateY(10px) translateX(15px); }
-        }
-        @keyframes float4 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          50% { transform: translateY(35px) translateX(20px) rotate(180deg); }
-        }
-        @keyframes float5 {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          33% { transform: translateY(-15px) translateX(25px); }
-          66% { transform: translateY(20px) translateX(-10px); }
-        }
         .animate-slide-up {
           animation: slideUp 0.3s ease-out forwards;
         }
@@ -1156,38 +1129,8 @@ export default function Home() {
           animation: priceChange 0.5s ease-out;
         }
         @keyframes priceChange {
-          0% { transform: scale(0.95); opacity: 0.7; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-strike {
-          animation: strike 0.3s ease-out;
-        }
-        @keyframes strike {
-          0% { transform: scaleX(0); }
-          100% { transform: scaleX(1); }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out;
-        }
-        .animate-dropdown {
-          animation: dropdown 0.2s ease-out;
-        }
-        @keyframes dropdown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-total-update {
-          animation: totalUpdate 0.3s ease-out;
-        }
-        @keyframes totalUpdate {
-          0% { background-color: rgba(255, 247, 237, 0.5); }
-          100% { background-color: transparent; }
-        }
-        .animate-count-up {
-          animation: countUp 0.5s ease-out;
-        }
-        @keyframes countUp {
           0% { transform: scale(1.1); color: #ea580c; }
+          50% { transform: scale(1.05); color: #ea580c; }
           100% { transform: scale(1); color: #ea580c; }
         }
         .animate-item-update {
@@ -1197,19 +1140,11 @@ export default function Home() {
           0% { background-color: rgba(255, 247, 237, 0.8); transform: scale(0.98); }
           100% { background-color: rgba(255, 247, 237, 0.3); transform: scale(1); }
         }
-        .animate-price-bounce {
-          animation: priceBounce 0.3s ease-out;
+        .animate-quantity-pop {
+          animation: quantityPop 0.2s ease-out;
         }
-        @keyframes priceBounce {
-          0% { transform: scale(1.1); color: #ea580c; }
-          50% { transform: scale(1.05); color: #ea580c; }
-          100% { transform: scale(1); color: #ea580c; }
-        }
-        .animate-quantity-change {
-          animation: quantityChange 0.2s ease-out;
-        }
-        @keyframes quantityChange {
-          0% { transform: scale(1.2); }
+        @keyframes quantityPop {
+          0% { transform: scale(1.3); }
           100% { transform: scale(1); }
         }
         .animate-variant-select {
@@ -1219,6 +1154,13 @@ export default function Home() {
           0% { transform: scale(0.95); }
           50% { transform: scale(1.05); }
           100% { transform: scale(1); }
+        }
+        .animate-dropdown {
+          animation: dropdown 0.2s ease-out;
+        }
+        @keyframes dropdown {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
         .line-clamp-2 {
           display: -webkit-box;
