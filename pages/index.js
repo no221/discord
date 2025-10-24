@@ -143,74 +143,96 @@ const extractImageUrl = (url) => {
   return url;
 }
 
-// Loading Component dengan animasi bola sepak dribbling yang realistic
+// Loading Component dengan Lottie Animation
 const LoadingScreen = () => {
-  useEffect(() => {
-    // Load Lottie script dynamically
-    const script = document.createElement('script')
-    script.src = 'https://unpkg.com/@lottiefiles/dotlottie-wc@0.7.1/dist/dotlottie-wc.js'
-    script.type = 'module'
-    document.head.appendChild(script)
+  const [lottieLoaded, setLottieLoaded] = useState(false)
 
-    return () => {
-      // Cleanup
-      if (document.head.contains(script)) {
-        document.head.removeChild(script)
-      }
-    }
-  }, [])
+  useEffect(() => {
+    // Load Lottie Web Component
+    const loadLottieScript = () => {
+      return new Promise((resolve) => {
+        if (document.querySelector('script[src*="dotlottie-wc"]')) {
+          resolve();
+          return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://unpkg.com/@lottiefiles/dotlottie-wc@0.7.1/dist/dotlottie-wc.js';
+        script.type = 'module';
+        script.onload = () => {
+          setLottieLoaded(true)
+          resolve()
+        };
+        script.onerror = resolve;
+        document.head.appendChild(script);
+      });
+    };
+
+    loadLottieScript();
+  }, []);
 
   return (
-    <div className="fixed inset-0 bg-gradient-to-br from-white via-orange-50 to-amber-100 animate-gradient-flow flex items-center justify-center z-50">
-      <div className="text-center">
-        {/* Lottie Animation */}
-        <div className="mb-6 flex justify-center">
-          <div className="w-64 h-64">
-            <dotlottie-player
-              src="https://lottie.host/1c3064dd-d28a-47fe-87a0-02568900c10f/bLwdshhf87.lottie"
-              background="transparent"
-              speed="1"
-              style={{ width: '100%', height: '100%' }}
-              loop
-              autoplay
-            ></dotlottie-player>
+    <div className="fixed inset-0 bg-gradient-to-br from-white via-orange-50 to-amber-100 flex flex-col items-center justify-center z-50">
+      {/* Lottie Animation Container */}
+      <div className="flex-1 flex items-center justify-center mb-8">
+        {lottieLoaded ? (
+          <div 
+            className="w-80 h-80 flex items-center justify-center"
+            dangerouslySetInnerHTML={{
+              __html: `
+                <dotlottie-player
+                  src="https://lottie.host/1c3064dd-d28a-47fe-87a0-02568900c10f/bLwdshhf87.lottie"
+                  background="transparent"
+                  speed="1"
+                  style="width: 320px; height: 320px"
+                  loop
+                  autoplay
+                ></dotlottie-player>
+              `
+            }}
+          />
+        ) : (
+          <div className="w-80 h-80 flex items-center justify-center">
+            <div className="text-6xl">⚽</div>
+          </div>
+        )}
+      </div>
+      
+      {/* Text Animations */}
+      <div className="flex-1 flex flex-col items-center justify-start space-y-6 px-4">
+        <div className="overflow-hidden">
+          <div className="animate-text-slide-up transform transition-all duration-700">
+            <h2 className="text-4xl md:text-5xl font-bold text-orange-700 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent text-center">
+              Selamat Datang!
+            </h2>
           </div>
         </div>
         
-        {/* Text dengan animasi bertahap */}
-        <div className="space-y-4">
-          <div className="overflow-hidden">
-            <div className="animate-text-slide-up transform transition-all duration-700">
-              <h2 className="text-4xl font-bold text-orange-700 mb-2 bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                Selamat Datang!
-              </h2>
-            </div>
-          </div>
-          
-          <div className="overflow-hidden">
-            <div className="animate-text-slide-up-delayed transform transition-all duration-700">
-              <p className="text-xl text-orange-600 font-semibold">
-                Made By Kelompok 4
-              </p>
-            </div>
-          </div>
-
-          <div className="overflow-hidden">
-            <div className="animate-text-slide-up-more-delayed transform transition-all duration-700">
-              <p className="text-lg text-orange-500 mt-4">
-                ⚽ Soccer Ball Shop ⚽
-              </p>
-            </div>
+        <div className="overflow-hidden">
+          <div className="animate-text-slide-up-delayed transform transition-all duration-700">
+            <p className="text-xl md:text-2xl text-orange-600 font-semibold text-center">
+              Made By Kelompok 4
+            </p>
           </div>
         </div>
 
-        {/* Loading bar */}
-        <div className="mt-8 w-64 mx-auto bg-orange-200 rounded-full h-2">
-          <div className="animate-loading-bar h-2 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
+        <div className="overflow-hidden">
+          <div className="animate-text-slide-up-more-delayed transform transition-all duration-700">
+            <p className="text-lg md:text-xl text-orange-500 text-center">
+              ⚽ Soccer Ball Shop ⚽
+            </p>
+          </div>
+        </div>
+
+        {/* Loading Dots Animation */}
+        <div className="mt-8 flex justify-center space-x-2">
+          <div className="animate-bounce-dot-1 w-3 h-3 bg-orange-500 rounded-full"></div>
+          <div className="animate-bounce-dot-2 w-3 h-3 bg-orange-500 rounded-full"></div>
+          <div className="animate-bounce-dot-3 w-3 h-3 bg-orange-500 rounded-full"></div>
         </div>
       </div>
     </div>
-  )
+  );
 };
 
 export default function Home() {
@@ -239,6 +261,9 @@ export default function Home() {
   const [quantityUpdateKey, setQuantityUpdateKey] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [pageTransition, setPageTransition] = useState(false)
+
+  // Get all unique tags from products
+  const allTags = ['all', ...new Set(products.flatMap(product => product.tags || []))]
 
   // Payment methods data
   const paymentMethods = [
@@ -286,14 +311,11 @@ export default function Home() {
     }
   ]
 
-  // Get all unique tags from products
-  const allTags = ['all', ...new Set(products.flatMap(product => product.tags || []))]
-
   // Simulate loading effect
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -684,28 +706,28 @@ export default function Home() {
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">D</div>
               <div>
                 <div className="font-semibold">Darren</div>
-                <div className="text-sm text-gray-600">Frontend Developer</div>
+                <div className="text-sm text-gray-600">Project Manager</div>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">I</div>
               <div>
                 <div className="font-semibold">Isabel</div>
-                <div className="text-sm text-gray-600">UI/UX Designer</div>
+                <div className="text-sm text-gray-600">Helper</div>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">S</div>
               <div>
                 <div className="font-semibold">Steven</div>
-                <div className="text-sm text-gray-600">Backend Developer</div>
+                <div className="text-sm text-gray-600">Project Manager</div>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">S</div>
               <div>
                 <div className="font-semibold">Sultanto</div>
-                <div className="text-sm text-gray-600">Project Manager</div>
+                <div className="text-sm text-gray-600">Frontend & Backend developer</div>
               </div>
             </div>
           </div>
@@ -1468,6 +1490,7 @@ export default function Home() {
 
       {/* Footer */}
       {currentPage !== 'about' && <Footer />}
+
       <style jsx>{`
         .animate-fadeIn {
           animation: fadeIn 0.3s ease-out forwards;
@@ -1656,15 +1679,6 @@ export default function Home() {
             transform: scale(0.9) translateY(-10px); 
           }
         }
-        .animate-gradient-flow {
-          animation: gradientFlow 3s ease-in-out infinite;
-          background-size: 200% 200%;
-        }
-        @keyframes gradientFlow {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
         .animate-text-slide-up {
           animation: textSlideUp 0.8s ease-out 0.3s both;
         }
@@ -1684,21 +1698,23 @@ export default function Home() {
         .animate-text-slide-up-more-delayed {
           animation: textSlideUp 0.8s ease-out 0.9s both;
         }
-        .animate-loading-bar {
-          animation: loadingBar 2s ease-in-out infinite;
+        .animate-bounce-dot-1 {
+          animation: bounceDots 1.4s ease-in-out infinite both;
         }
-        @keyframes loadingBar {
-          0% { 
-            width: 0%;
-            transform: translateX(-100%);
+        .animate-bounce-dot-2 {
+          animation: bounceDots 1.4s ease-in-out 0.2s infinite both;
+        }
+        .animate-bounce-dot-3 {
+          animation: bounceDots 1.4s ease-in-out 0.4s infinite both;
+        }
+        @keyframes bounceDots {
+          0%, 80%, 100% {
+            transform: scale(0);
+            opacity: 0.5;
           }
-          50% {
-            width: 100%;
-            transform: translateX(0%);
-          }
-          100% {
-            width: 100%;
-            transform: translateX(100%);
+          40% {
+            transform: scale(1);
+            opacity: 1;
           }
         }
         .animate-fade-in-up {
