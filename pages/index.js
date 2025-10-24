@@ -143,29 +143,48 @@ const extractImageUrl = (url) => {
   return url;
 }
 
-// Loading Component dengan animasi bola dribbling
+// Loading Component dengan animasi bola sepak dribbling yang realistic
 const LoadingScreen = () => (
   <div className="fixed inset-0 bg-gradient-to-br from-white via-orange-50 to-amber-100 animate-gradient-flow flex items-center justify-center z-50">
     <div className="text-center">
-      {/* Bola dengan animasi dribbling */}
+      {/* Bola sepak dengan animasi dribbling yang realistic */}
       <div className="relative mb-8">
-        <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-red-500 rounded-full shadow-2xl animate-dribble mx-auto relative z-10">
-          {/* Pattern pada bola */}
-          <div className="absolute inset-0 rounded-full border-4 border-white opacity-30"></div>
-          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full opacity-60"></div>
-          <div className="absolute top-1/3 right-1/4 w-3 h-3 bg-white rounded-full opacity-40"></div>
-          <div className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-white rounded-full opacity-50"></div>
+        <div className="w-24 h-24 bg-white rounded-full shadow-2xl animate-dribble mx-auto relative z-10 border-4 border-gray-800">
+          {/* Pattern bola sepak - pentagon dan hexagon */}
+          <div className="absolute inset-0 rounded-full overflow-hidden">
+            {/* Garis hitam pattern bola sepak */}
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-black transform -translate-y-1/2"></div>
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-black transform -translate-y-1/2 rotate-90"></div>
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-black transform -translate-y-1/2 rotate-45"></div>
+            <div className="absolute top-1/2 left-0 w-full h-1 bg-black transform -translate-y-1/2 rotate-135"></div>
+            
+            {/* Pentagon di tengah */}
+            <div className="absolute top-1/2 left-1/2 w-8 h-8 bg-black transform -translate-x-1/2 -translate-y-1/2 clip-pentagon"></div>
+            
+            {/* Hexagon di sekeliling */}
+            <div className="absolute top-2 left-1/2 w-6 h-6 bg-black transform -translate-x-1/2 clip-hexagon"></div>
+            <div className="absolute bottom-2 left-1/2 w-6 h-6 bg-black transform -translate-x-1/2 clip-hexagon"></div>
+            <div className="absolute top-1/2 left-2 w-6 h-6 bg-black transform -translate-y-1/2 clip-hexagon"></div>
+            <div className="absolute top-1/2 right-2 w-6 h-6 bg-black transform -translate-y-1/2 clip-hexagon"></div>
+          </div>
         </div>
-        {/* Shadow bawah bola */}
-        <div className="w-16 h-4 bg-gray-400 blur-md rounded-full mx-auto mt-2 animate-shadow-pulse opacity-60"></div>
+        {/* Shadow bawah bola yang realistic */}
+        <div className="w-20 h-4 bg-gray-600 blur-md rounded-full mx-auto mt-4 animate-shadow-dribble opacity-50"></div>
       </div>
       
-      <h2 className="text-3xl font-bold text-orange-700 mb-2 animate-pulse-slow">
-        Selamat Datang!
-      </h2>
-      <p className="text-lg text-orange-600 animate-fade-in-delayed">
-        Made By Kelompok 4
-      </p>
+      {/* Text dengan animasi slider */}
+      <div className="overflow-hidden">
+        <div className="animate-text-slide-up">
+          <h2 className="text-3xl font-bold text-orange-700 mb-2">
+            Selamat Datang!
+          </h2>
+        </div>
+        <div className="animate-text-slide-up-delayed">
+          <p className="text-lg text-orange-600">
+            Made By Kelompok 4
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 );
@@ -178,6 +197,7 @@ export default function Home() {
   const [selectedVariant, setSelectedVariant] = useState(null)
   const [qty, setQty] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
+  const [selectedTag, setSelectedTag] = useState('all')
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -242,11 +262,14 @@ export default function Home() {
     }
   ]
 
+  // Get all unique tags from products
+  const allTags = ['all', ...new Set(products.flatMap(product => product.tags || []))]
+
   // Simulate loading effect
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3000); // 3 seconds loading
+    }, 3000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -262,11 +285,26 @@ export default function Home() {
     }, 300);
   }, []);
 
-  // Filter products based on search
+  // Filter products based on search and tag
   const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchTerm.toLowerCase())
+    (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
   )
+
+  // Get recommended products for "You may like this too"
+  const getRecommendedProducts = useCallback((currentProduct) => {
+    if (!currentProduct) return [];
+    
+    return products
+      .filter(p => 
+        p.id !== currentProduct.id && 
+        p.tags && 
+        currentProduct.tags && 
+        p.tags.some(tag => currentProduct.tags.includes(tag))
+      )
+      .slice(0, 3);
+  }, []);
 
   // Calculate discount with voucher
   const calculateDiscount = useCallback((quantity, voucherCode = '') => {
@@ -937,7 +975,27 @@ export default function Home() {
         {/* Homepage - All Products */}
         {currentPage === 'home' && (
           <div className={pageTransition ? 'animate-page-exit' : 'animate-page-enter'}>
-            <h2 className="text-xl font-semibold mb-4">Semua Produk Bola</h2>
+            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+              <h2 className="text-xl font-semibold mb-4 md:mb-0">Semua Produk Bola</h2>
+              
+              {/* Tag Filter */}
+              <div className="flex flex-wrap gap-2">
+                {allTags.map(tag => (
+                  <button
+                    key={tag}
+                    onClick={() => setSelectedTag(tag)}
+                    className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+                      selectedTag === tag
+                        ? 'bg-orange-500 text-white shadow-lg animate-tag-select'
+                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    {tag === 'all' ? 'Semua' : `#${tag}`}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {filteredProducts.map((product) => (
                 <div
@@ -952,6 +1010,18 @@ export default function Home() {
                   )}
                   <h3 className="font-semibold text-lg">{product.name}</h3>
                   <p className="text-sm text-gray-600 mt-1 line-clamp-2">{product.description}</p>
+                  
+                  {/* Product Tags */}
+                  {product.tags && product.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {product.tags.slice(0, 3).map(tag => (
+                        <span key={tag} className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
                   <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105">
                     Rp {product.variants[1].price.toLocaleString()}
                   </p>
@@ -1025,6 +1095,17 @@ export default function Home() {
 
               <h2 className="text-xl md:text-2xl font-semibold">{selectedProduct.name}</h2>
               <p className="text-gray-600 mt-2 text-sm md:text-base">{selectedProduct.description}</p>
+              
+              {/* Product Tags */}
+              {selectedProduct.tags && selectedProduct.tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {selectedProduct.tags.map(tag => (
+                    <span key={tag} className="px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
               
               {/* Variant Selection */}
               <div className="mt-4 md:mt-6">
@@ -1120,37 +1201,44 @@ export default function Home() {
             <aside className="bg-white p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
               <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
               <div className="grid grid-cols-1 gap-3 md:gap-4">
-                {products
-                  .filter(p => p.id !== selectedProduct.id)
-                  .slice(0, 3)
-                  .map((p) => (
-                    <div
-                      key={p.id}
-                      className="flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border border-transparent hover:border-orange-200 bg-orange-50/50 transform hover:-translate-y-1"
-                      onClick={() => openProductDetail(p)}
-                    >
-                      {renderProductImage(
-                        p.images[0],
-                        p.name,
-                        "w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg transition-transform duration-300 hover:scale-110"
-                      )}
-                      <div className="flex-1">
-                        <div className="font-semibold text-sm md:text-base">{p.name}</div>
-                        <div className="text-xs md:text-sm text-gray-600 transition-all duration-300 hover:scale-105">
-                          Rp {p.variants[1].price.toLocaleString()}
-                        </div>
+                {getRecommendedProducts(selectedProduct).map((p) => (
+                  <div
+                    key={p.id}
+                    className="flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border border-transparent hover:border-orange-200 bg-orange-50/50 transform hover:-translate-y-1"
+                    onClick={() => openProductDetail(p)}
+                  >
+                    {renderProductImage(
+                      p.images[0],
+                      p.name,
+                      "w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg transition-transform duration-300 hover:scale-110"
+                    )}
+                    <div className="flex-1">
+                      <div className="font-semibold text-sm md:text-base">{p.name}</div>
+                      <div className="text-xs md:text-sm text-gray-600 transition-all duration-300 hover:scale-105">
+                        Rp {p.variants[1].price.toLocaleString()}
                       </div>
-                      <button
-                        className="text-xs md:text-sm px-2 py-1 md:px-3 md:py-2 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95"
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          addToCart(p, p.variants[1], 1)
-                        }}
-                      >
-                        + Tambah
-                      </button>
+                      {/* Tags untuk recommended products */}
+                      {p.tags && p.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {p.tags.slice(0, 2).map(tag => (
+                            <span key={tag} className="px-1 py-0.5 bg-orange-200 text-orange-800 text-xs rounded">
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  ))}
+                    <button
+                      className="text-xs md:text-sm px-2 py-1 md:px-3 md:py-2 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95"
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        addToCart(p, p.variants[1], 1)
+                      }}
+                    >
+                      + Tambah
+                    </button>
+                  </div>
+                ))}
               </div>
             </aside>
           </div>
@@ -1511,6 +1599,14 @@ export default function Home() {
           50% { transform: scale(1.05); }
           100% { transform: scale(1); }
         }
+        .animate-tag-select {
+          animation: tagSelect 0.3s ease-out;
+        }
+        @keyframes tagSelect {
+          0% { transform: scale(0.95); }
+          50% { transform: scale(1.05); }
+          100% { transform: scale(1); }
+        }
         .animate-page-enter {
           animation: pageEnter 0.6s ease-out forwards;
         }
@@ -1538,20 +1634,24 @@ export default function Home() {
           }
         }
         .animate-dribble {
-          animation: dribble 1s ease-in-out infinite alternate;
+          animation: dribble 1s ease-in-out infinite;
         }
         @keyframes dribble {
-          0% { transform: translateY(0) scale(1); }
-          50% { transform: translateY(-30px) scale(1.05); }
-          100% { transform: translateY(0) scale(1); }
+          0% { transform: translateY(0) rotate(0deg); }
+          25% { transform: translateY(-40px) rotate(90deg); }
+          50% { transform: translateY(-20px) rotate(180deg); }
+          75% { transform: translateY(-35px) rotate(270deg); }
+          100% { transform: translateY(0) rotate(360deg); }
         }
-        .animate-shadow-pulse {
-          animation: shadowPulse 1s ease-in-out infinite alternate;
+        .animate-shadow-dribble {
+          animation: shadowDribble 1s ease-in-out infinite;
         }
-        @keyframes shadowPulse {
-          0% { transform: scale(0.8); opacity: 0.4; }
-          50% { transform: scale(1.1); opacity: 0.7; }
-          100% { transform: scale(0.8); opacity: 0.4; }
+        @keyframes shadowDribble {
+          0% { transform: scale(0.8); opacity: 0.3; }
+          25% { transform: scale(1.1); opacity: 0.6; }
+          50% { transform: scale(0.9); opacity: 0.4; }
+          75% { transform: scale(1.05); opacity: 0.5; }
+          100% { transform: scale(0.8); opacity: 0.3; }
         }
         .animate-gradient-flow {
           animation: gradientFlow 3s ease-in-out infinite;
@@ -1561,6 +1661,22 @@ export default function Home() {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
+        }
+        .animate-text-slide-up {
+          animation: textSlideUp 0.8s ease-out 0.5s both;
+        }
+        @keyframes textSlideUp {
+          from { 
+            opacity: 0; 
+            transform: translateY(30px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0); 
+          }
+        }
+        .animate-text-slide-up-delayed {
+          animation: textSlideUp 0.8s ease-out 1s both;
         }
         .animate-fade-in-up {
           animation: fadeInUp 0.6s ease-out;
@@ -1592,6 +1708,12 @@ export default function Home() {
         }
         .animate-fade-in-up-delayed {
           animation: fadeInUp 0.6s ease-out 0.4s both;
+        }
+        .clip-pentagon {
+          clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+        }
+        .clip-hexagon {
+          clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
         }
         .line-clamp-2 {
           display: -webkit-box;
