@@ -143,6 +143,17 @@ const extractImageUrl = (url) => {
   return url;
 }
 
+// Loading Component
+const LoadingScreen = () => (
+  <div className="fixed inset-0 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center z-50 animate-fadeIn">
+    <div className="text-center text-white">
+      <div className="w-20 h-20 border-4 border-white border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
+      <h2 className="text-2xl font-bold mb-2 animate-pulse">Soccer Ball Shop</h2>
+      <p className="text-orange-100">Loading...</p>
+    </div>
+  </div>
+);
+
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home')
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -166,6 +177,7 @@ export default function Home() {
   const [voucherApplied, setVoucherApplied] = useState(false)
   const [priceUpdateKey, setPriceUpdateKey] = useState(0)
   const [quantityUpdateKey, setQuantityUpdateKey] = useState(0)
+  const [isLoading, setIsLoading] = useState(true)
 
   // Payment methods data
   const paymentMethods = [
@@ -212,6 +224,15 @@ export default function Home() {
       icon: '💳'
     }
   ]
+
+  // Simulate loading effect
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000); // 2 seconds loading
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // Filter products based on search
   const filteredProducts = products.filter(product =>
@@ -553,6 +574,161 @@ export default function Home() {
     )
   }
 
+  // About Page Component
+  const AboutPage = () => (
+    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm bg-white/90 animate-page-transition">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-orange-700 mb-4 animate-fade-in-up">
+          Tentang Kami
+        </h1>
+        <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="animate-slide-in-left">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Tim Kami</h2>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
+              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">D</div>
+              <div>
+                <div className="font-semibold">Darren</div>
+                <div className="text-sm text-gray-600">Frontend Developer</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
+              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">I</div>
+              <div>
+                <div className="font-semibold">Isabel</div>
+                <div className="text-sm text-gray-600">UI/UX Designer</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
+              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">S</div>
+              <div>
+                <div className="font-semibold">Steven</div>
+                <div className="text-sm text-gray-600">Backend Developer</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
+              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">S</div>
+              <div>
+                <div className="font-semibold">Sultanto</div>
+                <div className="text-sm text-gray-600">Project Manager</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="animate-slide-in-right">
+          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Tentang Proyek</h2>
+          <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-lg border border-orange-200">
+            <p className="text-gray-700 leading-relaxed mb-4">
+              <strong>Made By Kelompok 4</strong>
+            </p>
+            <p className="text-gray-600 leading-relaxed mb-4">
+              Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi. 
+              Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
+            </p>
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <span>⚡</span>
+              <span>Dibuat dengan React.js & Next.js</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="border-t pt-8 animate-fade-in-up-delayed">
+        <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
+        <div className="flex flex-col sm:flex-row justify-center gap-6">
+          <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all duration-300 transform hover:scale-105">
+            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-xl">
+              📱
+            </div>
+            <div>
+              <div className="font-semibold">WhatsApp</div>
+              <div className="text-sm text-gray-600">+62 851-5601-2891</div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-all duration-300 transform hover:scale-105">
+            <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white text-xl">
+              ✉️
+            </div>
+            <div>
+              <div className="font-semibold">Email</div>
+              <div className="text-sm text-gray-600">rndm942@yahoo.com</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="text-center mt-8">
+        <button
+          onClick={() => setCurrentPage('home')}
+          className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+        >
+          ← Kembali ke Menu Utama
+        </button>
+      </div>
+    </div>
+  )
+
+  // Footer Component
+  const Footer = () => (
+    <footer className="mt-8 py-6 border-t border-gray-200 relative z-10 backdrop-blur-sm bg-white/50">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Made By Section */}
+          <div 
+            className="text-center cursor-pointer group"
+            onClick={() => setCurrentPage('about')}
+          >
+            <div className="inline-block p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
+              <div className="text-sm text-gray-600 mb-2 group-hover:text-orange-600 transition-colors">
+                Made by
+              </div>
+              <div className="font-semibold text-orange-700 group-hover:text-orange-800 transition-colors">
+                Kelompok 4
+              </div>
+              <div className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors">
+                Klik untuk info lebih lanjut →
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Section */}
+          <div className="text-center">
+            <div className="flex justify-center gap-6">
+              <div className="flex items-center gap-2 text-green-600">
+                <span className="text-lg">📱</span>
+                <div className="text-left">
+                  <div className="text-xs text-gray-500">WhatsApp</div>
+                  <div className="text-sm font-medium">+62 851-5601-2891</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-red-600">
+                <span className="text-lg">✉️</span>
+                <div className="text-left">
+                  <div className="text-xs text-gray-500">Email</div>
+                  <div className="text-sm font-medium">rndm942@yahoo.com</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="text-center mt-4 pt-4 border-t border-gray-200">
+          <p className="text-xs text-gray-500">
+            © 2024 Soccer Ball Shop. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  )
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <div className="min-h-screen p-4 md:p-6 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
       {/* Enhanced Animated Background Elements */}
@@ -571,112 +747,114 @@ export default function Home() {
       </div>
 
       {/* Header dengan Search dan Cart */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0">
-        <div className="flex items-center justify-between w-full md:w-auto">
-          <h1 
-            className="text-xl md:text-2xl font-bold text-orange-700 flex items-center gap-2 animate-pulse-gentle cursor-pointer"
-            onClick={() => {
-              setCurrentPage('home')
-              setCartOpen(false)
-            }}
-          >
-            ⚽ Soccer Ball Shop - Steven
-          </h1>
-          
-          {/* Cart Icon - Mobile */}
-          <div className="md:hidden relative">
-            <button
-              onClick={() => setCartOpen(!cartOpen)}
-              className="cart-icon p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40"
+      {currentPage !== 'about' && (
+        <header className="flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0">
+          <div className="flex items-center justify-between w-full md:w-auto">
+            <h1 
+              className="text-xl md:text-2xl font-bold text-orange-700 flex items-center gap-2 animate-pulse-gentle cursor-pointer"
+              onClick={() => {
+                setCurrentPage('home')
+                setCartOpen(false)
+              }}
             >
-              <span className="text-lg">🛒</span>
-              {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-cart-bounce">
-                  {totalItems}
-                </span>
-              )}
-            </button>
-          </div>
-        </div>
-        
-        {/* Search Bar - hanya muncul di homepage */}
-        {currentPage === 'home' && (
-          <div className="relative w-full md:w-64">
-            <input
-              type="text"
-              placeholder="Cari produk..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full transition-all duration-300"
-            />
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-              🔍
+              ⚽ Soccer Ball Shop - Steven
+            </h1>
+            
+            {/* Cart Icon - Mobile */}
+            <div className="md:hidden relative">
+              <button
+                onClick={() => setCartOpen(!cartOpen)}
+                className="cart-icon p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40"
+              >
+                <span className="text-lg">🛒</span>
+                {totalItems > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-cart-bounce">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
-        )}
-
-        {/* Cart Icon - Desktop */}
-        <div className="hidden md:block relative">
-          <button
-            onClick={() => setCartOpen(!cartOpen)}
-            className="cart-icon p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40"
-          >
-            <span className="text-lg">🛒</span>
-            {totalItems > 0 && (
-              <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-cart-bounce">
-                <AnimatedQuantity quantity={totalItems} />
-              </span>
-            )}
-          </button>
-
-          {/* Cart Dropdown */}
-          {cartOpen && (
-            <div className="cart-container absolute right-0 top-14 w-80 md:w-96 bg-white rounded-lg shadow-2xl border border-orange-100 z-50 max-h-80 overflow-hidden animate-dropdown">
-              <div className="p-4">
-                <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
-                  🛒 Keranjang Belanja
-                </h3>
-                
-                {cart.length === 0 ? (
-                  <p className="text-gray-500 text-center py-4">Keranjang kosong</p>
-                ) : (
-                  <>
-                    <div className="max-h-48 overflow-y-auto">
-                      {cart.map((item, index) => (
-                        <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
-                      ))}
-                    </div>
-                    
-                    <div className="mt-3 pt-3 border-t">
-                      <div className="flex justify-between font-semibold text-lg">
-                        <span>Total:</span>
-                        <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
-                      </div>
-                      {voucherApplied && (
-                        <div className="text-sm text-green-600 mt-1 animate-pulse">
-                          ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
-                        </div>
-                      )}
-                      <button
-                        onClick={() => {
-                          setCartOpen(false)
-                          setCurrentPage('cart')
-                        }}
-                        className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
-                      >
-                        Checkout ({cart.length} items)
-                      </button>
-                    </div>
-                  </>
-                )}
+          
+          {/* Search Bar - hanya muncul di homepage */}
+          {currentPage === 'home' && (
+            <div className="relative w-full md:w-64">
+              <input
+                type="text"
+                placeholder="Cari produk..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full transition-all duration-300"
+              />
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                🔍
               </div>
             </div>
           )}
-        </div>
-      </header>
+
+          {/* Cart Icon - Desktop */}
+          <div className="hidden md:block relative">
+            <button
+              onClick={() => setCartOpen(!cartOpen)}
+              className="cart-icon p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40"
+            >
+              <span className="text-lg">🛒</span>
+              {totalItems > 0 && (
+                <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-cart-bounce">
+                  <AnimatedQuantity quantity={totalItems} />
+                </span>
+              )}
+            </button>
+
+            {/* Cart Dropdown */}
+            {cartOpen && (
+              <div className="cart-container absolute right-0 top-14 w-80 md:w-96 bg-white rounded-lg shadow-2xl border border-orange-100 z-50 max-h-80 overflow-hidden animate-dropdown">
+                <div className="p-4">
+                  <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
+                    🛒 Keranjang Belanja
+                  </h3>
+                  
+                  {cart.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">Keranjang kosong</p>
+                  ) : (
+                    <>
+                      <div className="max-h-48 overflow-y-auto">
+                        {cart.map((item, index) => (
+                          <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+                        ))}
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t">
+                        <div className="flex justify-between font-semibold text-lg">
+                          <span>Total:</span>
+                          <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
+                        </div>
+                        {voucherApplied && (
+                          <div className="text-sm text-green-600 mt-1 animate-pulse">
+                            ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+                          </div>
+                        )}
+                        <button
+                          onClick={() => {
+                            setCartOpen(false)
+                            setCurrentPage('cart')
+                          }}
+                          className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
+                        >
+                          Checkout ({cart.length} items)
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        </header>
+      )}
 
       {/* Mobile Cart Dropdown */}
-      {cartOpen && (
+      {cartOpen && currentPage !== 'about' && (
         <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
           <div className="cart-container bg-white rounded-t-2xl w-full max-h-3/4 overflow-y-auto animate-slide-up">
             <div className="p-4">
@@ -724,9 +902,12 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="relative z-10">
+        {/* About Page */}
+        {currentPage === 'about' && <AboutPage />}
+
         {/* Homepage - All Products */}
         {currentPage === 'home' && (
-          <div>
+          <div className="animate-page-transition">
             <h2 className="text-xl font-semibold mb-4">Semua Produk Bola</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {filteredProducts.map((product) => (
@@ -762,7 +943,7 @@ export default function Home() {
 
         {/* Product Detail Page */}
         {currentPage === 'product' && selectedProduct && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 animate-page-transition">
             {/* Product Detail dengan Image Slider */}
             <section className="bg-white p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
               {/* Image Slider */}
@@ -946,7 +1127,7 @@ export default function Home() {
 
         {/* Cart/Checkout Page */}
         {currentPage === 'cart' && (
-          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm bg-white/90">
+          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm bg-white/90 animate-page-transition">
             <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 flex items-center gap-2">
               🛒 Checkout
             </h2>
@@ -1141,9 +1322,7 @@ export default function Home() {
       )}
 
       {/* Footer */}
-      <footer className="mt-8 py-4 text-center text-sm text-gray-500 border-t border-gray-200 relative z-10 backdrop-blur-sm bg-white/50">
-        Made by Kelompok-4
-      </footer>
+      {currentPage !== 'about' && <Footer />}
 
       <style jsx>{`
         .animate-fadeIn {
@@ -1288,6 +1467,44 @@ export default function Home() {
           0% { transform: scale(0.95); }
           50% { transform: scale(1.05); }
           100% { transform: scale(1); }
+        }
+        .animate-page-transition {
+          animation: pageTransition 0.5s ease-out;
+        }
+        @keyframes pageTransition {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in-up {
+          animation: fadeInUp 0.6s ease-out;
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-scale-in {
+          animation: scaleIn 0.6s ease-out 0.2s both;
+        }
+        @keyframes scaleIn {
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
+        }
+        .animate-slide-in-left {
+          animation: slideInLeft 0.6s ease-out;
+        }
+        @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-50px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-slide-in-right {
+          animation: slideInRight 0.6s ease-out;
+        }
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(50px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        .animate-fade-in-up-delayed {
+          animation: fadeInUp 0.6s ease-out 0.4s both;
         }
         .line-clamp-2 {
           display: -webkit-box;
