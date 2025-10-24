@@ -143,13 +143,29 @@ const extractImageUrl = (url) => {
   return url;
 }
 
-// Loading Component
+// Loading Component dengan animasi bola dribbling
 const LoadingScreen = () => (
-  <div className="fixed inset-0 bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center z-50 animate-fadeIn">
-    <div className="text-center text-white">
-      <div className="w-20 h-20 border-4 border-white border-t-transparent rounded-full animate-spin mb-4 mx-auto"></div>
-      <h2 className="text-2xl font-bold mb-2 animate-pulse">Soccer Ball Shop</h2>
-      <p className="text-orange-100">Loading...</p>
+  <div className="fixed inset-0 bg-gradient-to-br from-white via-orange-50 to-amber-100 animate-gradient-flow flex items-center justify-center z-50">
+    <div className="text-center">
+      {/* Bola dengan animasi dribbling */}
+      <div className="relative mb-8">
+        <div className="w-24 h-24 bg-gradient-to-br from-orange-400 to-red-500 rounded-full shadow-2xl animate-dribble mx-auto relative z-10">
+          {/* Pattern pada bola */}
+          <div className="absolute inset-0 rounded-full border-4 border-white opacity-30"></div>
+          <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-white rounded-full opacity-60"></div>
+          <div className="absolute top-1/3 right-1/4 w-3 h-3 bg-white rounded-full opacity-40"></div>
+          <div className="absolute bottom-1/4 left-1/3 w-2 h-2 bg-white rounded-full opacity-50"></div>
+        </div>
+        {/* Shadow bawah bola */}
+        <div className="w-16 h-4 bg-gray-400 blur-md rounded-full mx-auto mt-2 animate-shadow-pulse opacity-60"></div>
+      </div>
+      
+      <h2 className="text-3xl font-bold text-orange-700 mb-2 animate-pulse-slow">
+        Selamat Datang!
+      </h2>
+      <p className="text-lg text-orange-600 animate-fade-in-delayed">
+        Made By Kelompok 4
+      </p>
     </div>
   </div>
 );
@@ -178,6 +194,7 @@ export default function Home() {
   const [priceUpdateKey, setPriceUpdateKey] = useState(0)
   const [quantityUpdateKey, setQuantityUpdateKey] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
+  const [pageTransition, setPageTransition] = useState(false)
 
   // Payment methods data
   const paymentMethods = [
@@ -229,9 +246,20 @@ export default function Home() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 2000); // 2 seconds loading
+    }, 3000); // 3 seconds loading
 
     return () => clearTimeout(timer);
+  }, []);
+
+  // Handle page transitions
+  const navigateToPage = useCallback((page) => {
+    setPageTransition(true);
+    setTimeout(() => {
+      setCurrentPage(page);
+      setTimeout(() => {
+        setPageTransition(false);
+      }, 300);
+    }, 300);
   }, []);
 
   // Filter products based on search
@@ -376,9 +404,9 @@ export default function Home() {
     setSelectedVariant(product.variants[1])
     setCurrentImageIndex(0)
     setQty(1)
-    setCurrentPage('product')
+    navigateToPage('product')
     setCartOpen(false)
-  }, [])
+  }, [navigateToPage])
 
   // Handle checkout
   const handleCheckout = useCallback(async () => {
@@ -576,7 +604,9 @@ export default function Home() {
 
   // About Page Component
   const AboutPage = () => (
-    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm bg-white/90 animate-page-transition">
+    <div className={`max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm bg-white/90 ${
+      pageTransition ? 'animate-page-exit' : 'animate-page-enter'
+    }`}>
       <div className="text-center mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-orange-700 mb-4 animate-fade-in-up">
           Tentang Kami
@@ -663,7 +693,7 @@ export default function Home() {
 
       <div className="text-center mt-8">
         <button
-          onClick={() => setCurrentPage('home')}
+          onClick={() => navigateToPage('home')}
           className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
         >
           ← Kembali ke Menu Utama
@@ -680,7 +710,7 @@ export default function Home() {
           {/* Made By Section */}
           <div 
             className="text-center cursor-pointer group"
-            onClick={() => setCurrentPage('about')}
+            onClick={() => navigateToPage('about')}
           >
             <div className="inline-block p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
               <div className="text-sm text-gray-600 mb-2 group-hover:text-orange-600 transition-colors">
@@ -748,14 +778,13 @@ export default function Home() {
 
       {/* Header dengan Search dan Cart */}
       {currentPage !== 'about' && (
-        <header className="flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0">
+        <header className={`flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0 ${
+          pageTransition ? 'animate-page-exit' : 'animate-page-enter'
+        }`}>
           <div className="flex items-center justify-between w-full md:w-auto">
             <h1 
               className="text-xl md:text-2xl font-bold text-orange-700 flex items-center gap-2 animate-pulse-gentle cursor-pointer"
-              onClick={() => {
-                setCurrentPage('home')
-                setCartOpen(false)
-              }}
+              onClick={() => navigateToPage('home')}
             >
               ⚽ Soccer Ball Shop - Steven
             </h1>
@@ -837,7 +866,7 @@ export default function Home() {
                         <button
                           onClick={() => {
                             setCartOpen(false)
-                            setCurrentPage('cart')
+                            navigateToPage('cart')
                           }}
                           className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
                         >
@@ -886,7 +915,7 @@ export default function Home() {
                     <button
                       onClick={() => {
                         setCartOpen(false)
-                        setCurrentPage('cart')
+                        navigateToPage('cart')
                       }}
                       className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
                     >
@@ -907,7 +936,7 @@ export default function Home() {
 
         {/* Homepage - All Products */}
         {currentPage === 'home' && (
-          <div className="animate-page-transition">
+          <div className={pageTransition ? 'animate-page-exit' : 'animate-page-enter'}>
             <h2 className="text-xl font-semibold mb-4">Semua Produk Bola</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {filteredProducts.map((product) => (
@@ -943,7 +972,9 @@ export default function Home() {
 
         {/* Product Detail Page */}
         {currentPage === 'product' && selectedProduct && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 animate-page-transition">
+          <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 ${
+            pageTransition ? 'animate-page-exit' : 'animate-page-enter'
+          }`}>
             {/* Product Detail dengan Image Slider */}
             <section className="bg-white p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
               {/* Image Slider */}
@@ -1078,7 +1109,7 @@ export default function Home() {
               )}
 
               <button
-                onClick={() => setCurrentPage('home')}
+                onClick={() => navigateToPage('home')}
                 className="w-full mt-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
               >
                 ← Kembali ke Home
@@ -1127,7 +1158,9 @@ export default function Home() {
 
         {/* Cart/Checkout Page */}
         {currentPage === 'cart' && (
-          <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm bg-white/90 animate-page-transition">
+          <div className={`max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm bg-white/90 ${
+            pageTransition ? 'animate-page-exit' : 'animate-page-enter'
+          }`}>
             <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 flex items-center gap-2">
               🛒 Checkout
             </h2>
@@ -1137,7 +1170,7 @@ export default function Home() {
                 <div className="text-6xl mb-4 animate-bounce">🛒</div>
                 <p className="text-gray-500 text-lg mb-6">Keranjang Anda kosong</p>
                 <button
-                  onClick={() => setCurrentPage('home')}
+                  onClick={() => navigateToPage('home')}
                   className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold transform hover:scale-105 active:scale-95"
                 >
                   Belanja Sekarang
@@ -1277,7 +1310,7 @@ export default function Home() {
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
                     <button
-                      onClick={() => setCurrentPage('home')}
+                      onClick={() => navigateToPage('home')}
                       className="flex-1 py-3 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
                     >
                       ← Kembali
@@ -1311,7 +1344,7 @@ export default function Home() {
               className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
               onClick={() => {
                 setShowSuccessPopup(false)
-                setCurrentPage('home')
+                navigateToPage('home')
                 setForm({ name: '', phone: '', address: '', code: '', paymentMethod: '' })
               }}
             >
@@ -1399,6 +1432,13 @@ export default function Home() {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.8; }
         }
+        .animate-pulse-slow {
+          animation: pulseSlow 2s ease-in-out infinite;
+        }
+        @keyframes pulseSlow {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.9; transform: scale(1.05); }
+        }
         .animate-spin-slow {
           animation: spin 20s linear infinite;
         }
@@ -1430,6 +1470,9 @@ export default function Home() {
         }
         .animate-fade-in {
           animation: fadeIn 0.5s ease-out;
+        }
+        .animate-fade-in-delayed {
+          animation: fadeIn 1s ease-out 0.5s both;
         }
         .animate-dropdown {
           animation: dropdown 0.2s ease-out;
@@ -1468,12 +1511,56 @@ export default function Home() {
           50% { transform: scale(1.05); }
           100% { transform: scale(1); }
         }
-        .animate-page-transition {
-          animation: pageTransition 0.5s ease-out;
+        .animate-page-enter {
+          animation: pageEnter 0.6s ease-out forwards;
         }
-        @keyframes pageTransition {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+        @keyframes pageEnter {
+          from { 
+            opacity: 0; 
+            transform: scale(0.8) translateY(20px); 
+          }
+          to { 
+            opacity: 1; 
+            transform: scale(1) translateY(0); 
+          }
+        }
+        .animate-page-exit {
+          animation: pageExit 0.3s ease-in forwards;
+        }
+        @keyframes pageExit {
+          from { 
+            opacity: 1; 
+            transform: scale(1) translateY(0); 
+          }
+          to { 
+            opacity: 0; 
+            transform: scale(0.9) translateY(-10px); 
+          }
+        }
+        .animate-dribble {
+          animation: dribble 1s ease-in-out infinite alternate;
+        }
+        @keyframes dribble {
+          0% { transform: translateY(0) scale(1); }
+          50% { transform: translateY(-30px) scale(1.05); }
+          100% { transform: translateY(0) scale(1); }
+        }
+        .animate-shadow-pulse {
+          animation: shadowPulse 1s ease-in-out infinite alternate;
+        }
+        @keyframes shadowPulse {
+          0% { transform: scale(0.8); opacity: 0.4; }
+          50% { transform: scale(1.1); opacity: 0.7; }
+          100% { transform: scale(0.8); opacity: 0.4; }
+        }
+        .animate-gradient-flow {
+          animation: gradientFlow 3s ease-in-out infinite;
+          background-size: 200% 200%;
+        }
+        @keyframes gradientFlow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
         }
         .animate-fade-in-up {
           animation: fadeInUp 0.6s ease-out;
