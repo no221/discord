@@ -710,12 +710,13 @@ const AboutPage = () => (
     <div className="border-t pt-8 animate-fade-in-up-delayed">
       <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
       <div className="flex flex-col sm:flex-row justify-center gap-6">
+
         {/* WhatsApp */}
         <a
           href="https://wa.me/6285156431675"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all duration-300 transform hover:scale-105"
+          className="relative overflow-hidden flex items-center gap-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all duration-300 transform hover:scale-105 active:animate-ripple"
         >
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
@@ -731,10 +732,10 @@ const AboutPage = () => (
         {/* Email */}
         <a
           href="mailto:rndm942@yahoo.com"
-          className="flex items-center gap-3 p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-all duration-300 transform hover:scale-105"
+          className="relative overflow-hidden flex items-center gap-3 p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-all duration-300 transform hover:scale-105 active:animate-ripple"
         >
           <img
-            src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Gmail_Icon.svg"
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
             alt="Email"
             className="w-10 h-10"
           />
@@ -755,6 +756,24 @@ const AboutPage = () => (
         ← Kembali ke Menu Utama
       </button>
     </div>
+
+    {/* Ripple Animation Style */}
+    <style jsx>{`
+      @keyframes ripple {
+        0% {
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.15);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        }
+      }
+      .animate-ripple {
+        animation: ripple 0.4s linear;
+      }
+    `}</style>
   </div>
 );
   // Footer Component
