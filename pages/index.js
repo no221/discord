@@ -646,7 +646,6 @@ export default function Home() {
     )
   }
 
-import { Mail, Phone } from "lucide-react";
 
 const AboutPage = () => (
   <div
@@ -661,7 +660,7 @@ const AboutPage = () => (
       <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
     </div>
 
-    {/* Tim */}
+    {/* TIM KAMI */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
       <div className="animate-slide-in-left">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">Tim Kami</h2>
@@ -688,7 +687,7 @@ const AboutPage = () => (
         </div>
       </div>
 
-      {/* Tentang Proyek */}
+      {/* TENTANG PROYEK */}
       <div className="animate-slide-in-right">
         <h2 className="text-2xl font-semibold text-gray-800 mb-4">Tentang Proyek</h2>
         <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-lg border border-orange-200">
@@ -707,7 +706,7 @@ const AboutPage = () => (
       </div>
     </div>
 
-    {/* Hubungi Kami */}
+    {/* HUBUNGI KAMI */}
     <div className="border-t pt-8 animate-fade-in-up-delayed">
       <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
       <div className="flex flex-col sm:flex-row justify-center gap-6">
@@ -718,9 +717,11 @@ const AboutPage = () => (
           rel="noopener noreferrer"
           className="flex items-center gap-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all duration-300 transform hover:scale-105"
         >
-          <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white">
-            <Phone size={24} />
-          </div>
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+            alt="WhatsApp"
+            className="w-10 h-10"
+          />
           <div>
             <div className="font-semibold">WhatsApp</div>
             <div className="text-sm text-gray-600">+62 851-5643-1675</div>
@@ -732,9 +733,11 @@ const AboutPage = () => (
           href="mailto:rndm942@yahoo.com"
           className="flex items-center gap-3 p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-all duration-300 transform hover:scale-105"
         >
-          <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white">
-            <Mail size={24} />
-          </div>
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/4/4e/Gmail_Icon.svg"
+            alt="Email"
+            className="w-10 h-10"
+          />
           <div>
             <div className="font-semibold">Email</div>
             <div className="text-sm text-gray-600">rndm942@yahoo.com</div>
@@ -754,7 +757,6 @@ const AboutPage = () => (
     </div>
   </div>
 );
-
   // Footer Component
   const Footer = () => (
     <footer className="mt-8 py-6 border-t border-gray-200 relative z-10 backdrop-blur-sm bg-white/50">
