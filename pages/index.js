@@ -646,105 +646,114 @@ export default function Home() {
     )
   }
 
-  // About Page Component
-  const AboutPage = () => (
-    <div className={`max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm bg-white/90 ${
-      pageTransition ? 'animate-page-exit' : 'animate-page-enter'
-    }`}>
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-orange-700 mb-4 animate-fade-in-up">
-          Tentang Kami
-        </h1>
-        <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
-      </div>
+import { Mail, Phone } from "lucide-react";
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <div className="animate-slide-in-left">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Tim Kami</h2>
-          <div className="space-y-3">
-            <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
-              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">D</div>
-              <div>
-                <div className="font-semibold">Darren</div>
-                <div className="text-sm text-gray-600">Project Manager</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
-              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">I</div>
-              <div>
-                <div className="font-semibold">Isabel</div>
-                <div className="text-sm text-gray-600">Project Manager</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
-              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">S</div>
-              <div>
-                <div className="font-semibold">Steven</div>
-                <div className="text-sm text-gray-600">UI Designer</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
-              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">S</div>
-              <div>
-                <div className="font-semibold">Sultanto</div>
-                <div className="text-sm text-gray-600">UX Designer Frontend/backend manager</div>
-              </div>
-            </div>
-          </div>
-        </div>
+const AboutPage = () => (
+  <div
+    className={`max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm bg-white/90 ${
+      pageTransition ? "animate-page-exit" : "animate-page-enter"
+    }`}
+  >
+    <div className="text-center mb-8">
+      <h1 className="text-3xl md:text-4xl font-bold text-orange-700 mb-4 animate-fade-in-up">
+        Tentang Kami
+      </h1>
+      <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
+    </div>
 
-        <div className="animate-slide-in-right">
-          <h2 className="text-2xl font-semibold text-gray-800 mb-4">Tentang Proyek</h2>
-          <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-lg border border-orange-200">
-            <p className="text-gray-700 leading-relaxed mb-4">
-              <strong>Made By Kelompok 4</strong>
-            </p>
-            <p className="text-gray-600 leading-relaxed mb-4">
-              Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi. 
-              Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
-            </p>
-            <div className="flex items-center gap-2 text-sm text-gray-500">
-              <span>⚡</span>
-              <span>Dibuat dengan React.js & Next.js</span>
+    {/* Tim */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div className="animate-slide-in-left">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Tim Kami</h2>
+        <div className="space-y-3">
+          {[
+            { name: "Darren", role: "Project Manager" },
+            { name: "Isabel", role: "Project Manager" },
+            { name: "Steven", role: "UI Designer" },
+            { name: "Sultanto", role: "UX Designer & Fullstack Manager" },
+          ].map((member) => (
+            <div
+              key={member.name}
+              className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105"
+            >
+              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">
+                {member.name.charAt(0)}
+              </div>
+              <div>
+                <div className="font-semibold">{member.name}</div>
+                <div className="text-sm text-gray-600">{member.role}</div>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      <div className="border-t pt-8 animate-fade-in-up-delayed">
-        <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
-        <div className="flex flex-col sm:flex-row justify-center gap-6">
-          <div className="flex items-center gap-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all duration-300 transform hover:scale-105">
-            <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white text-xl">
-              📱
-            </div>
-            <div>
-              <div className="font-semibold">WhatsApp</div>
-              <div className="text-sm text-gray-600">+62 851-5601-2891</div>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-all duration-300 transform hover:scale-105">
-            <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white text-xl">
-              ✉️
-            </div>
-            <div>
-              <div className="font-semibold">Email</div>
-              <div className="text-sm text-gray-600">rndm942@yahoo.com</div>
-            </div>
+      {/* Tentang Proyek */}
+      <div className="animate-slide-in-right">
+        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Tentang Proyek</h2>
+        <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-lg border border-orange-200">
+          <p className="text-gray-700 leading-relaxed mb-4">
+            <strong>Made By Kelompok 4</strong>
+          </p>
+          <p className="text-gray-600 leading-relaxed mb-4">
+            Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi.
+            Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
+          </p>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <span>⚡</span>
+            <span>Dibuat dengan React.js & Next.js</span>
           </div>
         </div>
-      </div>
-
-      <div className="text-center mt-8">
-        <button
-          onClick={() => navigateToPage('home')}
-          className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-        >
-          ← Kembali ke Menu Utama
-        </button>
       </div>
     </div>
-  )
+
+    {/* Hubungi Kami */}
+    <div className="border-t pt-8 animate-fade-in-up-delayed">
+      <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
+      <div className="flex flex-col sm:flex-row justify-center gap-6">
+        {/* WhatsApp */}
+        <a
+          href="https://wa.me/6285156431675"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all duration-300 transform hover:scale-105"
+        >
+          <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center text-white">
+            <Phone size={24} />
+          </div>
+          <div>
+            <div className="font-semibold">WhatsApp</div>
+            <div className="text-sm text-gray-600">+62 851-5643-1675</div>
+          </div>
+        </a>
+
+        {/* Email */}
+        <a
+          href="mailto:rndm942@yahoo.com"
+          className="flex items-center gap-3 p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-all duration-300 transform hover:scale-105"
+        >
+          <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center text-white">
+            <Mail size={24} />
+          </div>
+          <div>
+            <div className="font-semibold">Email</div>
+            <div className="text-sm text-gray-600">rndm942@yahoo.com</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    {/* Tombol kembali */}
+    <div className="text-center mt-8">
+      <button
+        onClick={() => navigateToPage("home")}
+        className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+      >
+        ← Kembali ke Menu Utama
+      </button>
+    </div>
+  </div>
+);
 
   // Footer Component
   const Footer = () => (
