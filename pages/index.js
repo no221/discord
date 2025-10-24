@@ -162,14 +162,14 @@ const LoadingScreen = () => (
   autoplay
 ></dotlottie-wc>
     {/* Text animasi garis geser */}
-    <div className="mt-4 text-center">
-      <h2 className="text-3xl font-bold text-orange-700 relative overflow-hidden inline-block">
-        <span className="inline-block animate-slide-mask">Selamat Datang!</span>
-      </h2>
-      <p className="text-lg text-orange-600 mt-2 relative overflow-hidden inline-block">
-        <span className="inline-block animate-slide-mask-delayed">Made By Kelompok 4</span>
-      </p>
-    </div>
+<div className="mt-4 text-center">
+  <h2 className="text-3xl font-bold text-orange-700 relative overflow-hidden">
+    <span className="inline-block animate-slide-mask">Selamat Datang!</span>
+  </h2>
+  <p className="text-lg text-orange-600 mt-2 relative overflow-hidden">
+    <span className="inline-block animate-slide-mask-delayed">Made By Kelompok 4</span>
+  </p>
+</div>
 
     <style jsx>{`
       @keyframes slideMask {
@@ -228,25 +228,25 @@ const paymentMethods = [
     id: 'shopeepay',
     name: 'ShopeePay',
     description: 'Bayar dengan saldo ShopeePay',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/3/3b/ShopeePay_logo.svg'
+    icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Shopee.svg/330px-Shopee.svg.png'
   },
   {
     id: 'dana',
     name: 'DANA',
     description: 'Bayar dengan DANA - Cepat & Aman',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Dana_logo.svg'
+    icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/330px-Logo_dana_blue.svg.png'
   },
   {
     id: 'ovo',
     name: 'OVO',
     description: 'Bayar dengan OVO - Cashless Payment',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/6/6c/Logo_ovo_purple.svg'
+    icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/330px-Logo_ovo_purple.svg.png'
   },
   {
     id: 'linkaja',
     name: 'LinkAja',
     description: 'Bayar dengan LinkAja - Satu untuk Semua',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/2/27/LinkAja_Logo.svg'
+    icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/LinkAja.svg/240px-LinkAja.svg.png'
   },
   {
     id: 'paypal',
@@ -256,7 +256,7 @@ const paymentMethods = [
   },
   {
     id: 'cod',
-    name: 'Cash On Delivery',
+    name: 'Cash Or Duel',
     description: 'Bayar di Tempat untuk memastikan kualitas barang',
     icon: 'https://cdn-icons-png.flaticon.com/512/679/679720.png'
   },
@@ -923,9 +923,11 @@ const Footer = () => (
           {/* Cart Icon - Desktop */}
           <div className="hidden md:block relative">
             <button
-              onClick={() => setCartOpen(!cartOpen)}
-              className="cart-icon p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40"
-            >
+<button
+  onClick={() => setCartOpen(!cartOpen)}
+  className="cart-icon p-3 md:p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40 transform hover:scale-105 active:scale-95"
+  style={{ maxWidth: '100%', overflow: 'hidden' }}
+>
               <span className="text-lg">🛒</span>
               {totalItems > 0 && (
                 <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-cart-bounce">
@@ -1056,8 +1058,6 @@ const Footer = () => (
                 ))}
               </div>
             </div>
-
-// Di dalam komponen Home, ganti bagian grid produk dengan yang ini:
 
 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
   {filteredProducts.map((product) => (
