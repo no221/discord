@@ -945,8 +945,6 @@ const Footer = () => (
       <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
         🛒 Keranjang Belanja
       </h3>
-
-
                   
                   {cart.length === 0 ? (
                     <p className="text-gray-500 text-center py-4">Keranjang kosong</p>
@@ -1813,6 +1811,18 @@ const Footer = () => (
     flex-direction: column;
     height: 100%;
   }
+  @keyframes cart-bounce {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+}
+
+.animate-cart-bounce {
+  animation: cart-bounce 0.4s ease-in-out;
+}
       `}</style>
     </div>
   )
