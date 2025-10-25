@@ -11,6 +11,234 @@ function getDiscount(qty) {
   return 0
 }
 
+// Utility functions untuk phone
+const formatPhoneDisplay = (phone) => {
+  if (!phone) return '';
+  
+  if (phone.startsWith('+62') && phone.length > 3) {
+    const number = phone.slice(3);
+    if (number.length <= 3) return `+62 ${number}`;
+    if (number.length <= 6) return `+62 ${number.slice(0,3)}-${number.slice(3)}`;
+    return `+62 ${number.slice(0,3)}-${number.slice(3,6)}-${number.slice(6)}`;
+  }
+  
+  return phone;
+};
+
+const validatePhone = (phone) => {
+  if (!phone) return false;
+  const phoneRegex = /^\+62[0-9]{9,12}$/;
+  return phoneRegex.test(phone);
+};
+
+// Component Phone Input dengan bendera Indonesia
+const PhoneInputWithFlag = ({ value, onChange, theme }) => {
+  const handlePhoneChange = (e) => {
+    const input = e.target.value;
+    const numbersOnly = input.replace(/[^\d+]/g, '');
+    
+    let formatted = numbersOnly;
+    if (!formatted.startsWith('+62') && !formatted.startsWith('62') && !formatted.startsWith('0')) {
+      if (formatted.length > 0) {
+        formatted = '+62' + formatted;
+      }
+    } else if (formatted.startsWith('0')) {
+      formatted = '+62' + formatted.slice(1);
+    } else if (formatted.startsWith('62')) {
+      formatted = '+' + formatted;
+    }
+    
+    onChange(formatted);
+  };
+
+  return (
+    <div className="relative">
+      <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center gap-2 z-10">
+        <img 
+          src="https://flagcdn.com/id.svg" 
+          alt="Indonesia" 
+          className="w-5 h-3 rounded"
+        />
+        <span className="text-gray-500">+62</span>
+      </div>
+      <input
+        type="tel"
+        value={formatPhoneDisplay(value)}
+        onChange={handlePhoneChange}
+        placeholder="812-3456-7890"
+        className={`w-full border p-3 pl-20 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+          theme === 'dark' 
+            ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+            : 'bg-white border-gray-300'
+        }`}
+      />
+    </div>
+  );
+};
+
+// Component Address Autocomplete
+const SimpleAddressAutocomplete = ({ value, onChange, theme }) => {
+  const [suggestions, setSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  const commonAddresses = [
+    // 🏘️ CENGKARENG
+    "Jl. Raya Cengkareng No. 12, Cengkareng Timur, Jakarta Barat",
+    "Jl. Utama Raya No. 5, Cengkareng Barat, Jakarta Barat",
+    "Perumahan Cengkareng Indah Blok B3 No. 17, Jakarta Barat",
+    "Jl. Taman Palem Lestari Blok C5 No. 8, Cengkareng, Jakarta Barat",
+    "Jl. Taman Surya 5 No. 22, Cengkareng Timur, Jakarta Barat",
+    "Apartemen City Park, Cengkareng, Jakarta Barat",
+    "Jl. Bangun Nusa Raya No. 45, Cengkareng Barat, Jakarta Barat",
+    "Jl. Kapuk Cengkareng No. 89, Cengkareng, Jakarta Barat",
+    "Perumahan Citra Garden 1 Blok A2 No. 15, Cengkareng, Jakarta Barat",
+    "Perumahan Citra Garden 6, Cengkareng, Jakarta Barat",
+    "Jl. Cengkareng Drain No. 56, Cengkareng, Jakarta Barat",
+    "Ruko Taman Palem Lestari Blok D7 No. 9, Cengkareng, Jakarta Barat",
+    "Jl. Kamal Raya No. 121, Cengkareng, Jakarta Barat",
+    "Jl. Taman Surya 3 Blok H2 No. 10, Cengkareng Timur, Jakarta Barat",
+
+    // 🏡 KALIDERES
+    "Jl. Raya Kalideres No. 123, Kalideres, Jakarta Barat",
+    "Jl. Semanan Raya No. 45, Kalideres, Jakarta Barat",
+    "Jl. Kamal Raya No. 67, Kalideres, Jakarta Barat",
+    "Jl. Cendrawasih Raya No. 89, Kalideres, Jakarta Barat",
+    "Perumahan Taman Kalideres Indah, Kalideres, Jakarta Barat",
+    "Jl. Prepedan Raya No. 50, Kalideres, Jakarta Barat",
+    "Jl. Peta Barat No. 20, Kalideres, Jakarta Barat",
+    "Jl. Satu Maret No. 15, Kalideres, Jakarta Barat",
+    "Komplek Daan Mogot Baru Blok B3 No. 18, Kalideres, Jakarta Barat",
+    "Ruko Kalideres Square Blok A1 No. 2, Jakarta Barat",
+    "Jl. Peta Selatan No. 38, Kalideres, Jakarta Barat",
+    "Jl. Peta Timur No. 21, Kalideres, Jakarta Barat",
+    "Perumahan Taman Surya 8, Kalideres, Jakarta Barat",
+    "Apartemen Kalideres Heights, Jl. Raya Kalideres, Jakarta Barat",
+
+    // 🚗 DAAN MOGOT
+    "Jl. Daan Mogot No. 56, Daan Mogot, Jakarta Barat",
+    "Jl. Daan Mogot KM 12.5 No. 78, Jakarta Barat", 
+    "Jl. Daan Mogot KM 14 No. 90, Jakarta Barat",
+    "Mall Daan Mogot, Jl. Daan Mogot KM 14, Jakarta Barat",
+    "Mitra Keluarga Daan Mogot, Jl. Daan Mogot KM 12, Jakarta Barat",
+    "Komplek Ruko Daan Mogot Baru, Blok E5 No. 8, Jakarta Barat",
+    "Perumahan Daan Mogot Baru Blok F7 No. 12, Jakarta Barat",
+    "Jl. Daan Mogot Baru Raya No. 23, Jakarta Barat",
+    "Hotel Santika Premiere Slipi, Jl. Daan Mogot Raya, Jakarta Barat",
+
+    // 🌾 RAWA BUAYA
+    "Jl. Rawa Buaya No. 11, Rawa Buaya, Jakarta Barat",
+    "Jl. Rawa Bebek No. 22, Rawa Buaya, Jakarta Barat",
+    "Jl. Rawa Sari No. 33, Rawa Buaya, Jakarta Barat",
+    "Jl. Rawa Gelam No. 44, Rawa Buaya, Jakarta Barat",
+    "Perumahan Rawa Buaya Indah Blok C2 No. 4, Jakarta Barat",
+    "Jl. Rawa Kepa No. 99, Rawa Buaya, Jakarta Barat",
+    "Jl. Rawa Buaya Selatan No. 25, Jakarta Barat",
+    "Jl. Rawa Lestari No. 8, Rawa Buaya, Jakarta Barat",
+    "Jl. H. Ilyas No. 12, Rawa Buaya, Jakarta Barat",
+    "Perumahan Rawa Buaya Baru, Jakarta Barat",
+
+    // 🏘️ GALATIA 3 (CENGKARENG)
+    "Perumahan Galatia 3 Blok A1 No. 5, Cengkareng, Jakarta Barat",
+    "Perumahan Galatia 3 Blok B2 No. 7, Cengkareng, Jakarta Barat",
+    "Perumahan Galatia 3 Blok C5 No. 12, Cengkareng, Jakarta Barat",
+    "Jl. Galatia Raya No. 3, Cengkareng Barat, Jakarta Barat",
+    "Ruko Galatia Square Blok D1 No. 10, Cengkareng, Jakarta Barat",
+
+    // 🌆 KEBON JERUK
+    "Jl. Kebon Jeruk Raya No. 22, Kebon Jeruk, Jakarta Barat",
+    "Jl. Panjang No. 18, Kebon Jeruk, Jakarta Barat",
+    "Jl. Perjuangan No. 40, Kebon Jeruk, Jakarta Barat",
+    "Jl. Raya Kembangan No. 10, Kebon Jeruk, Jakarta Barat",
+    "Perumahan Green Ville Blok O2 No. 11, Kebon Jeruk, Jakarta Barat",
+    "Jl. Pesanggrahan No. 33, Kebon Jeruk, Jakarta Barat",
+    "Ruko Kebon Jeruk Business Park Blok A7 No. 8, Jakarta Barat",
+    "Universitas Bina Nusantara (Binus), Jl. Kebon Jeruk Raya No. 27, Jakarta Barat",
+    "Rumah Sakit Siloam Kebon Jeruk, Jl. Perjuangan No. 8, Jakarta Barat",
+    "Jl. Panjang Arteri No. 120, Kebon Jeruk, Jakarta Barat",
+
+    // 🌇 TAMBAHAN SEKITARNYA
+    "Jl. Kembangan Selatan No. 66, Kembangan, Jakarta Barat",
+    "Jl. Meruya Ilir No. 77, Meruya, Jakarta Barat",
+    "Jl. Puri Indah Raya No. 88, Puri Indah, Jakarta Barat",
+    "Jl. Green Garden No. 99, Green Garden, Jakarta Barat",
+    "Jl. Kedoya Raya No. 111, Kedoya, Jakarta Barat",
+    "Jl. Taman Aries No. 45, Meruya Utara, Jakarta Barat",
+    "Jl. Pesanggrahan Raya No. 12, Kembangan, Jakarta Barat",
+    "Jl. H. Sa'aba No. 23, Meruya Selatan, Jakarta Barat",
+    "Perumahan Puri Mansion, Kembangan, Jakarta Barat",
+    "Apartemen Taman Anggrek, Jl. Letjen S. Parman, Jakarta Barat",
+    "Central Park Mall, Jl. Letjen S. Parman No. 28, Jakarta Barat",
+  ];
+
+  const handleInputChange = (e) => {
+    const input = e.target.value;
+    onChange(input);
+
+    if (input.length > 2) {
+      const filtered = commonAddresses.filter(addr =>
+        addr.toLowerCase().includes(input.toLowerCase())
+      );
+      setSuggestions(filtered.slice(0, 6));
+      setShowSuggestions(true);
+    } else {
+      setSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const selectSuggestion = (suggestion) => {
+    onChange(suggestion);
+    setShowSuggestions(false);
+  };
+
+  return (
+    <div className="relative">
+      <input
+        value={value}
+        onChange={handleInputChange}
+        onFocus={() => value.length > 2 && setShowSuggestions(true)}
+        onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
+        placeholder="Contoh: Jl. Raya Kalideres No. 123, Jakarta Barat"
+        className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+          theme === 'dark' 
+            ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+            : 'bg-white border-gray-300'
+        }`}
+      />
+      
+      {showSuggestions && suggestions.length > 0 && (
+        <div className={`absolute top-full left-0 right-0 mt-1 border rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto animate-dropdown ${
+          theme === 'light' 
+            ? 'bg-white border-gray-200' 
+            : 'bg-gray-800 border-gray-600'
+        }`}>
+          <div className={`p-2 text-xs font-semibold border-b ${
+            theme === 'light' ? 'bg-orange-50 text-orange-700' : 'bg-orange-900 text-orange-300'
+          }`}>
+            📍 Pilih alamat atau ketik manual
+          </div>
+          {suggestions.map((suggestion, index) => (
+            <div
+              key={index}
+              onClick={() => selectSuggestion(suggestion)}
+              className={`p-3 border-b cursor-pointer transition-all duration-200 hover:scale-105 ${
+                theme === 'light'
+                  ? 'hover:bg-orange-50 border-gray-100'
+                  : 'hover:bg-gray-700 border-gray-600'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>🏠</span>
+                <span className="text-sm">{suggestion}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const voucherDiscounts = {
   'kelompok4': 0.8,
   'soccer50': 0.5,
@@ -142,23 +370,23 @@ const LoadingScreen = () => (
       type="module"
     ></script>
 
-<dotlottie-wc
-  src="https://lottie.host/1c3064dd-d28a-47fe-87a0-02568900c10f/bLwdshhf87.lottie"
-  speed="1"
-  style={{ width: '300px', height: '300px' }}
-  mode="forward"
-  loop
-  autoplay
-></dotlottie-wc>
+    <dotlottie-wc
+      src="https://lottie.host/1c3064dd-d28a-47fe-87a0-02568900c10f/bLwdshhf87.lottie"
+      speed="1"
+      style={{ width: '300px', height: '300px' }}
+      mode="forward"
+      loop
+      autoplay
+    ></dotlottie-wc>
 
-<div className="mt-4 text-center">
-  <h2 className="text-3xl font-bold text-orange-700 relative overflow-hidden">
-    <span className="inline-block animate-slide-mask">Selamat Datang!</span>
-  </h2>
-  <p className="text-lg text-orange-600 mt-2 relative overflow-hidden">
-    <span className="inline-block animate-slide-mask-delayed">Made By Kelompok 4</span>
-  </p>
-</div>
+    <div className="mt-4 text-center">
+      <h2 className="text-3xl font-bold text-orange-700 relative overflow-hidden">
+        <span className="inline-block animate-slide-mask">Selamat Datang!</span>
+      </h2>
+      <p className="text-lg text-orange-600 mt-2 relative overflow-hidden">
+        <span className="inline-block animate-slide-mask-delayed">Made By Kelompok 4</span>
+      </p>
+    </div>
 
     <style jsx>{`
       @keyframes slideMask {
@@ -213,50 +441,50 @@ export default function Home() {
   const [theme, setTheme] = useState('light')
   const [isThemeTransitioning, setIsThemeTransitioning] = useState(false)
 
-const paymentMethods = [
-  {
-    id: 'shopeepay',
-    name: 'ShopeePay',
-    description: 'Bayar dengan saldo ShopeePay',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Shopee.svg/330px-Shopee.svg.png'
-  },
-  {
-    id: 'dana',
-    name: 'DANA',
-    description: 'Bayar dengan DANA - Cepat & Aman',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/330px-Logo_dana_blue.svg.png'
-  },
-  {
-    id: 'ovo',
-    name: 'OVO',
-    description: 'Bayar dengan OVO - Cashless Payment',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/330px-Logo_ovo_purple.svg.png'
-  },
-  {
-    id: 'linkaja',
-    name: 'LinkAja',
-    description: 'Bayar dengan LinkAja - Satu untuk Semua',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/LinkAja.svg/240px-LinkAja.svg.png'
-  },
-  {
-    id: 'paypal',
-    name: 'PayPal',
-    description: 'Bayar dengan PayPal - International Payment',
-    icon: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg'
-  },
-  {
-    id: 'cod',
-    name: 'Cash On Delivery',
-    description: 'Bayar di Tempat untuk memastikan kualitas barang',
-    icon: 'https://cdn-icons-png.flaticon.com/512/679/679720.png'
-  },
-  {
-    id: 'card',
-    name: 'Credit/Debit Card',
-    description: 'Bayar dengan Kartu Kredit atau Debit',
-    icon: 'https://cdn-icons-png.flaticon.com/512/633/633611.png'
-  }
-]
+  const paymentMethods = [
+    {
+      id: 'shopeepay',
+      name: 'ShopeePay',
+      description: 'Bayar dengan saldo ShopeePay',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Shopee.svg/330px-Shopee.svg.png'
+    },
+    {
+      id: 'dana',
+      name: 'DANA',
+      description: 'Bayar dengan DANA - Cepat & Aman',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Logo_dana_blue.svg/330px-Logo_dana_blue.svg.png'
+    },
+    {
+      id: 'ovo',
+      name: 'OVO',
+      description: 'Bayar dengan OVO - Cashless Payment',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Logo_ovo_purple.svg/330px-Logo_ovo_purple.svg.png'
+    },
+    {
+      id: 'linkaja',
+      name: 'LinkAja',
+      description: 'Bayar dengan LinkAja - Satu untuk Semua',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/LinkAja.svg/240px-LinkAja.svg.png'
+    },
+    {
+      id: 'paypal',
+      name: 'PayPal',
+      description: 'Bayar dengan PayPal - International Payment',
+      icon: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg'
+    },
+    {
+      id: 'cod',
+      name: 'Cash On Delivery',
+      description: 'Bayar di Tempat untuk memastikan kualitas barang',
+      icon: 'https://cdn-icons-png.flaticon.com/512/679/679720.png'
+    },
+    {
+      id: 'card',
+      name: 'Credit/Debit Card',
+      description: 'Bayar dengan Kartu Kredit atau Debit',
+      icon: 'https://cdn-icons-png.flaticon.com/512/633/633611.png'
+    }
+  ]
 
   const allTags = ['all', ...new Set(products.flatMap(product => product.tags || []))]
 
@@ -440,49 +668,59 @@ const paymentMethods = [
     setCartOpen(false)
   }, [navigateToPage])
 
-const handleCheckout = useCallback(async () => {
-  if (!form.paymentMethod) {
-    alert('Pilih metode pembayaran terlebih dahulu!')
-    return
-  }
-
-  setStatus('processing')
-  try {
-    // Untuk setiap item di cart, kirim sebagai purchase terpisah
-    for (const item of cart) {
-      const purchaseData = {
-        productId: item.product.id.toString(),
-        product_name: item.product.name,
-        size: item.variant.size.toString(),
-        price: item.variant.price,
-        qty: item.quantity,
-        name: form.name,
-        phone: form.phone,
-        address: form.address,
-        paymentMethod: form.paymentMethod,
-        voucher_code: form.code || null, // ✅ TAMBAH INI - simpan kode voucher
-        discount_rate: voucherApplied ? calculateDiscount(item.quantity, form.code) : 0, // ✅ TAMBAH discount rate
-        final_price: voucherApplied ? Math.round(item.variant.price * item.quantity * (1 - calculateDiscount(item.quantity, form.code))) : item.variant.price * item.quantity // ✅ Harga setelah diskon
-      }
-
-      console.log('📦 Sending purchase:', purchaseData)
-
-      await fetch('/api/purchase', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(purchaseData)
-      })
+  const handleCheckout = useCallback(async () => {
+    if (!form.paymentMethod) {
+      alert('Pilih metode pembayaran terlebih dahulu!')
+      return
     }
-    
-    setStatus('success')
-    setShowSuccessPopup(true)
-    setCart([])
-    setCartOpen(false)
-  } catch (error) {
-    console.error('Checkout error:', error)
-    setStatus('error')
-  }
-}, [cart, form, totalPrice, voucherApplied, calculateDiscount])
+
+    // Validasi phone number
+    if (!validatePhone(form.phone)) {
+      alert('Nomor telepon harus valid! Format: +6281234567890');
+      return;
+    }
+
+    setStatus('processing')
+    try {
+      for (const item of cart) {
+        const purchaseData = {
+          productId: item.product.id.toString(),
+          product_name: item.product.name,
+          size: item.variant.size.toString(),
+          price: item.variant.price,
+          qty: item.quantity,
+          name: form.name,
+          phone: form.phone,
+          address: form.address,
+          paymentMethod: form.paymentMethod,
+          voucher_code: form.code || null,
+          discount_rate: voucherApplied ? calculateDiscount(item.quantity, form.code) : 0,
+          final_price: voucherApplied ? Math.round(item.variant.price * item.quantity * (1 - calculateDiscount(item.quantity, form.code))) : item.variant.price * item.quantity
+        }
+
+        console.log('📦 Sending purchase:', purchaseData)
+
+        const response = await fetch('/api/purchase', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(purchaseData)
+        })
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+      }
+      
+      setStatus('success')
+      setShowSuccessPopup(true)
+      setCart([])
+      setCartOpen(false)
+    } catch (error) {
+      console.error('Checkout error:', error)
+      setStatus('error')
+      alert('Checkout gagal. Silakan coba lagi.')
+    }
+  }, [cart, form, voucherApplied, calculateDiscount])
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -646,281 +884,276 @@ const handleCheckout = useCallback(async () => {
     )
   }
 
-const AboutPage = () => (
-  <div
-    className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
-      theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
-    } ${pageTransition ? "animate-page-exit" : "animate-page-enter"}`}
-  >
-    <div className="text-center mb-8">
-      <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
-        Tentang Kami
-      </h1>
-      <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
-    </div>
+  const AboutPage = () => (
+    <div
+      className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
+        theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
+      } ${pageTransition ? "animate-page-exit" : "animate-page-enter"}`}
+    >
+      <div className="text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
+          Tentang Kami
+        </h1>
+        <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
+      </div>
 
-<div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-  <div className="animate-slide-in-left">
-    <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
-    <div className="space-y-3">
-      {[
-        { 
-          name: "Darren", 
-          role: "Project Manager",
-          image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg" 
-        },
-        { 
-          name: "Isabel", 
-          role: "Project Manager",
-          image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg"
-        },
-        { 
-          name: "Steven", 
-          role: "UI Designer",
-          image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
-        },
-        { 
-          name: "Sultanto", 
-          role: "UX Designer & Fullstack Manager",
-          image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
-        },
-        { 
-          name: "Anonymous", 
-          role: "Tester",
-          image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
-        },
-      ].map((member) => (
-        <div
-          key={member.name}
-          className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
-            theme === 'light' 
-              ? 'bg-orange-50 hover:bg-orange-100' 
-              : 'bg-gray-700 hover:bg-gray-600'
-          }`}
-        >
-          {/* Ganti dengan gambar */}
-          <img
-            src={member.image}
-            alt={member.name}
-            className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
-            onError={(e) => {
-              // Fallback ke huruf jika gambar error
-              e.target.style.display = 'none';
-              e.target.nextSibling.style.display = 'flex';
-            }}
-          />
-          {/* Fallback avatar dengan huruf */}
-          <div 
-            className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
-          >
-            {member.name.charAt(0)}
-          </div>
-          <div>
-            <div className="font-semibold">{member.name}</div>
-            <div className="text-sm opacity-75">{member.role}</div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="animate-slide-in-left">
+          <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
+          <div className="space-y-3">
+            {[
+              { 
+                name: "Darren", 
+                role: "Project Manager",
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg" 
+              },
+              { 
+                name: "Isabel", 
+                role: "Project Manager",
+                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg"
+              },
+              { 
+                name: "Steven", 
+                role: "UI Designer",
+                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+              },
+              { 
+                name: "Sultanto", 
+                role: "UX Designer & Fullstack Manager",
+                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+              },
+              { 
+                name: "Anonymous", 
+                role: "Tester",
+                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+              },
+            ].map((member) => (
+              <div
+                key={member.name}
+                className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
+                  theme === 'light' 
+                    ? 'bg-orange-50 hover:bg-orange-100' 
+                    : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+              >
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div 
+                  className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
+                >
+                  {member.name.charAt(0)}
+                </div>
+                <div>
+                  <div className="font-semibold">{member.name}</div>
+                  <div className="text-sm opacity-75">{member.role}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-      ))}
-    </div>
-  </div>
 
-      <div className="animate-slide-in-right">
-        <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
-        <div className={`p-6 rounded-lg border transition-all duration-300 ${
-          theme === 'light' 
-            ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200' 
-            : 'bg-gradient-to-br from-gray-700 to-gray-600 border-gray-600'
-        }`}>
-          <p className="leading-relaxed mb-4">
-            <strong>Made By Kelompok 4</strong>
-          </p>
-          <p className="opacity-75 leading-relaxed mb-4">
-            Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi.
-            Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
-          </p>
-          <div className="flex items-center gap-2 text-sm opacity-75">
-            <span>⚡</span>
-            <span>Dibuat dengan React.js & Next.js</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div className="border-t pt-8 animate-fade-in-up-delayed">
-      <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
-      <div className="flex flex-col sm:flex-row justify-center gap-6">
-
-        <a
-          href="https://wa.me/6285156431675"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
-          style={{
-            backgroundColor: theme === 'light' ? 'rgb(240, 253, 244)' : 'rgb(6, 78, 59)'
-          }}
-        >
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-            alt="WhatsApp"
-            className="w-10 h-10"
-          />
-          <div>
-            <div className="font-semibold">WhatsApp</div>
-            <div className="text-sm opacity-75">+62 851-5643-1675</div>
-          </div>
-        </a>
-
-        <a
-          href="mailto:rndm942@yahoo.com"
-          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
-          style={{
-            backgroundColor: theme === 'light' ? 'rgb(254, 242, 242)' : 'rgb(127, 29, 29)'
-          }}
-        >
-          <img
-            src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
-            alt="Email"
-            className="w-10 h-10"
-          />
-          <div>
-            <div className="font-semibold">Email</div>
-            <div className="text-sm opacity-75">rndm942@yahoo.com</div>
-          </div>
-        </a>
-      </div>
-    </div>
-
-    <div className="text-center mt-8">
-      <button
-        onClick={() => navigateToPage("home")}
-        className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-      >
-        ← Kembali ke Menu Utama
-      </button>
-    </div>
-
-    <style jsx>{`
-      @keyframes ripple {
-        0% {
-          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.15);
-        }
-        70% {
-          box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-        }
-        100% {
-          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-        }
-      }
-      .animate-ripple {
-        animation: ripple 0.4s linear;
-      }
-    `}</style>
-  </div>
-);
-
-const Footer = () => (
-  <footer className={`mt-8 py-6 border-t relative z-10 backdrop-blur-sm transition-all duration-300 ${
-    theme === 'light' 
-      ? 'bg-white/50 border-gray-200' 
-      : 'bg-gray-900/50 border-gray-700'
-  }`}>
-    <div className="max-w-6xl mx-auto px-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
-        <div 
-          className="text-center cursor-pointer group"
-          onClick={() => navigateToPage('about')}
-        >
-          <div className={`inline-block p-4 rounded-lg hover:scale-105 transition-all duration-300 ${
+        <div className="animate-slide-in-right">
+          <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
+          <div className={`p-6 rounded-lg border transition-all duration-300 ${
             theme === 'light' 
-              ? 'bg-orange-50 hover:bg-orange-100' 
-              : 'bg-gray-800 hover:bg-gray-700'
+              ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200' 
+              : 'bg-gradient-to-br from-gray-700 to-gray-600 border-gray-600'
           }`}>
-            <div className={`text-sm mb-2 transition-colors ${
-              theme === 'light' ? 'text-gray-600 group-hover:text-orange-600' : 'text-gray-400 group-hover:text-orange-400'
-            }`}>
-              Made by
+            <p className="leading-relaxed mb-4">
+              <strong>Made By Kelompok 4</strong>
+            </p>
+            <p className="opacity-75 leading-relaxed mb-4">
+              Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi.
+              Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
+            </p>
+            <div className="flex items-center gap-2 text-sm opacity-75">
+              <span>⚡</span>
+              <span>Dibuat dengan React.js & Next.js</span>
             </div>
-            <div className={`font-semibold transition-colors ${
-              theme === 'light' ? 'text-orange-700 group-hover:text-orange-800' : 'text-orange-400 group-hover:text-orange-300'
-            }`}>
-              Kelompok 4
-            </div>
-            <div className={`text-xs mt-1 transition-colors ${
-              theme === 'light' ? 'text-gray-500 group-hover:text-gray-600' : 'text-gray-500 group-hover:text-gray-400'
-            }`}>
-              Klik untuk info lebih lanjut →
-            </div>
-          </div>
-        </div>
-
-        <div className="text-center">
-          <div className="flex justify-center gap-8">
-            
-            <a
-              href="https://wa.me/6285156431675"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105"
-              style={{
-                color: theme === 'light' ? '#059669' : '#34d399'
-              }}
-            >
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-                alt="WhatsApp"
-                className="w-6 h-6"
-              />
-              <div className="text-left">
-                <div className={`text-xs ${
-                  theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-                }`}>WhatsApp</div>
-                <div className={`text-sm font-medium ${
-                  theme === 'light' ? 'text-gray-700' : 'text-gray-300'
-                }`}>0851-5643-1675</div>
-              </div>
-            </a>
-
-            <a
-              href="mailto:rndm942@yahoo.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105"
-              style={{
-                color: theme === 'light' ? '#dc2626' : '#f87171'
-              }}
-            >
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
-                alt="Email"
-                className="w-6 h-6"
-              />
-              <div className="text-left">
-                <div className={`text-xs ${
-                  theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-                }`}>Email</div>
-                <div className={`text-sm font-medium ${
-                  theme === 'light' ? 'text-gray-700' : 'text-gray-300'
-                }`}>rndm942@yahoo.com</div>
-              </div>
-            </a>
-
           </div>
         </div>
       </div>
 
-      <div className={`text-center mt-4 pt-4 border-t ${
-        theme === 'light' ? 'border-gray-200' : 'border-gray-700'
-      }`}>
-        <p className={`text-xs ${
-          theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-        }`}>
-          © 2025 Soccer Ball Shop. All rights reserved.
-        </p>
+      <div className="border-t pt-8 animate-fade-in-up-delayed">
+        <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
+        <div className="flex flex-col sm:flex-row justify-center gap-6">
+          <a
+            href="https://wa.me/6285156431675"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
+            style={{
+              backgroundColor: theme === 'light' ? 'rgb(240, 253, 244)' : 'rgb(6, 78, 59)'
+            }}
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+              alt="WhatsApp"
+              className="w-10 h-10"
+            />
+            <div>
+              <div className="font-semibold">WhatsApp</div>
+              <div className="text-sm opacity-75">+62 851-5643-1675</div>
+            </div>
+          </a>
+
+          <a
+            href="mailto:rndm942@yahoo.com"
+            className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
+            style={{
+              backgroundColor: theme === 'light' ? 'rgb(254, 242, 242)' : 'rgb(127, 29, 29)'
+            }}
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
+              alt="Email"
+              className="w-10 h-10"
+            />
+            <div>
+              <div className="font-semibold">Email</div>
+              <div className="text-sm opacity-75">rndm942@yahoo.com</div>
+            </div>
+          </a>
+        </div>
       </div>
+
+      <div className="text-center mt-8">
+        <button
+          onClick={() => navigateToPage("home")}
+          className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+        >
+          ← Kembali ke Menu Utama
+        </button>
+      </div>
+
+      <style jsx>{`
+        @keyframes ripple {
+          0% {
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.15);
+          }
+          70% {
+            box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+          }
+          100% {
+            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+          }
+        }
+        .animate-ripple {
+          animation: ripple 0.4s linear;
+        }
+      `}</style>
     </div>
-  </footer>
-);
+  );
+
+  const Footer = () => (
+    <footer className={`mt-8 py-6 border-t relative z-10 backdrop-blur-sm transition-all duration-300 ${
+      theme === 'light' 
+        ? 'bg-white/50 border-gray-200' 
+        : 'bg-gray-900/50 border-gray-700'
+    }`}>
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <div 
+            className="text-center cursor-pointer group"
+            onClick={() => navigateToPage('about')}
+          >
+            <div className={`inline-block p-4 rounded-lg hover:scale-105 transition-all duration-300 ${
+              theme === 'light' 
+                ? 'bg-orange-50 hover:bg-orange-100' 
+                : 'bg-gray-800 hover:bg-gray-700'
+            }`}>
+              <div className={`text-sm mb-2 transition-colors ${
+                theme === 'light' ? 'text-gray-600 group-hover:text-orange-600' : 'text-gray-400 group-hover:text-orange-400'
+              }`}>
+                Made by
+              </div>
+              <div className={`font-semibold transition-colors ${
+                theme === 'light' ? 'text-orange-700 group-hover:text-orange-800' : 'text-orange-400 group-hover:text-orange-300'
+              }`}>
+                Kelompok 4
+              </div>
+              <div className={`text-xs mt-1 transition-colors ${
+                theme === 'light' ? 'text-gray-500 group-hover:text-gray-600' : 'text-gray-500 group-hover:text-gray-400'
+              }`}>
+                Klik untuk info lebih lanjut →
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center">
+            <div className="flex justify-center gap-8">
+              
+              <a
+                href="https://wa.me/6285156431675"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105"
+                style={{
+                  color: theme === 'light' ? '#059669' : '#34d399'
+                }}
+              >
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+                  alt="WhatsApp"
+                  className="w-6 h-6"
+                />
+                <div className="text-left">
+                  <div className={`text-xs ${
+                    theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+                  }`}>WhatsApp</div>
+                  <div className={`text-sm font-medium ${
+                    theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+                  }`}>0851-5643-1675</div>
+                </div>
+              </a>
+
+              <a
+                href="mailto:rndm942@yahoo.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105"
+                style={{
+                  color: theme === 'light' ? '#dc2626' : '#f87171'
+                }}
+              >
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
+                  alt="Email"
+                  className="w-6 h-6"
+                />
+                <div className="text-left">
+                  <div className={`text-xs ${
+                    theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+                  }`}>Email</div>
+                  <div className={`text-sm font-medium ${
+                    theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+                  }`}>rndm942@yahoo.com</div>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div className={`text-center mt-4 pt-4 border-t ${
+          theme === 'light' ? 'border-gray-200' : 'border-gray-700'
+        }`}>
+          <p className={`text-xs ${
+            theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+          }`}>
+            © 2025 Soccer Ball Shop. All rights reserved.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
 
   if (isLoading) {
     return <LoadingScreen />;
@@ -1571,33 +1804,23 @@ const Footer = () => (
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Nomor Telepon *</label>
-                  <input
+                  <PhoneInputWithFlag 
                     value={form.phone}
-                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                    placeholder="Masukkan nomor telepon"
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
-                      theme === 'dark' 
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                        : 'bg-white border-gray-300'
-                    }`}
-                    required
+                    onChange={(value) => setForm({ ...form, phone: value })}
+                    theme={theme}
                   />
                 </div>
 
                 <div>
                   <label className="block text-sm font-medium mb-2">Alamat Lengkap *</label>
-                  <textarea
+                  <SimpleAddressAutocomplete 
                     value={form.address}
-                    onChange={(e) => setForm({ ...form, address: e.target.value })}
-                    placeholder="Masukkan alamat lengkap untuk pengiriman"
-                    rows="3"
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
-                      theme === 'dark' 
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                        : 'bg-white border-gray-300'
-                    }`}
-                    required
+                    onChange={(value) => setForm({ ...form, address: value })}
+                    theme={theme}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Mulai ketik nama jalan, contoh: "Jl. Kalideres" atau "Daan Mogot"
+                  </p>
                 </div>
 
                 <div>
@@ -1956,88 +2179,6 @@ const Footer = () => (
           transform: scale(0.9) translateY(-10px); 
         }
       }
-      .animate-dribble {
-        animation: dribble 1s ease-in-out infinite;
-      }
-      @keyframes dribble {
-        0% { transform: translateY(0) rotate(0deg); }
-        25% { transform: translateY(-40px) rotate(90deg); }
-        50% { transform: translateY(-20px) rotate(180deg); }
-        75% { transform: translateY(-35px) rotate(270deg); }
-        100% { transform: translateY(0) rotate(360deg); }
-      }
-      .animate-shadow-dribble {
-        animation: shadowDribble 1s ease-in-out infinite;
-      }
-      @keyframes shadowDribble {
-        0% { transform: scale(0.8); opacity: 0.3; }
-        25% { transform: scale(1.1); opacity: 0.6; }
-        50% { transform: scale(0.9); opacity: 0.4; }
-        75% { transform: scale(1.05); opacity: 0.5; }
-        100% { transform: scale(0.8); opacity: 0.3; }
-      }
-      .animate-gradient-flow {
-        animation: gradientFlow 3s ease-in-out infinite;
-        background-size: 200% 200%;
-      }
-      @keyframes gradientFlow {
-        0% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-        100% { background-position: 0% 50%; }
-      }
-      .animate-text-slide-up {
-        animation: textSlideUp 0.8s ease-out 0.5s both;
-      }
-      @keyframes textSlideUp {
-        from { 
-          opacity: 0; 
-          transform: translateY(30px); 
-        }
-        to { 
-          opacity: 1; 
-          transform: translateY(0); 
-        }
-      }
-      .animate-text-slide-up-delayed {
-        animation: textSlideUp 0.8s ease-out 1s both;
-      }
-      .animate-fade-in-up {
-        animation: fadeInUp 0.6s ease-out;
-      }
-      @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(30px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .animate-scale-in {
-        animation: scaleIn 0.6s ease-out 0.2s both;
-      }
-      @keyframes scaleIn {
-        from { transform: scaleX(0); }
-        to { transform: scaleX(1); }
-      }
-      .animate-slide-in-left {
-        animation: slideInLeft 0.6s ease-out;
-      }
-      @keyframes slideInLeft {
-        from { opacity: 0; transform: translateX(-50px); }
-        to { opacity: 1; transform: translateX(0); }
-      }
-      .animate-slide-in-right {
-        animation: slideInRight 0.6s ease-out;
-      }
-      @keyframes slideInRight {
-        from { opacity: 0; transform: translateX(50px); }
-        to { opacity: 1; transform: translateX(0); }
-      }
-      .animate-fade-in-up-delayed {
-        animation: fadeInUp 0.6s ease-out 0.4s both;
-      }
-      .clip-pentagon {
-        clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-      }
-      .clip-hexagon {
-        clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-      }
       .line-clamp-2 {
         display: -webkit-box;
         -webkit-line-clamp: 2;
@@ -2050,12 +2191,7 @@ const Footer = () => (
       .mt-auto {
         margin-top: auto;
       }
-      .product-card {
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-      }
     `}</style>
-  </div>
-)
+    </div>
+  )
 }
