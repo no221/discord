@@ -440,35 +440,46 @@ const paymentMethods = [
     setCartOpen(false)
   }, [navigateToPage])
 
-  const handleCheckout = useCallback(async () => {
-    if (!form.paymentMethod) {
-      alert('Pilih metode pembayaran terlebih dahulu!')
-      return
-    }
+ const handleCheckout = useCallback(async () => {
+  if (!form.paymentMethod) {
+    alert('Pilih metode pembayaran terlebih dahulu!')
+    return
+  }
 
-    setStatus('processing')
-    try {
-      const orderData = {
-        items: cart,
-        customer: form,
-        total: totalPrice,
+  setStatus('processing')
+  try {
+    // Untuk setiap item di cart, kirim sebagai purchase terpisah
+    for (const item of cart) {
+      const purchaseData = {
+        productId: item.product.id.toString(),
+        product_name: item.product.name,
+        size: item.variant.size.toString(),
+        price: item.variant.price,
+        qty: item.quantity,
+        name: form.name,
+        phone: form.phone,
+        address: form.address,
         paymentMethod: form.paymentMethod
       }
-      
+
+      console.log('📦 Sending purchase:', purchaseData)
+
       await fetch('/api/purchase', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(orderData)
+        body: JSON.stringify(purchaseData)
       })
-      
-      setStatus('success')
-      setShowSuccessPopup(true)
-      setCart([])
-      setCartOpen(false)
-    } catch {
-      setStatus('error')
     }
-  }, [cart, form, totalPrice])
+    
+    setStatus('success')
+    setShowSuccessPopup(true)
+    setCart([])
+    setCartOpen(false)
+  } catch (error) {
+    console.error('Checkout error:', error)
+    setStatus('error')
+  }
+}, [cart, form, totalPrice])
 
   useEffect(() => {
     function handleClickOutside(event) {
