@@ -4,7 +4,25 @@ import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
 import { Pie } from 'react-chartjs-2'
 
 ChartJS.register(ArcElement, Tooltip, Legend)
-
+// Tambahkan function ini sebelum return statement
+const formatDateTime = (timestamp) => {
+  if (!timestamp) return { date: 'N/A', time: 'N/A', full: 'N/A' }
+  const date = new Date(timestamp)
+  return {
+    date: date.toLocaleDateString('id-ID', {
+      weekday: 'short',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }),
+    time: date.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    }),
+    full: date.toLocaleString('id-ID')
+  }
+}
 export default function Admin() {
   const [authorized, setAuthorized] = useState(false)
   const [pwd, setPwd] = useState('')
@@ -297,81 +315,92 @@ export default function Admin() {
           </div>
         ) : (
           <>
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-blue-500 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Monthly Sales</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-2">{monthlyBuy}</p>
-                    <p className="text-xs text-gray-500 mt-1">items this month</p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-blue-500">📈</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-green-500 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Total Items Sold</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-2">{totalBought}</p>
-                    <p className="text-xs text-gray-500 mt-1">all time</p>
-                  </div>
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-green-500">🛒</span>
-                  </div>
-                </div>
-              </div>
+{/* Statistics Cards */}
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+  {/* Monthly Sales */}
+  <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-blue-500 hover:shadow-xl transition-all duration-300">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-gray-600 text-sm font-medium">Monthly Sales</p>
+        <p className="text-3xl font-bold text-gray-800 mt-2">{monthlyBuy}</p>
+        <p className="text-xs text-gray-500 mt-1">items this month</p>
+      </div>
+      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+        <span className="text-2xl text-blue-500">📈</span>
+      </div>
+    </div>
+  </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-purple-500 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Total Revenue</p>
-                    <p className="text-2xl font-bold text-gray-800 mt-2">
-                      Rp {totalFinalRevenue.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">after discounts</p>
-                  </div>
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-purple-500">💰</span>
-                  </div>
-                </div>
-              </div>
+  {/* Total Items Sold */}
+  <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-green-500 hover:shadow-xl transition-all duration-300">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-gray-600 text-sm font-medium">Total Items Sold</p>
+        <p className="text-3xl font-bold text-gray-800 mt-2">{totalBought}</p>
+        <p className="text-xs text-gray-500 mt-1">all time</p>
+      </div>
+      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+        <span className="text-2xl text-green-500">🛒</span>
+      </div>
+    </div>
+  </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-orange-500 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Voucher Usage</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-2">{purchasesWithVoucher.length}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {mostUsedVoucher[0]} ({mostUsedVoucher[1]}x)
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-orange-500">🎫</span>
-                  </div>
-                </div>
-              </div>
-            </div>
+  {/* Total Revenue */}
+  <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-purple-500 hover:shadow-xl transition-all duration-300">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-gray-600 text-sm font-medium">Total Revenue</p>
+        <p className="text-2xl font-bold text-gray-800 mt-2">
+          Rp {totalFinalRevenue.toLocaleString()}
+        </p>
+        <p className="text-xs text-gray-500 mt-1">after discounts</p>
+      </div>
+      <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+        <span className="text-2xl text-purple-500">💰</span>
+      </div>
+    </div>
+  </div>
 
-            {/* Voucher Analytics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-red-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Total Discount</p>
-                    <p className="text-2xl font-bold text-gray-800 mt-2">
-                      Rp {totalDiscountGiven.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">given via vouchers</p>
-                  </div>
-                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-red-500">💸</span>
-                  </div>
-                </div>
-              </div>
+  {/* Voucher Usage */}
+  <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-orange-500 hover:shadow-xl transition-all duration-300">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-gray-600 text-sm font-medium">Voucher Usage</p>
+        <p className="text-3xl font-bold text-gray-800 mt-2">{purchasesWithVoucher.length}</p>
+        <p className="text-xs text-gray-500 mt-1">
+          {mostUsedVoucher[0]} ({mostUsedVoucher[1]}x)
+        </p>
+      </div>
+      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+        <span className="text-2xl text-orange-500">🎫</span>
+      </div>
+    </div>
+  </div>
+
+  {/* Latest Order - CARD BARU */}
+  <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-cyan-500 hover:shadow-xl transition-all duration-300">
+    <div className="flex items-center justify-between">
+      <div>
+        <p className="text-gray-600 text-sm font-medium">Latest Order</p>
+        <p className="text-lg font-bold text-gray-800 mt-2">
+          {purchases.length > 0 ? (
+            <>
+              {formatDateTime(purchases[0].created_at).date}
+              <br />
+              <span className="text-sm text-gray-500">
+                {formatDateTime(purchases[0].created_at).time}
+              </span>
+            </>
+          ) : 'No orders'}
+        </p>
+      </div>
+      <div className="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center">
+        <span className="text-2xl text-cyan-500">🕒</span>
+      </div>
+    </div>
+  </div>
+</div>
 
               <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-indigo-500">
                 <div className="flex items-center justify-between">
@@ -439,97 +468,141 @@ export default function Admin() {
               </div>
             </div>
 
-            {/* Purchase History Table */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex flex-col md:flex-row md:items-center justify-between">
-                  <h3 className="text-xl font-semibold text-gray-800 flex items-center">
-                    📋 Purchase History
-                  </h3>
-                  <div className="flex items-center space-x-4 mt-2 md:mt-0">
-                    <span className="text-gray-500 text-sm">
-                      Total: {purchases.length} orders
-                    </span>
-                    <span className="text-gray-500 text-sm">
-                      • With voucher: {purchasesWithVoucher.length}
-                    </span>
+// Di dalam file pages/admin.js, cari bagian Purchase History Table dan ganti dengan:
+
+{/* Purchase History Table dengan Jam & Waktu */}
+<div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
+  <div className="p-6 border-b border-gray-200">
+    <div className="flex flex-col md:flex-row md:items-center justify-between">
+      <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+        📋 Purchase History (Latest First)
+      </h3>
+      <div className="flex items-center space-x-4 mt-2 md:mt-0">
+        <span className="text-gray-500 text-sm">
+          Total: {purchases.length} orders
+        </span>
+        <span className="text-gray-500 text-sm">
+          • With voucher: {purchasesWithVoucher.length}
+        </span>
+      </div>
+    </div>
+  </div>
+  
+  {purchases.length > 0 ? (
+    <div className="overflow-x-auto">
+      <table className="w-full">
+        <thead className="bg-gray-50">
+          <tr>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Date & Time</th>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Product</th>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Size</th>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Qty</th>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Original</th>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Final</th>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Voucher</th>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Discount</th>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Payment</th>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Customer</th>
+            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Phone</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-gray-200">
+          {purchases.map((purchase, index) => {
+            const originalTotal = (Number(purchase.price) || 0) * (Number(purchase.qty) || 0)
+            const finalTotal = Number(purchase.final_price) || originalTotal
+            const discount = originalTotal - finalTotal
+            const discountRate = purchase.discount_rate ? Math.round(purchase.discount_rate * 100) : 0
+            
+            // Format tanggal dan waktu
+            const formatDateTime = (timestamp) => {
+              if (!timestamp) return { date: 'N/A', time: 'N/A' }
+              const date = new Date(timestamp)
+              return {
+                date: date.toLocaleDateString('id-ID', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                }),
+                time: date.toLocaleTimeString('id-ID', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit'
+                }),
+                full: date.toLocaleString('id-ID')
+              }
+            }
+            
+            const datetime = formatDateTime(purchase.created_at)
+            
+            return (
+              <tr key={index} className="hover:bg-gray-50 transition-colors">
+                {/* Kolom Date & Time */}
+                <td className="py-3 px-4">
+                  <div className="text-sm font-medium text-gray-900">
+                    {datetime.date}
                   </div>
-                </div>
-              </div>
-              
-              {purchases.length > 0 ? (
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Product</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Size</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Qty</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Original</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Final</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Voucher</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Discount</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Customer</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Date</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200">
-                      {purchases.map((purchase, index) => {
-                        const originalTotal = (Number(purchase.price) || 0) * (Number(purchase.qty) || 0)
-                        const finalTotal = Number(purchase.final_price) || originalTotal
-                        const discount = originalTotal - finalTotal
-                        const discountRate = purchase.discount_rate ? Math.round(purchase.discount_rate * 100) : 0
-                        
-                        return (
-                          <tr key={index} className="hover:bg-gray-50 transition-colors">
-                            <td className="py-3 px-4 text-sm text-gray-800">
-                              {purchase.product_name || purchase.productId || 'N/A'}
-                            </td>
-                            <td className="py-3 px-4 text-sm text-gray-600">{purchase.size || 'N/A'}</td>
-                            <td className="py-3 px-4 text-sm text-gray-600 text-center">{purchase.qty || 0}</td>
-                            <td className="py-3 px-4 text-sm text-gray-500 line-through">
-                              Rp {originalTotal.toLocaleString()}
-                            </td>
-                            <td className="py-3 px-4 text-sm font-bold text-green-600">
-                              Rp {finalTotal.toLocaleString()}
-                            </td>
-                            <td className="py-3 px-4 text-sm">
-                              {purchase.voucher_code ? (
-                                <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">
-                                  {purchase.voucher_code}
-                                </span>
-                              ) : (
-                                <span className="text-gray-400 text-xs">-</span>
-                              )}
-                            </td>
-                            <td className="py-3 px-4 text-sm">
-                              {discount > 0 ? (
-                                <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
-                                  -Rp {discount.toLocaleString()} ({discountRate}%)
-                                </span>
-                              ) : (
-                                <span className="text-gray-400 text-xs">0%</span>
-                              )}
-                            </td>
-                            <td className="py-3 px-4 text-sm text-gray-600">{purchase.name || 'N/A'}</td>
-                            <td className="py-3 px-4 text-sm text-gray-500">
-                              {purchase.created_at ? new Date(purchase.created_at).toLocaleDateString('id-ID') : 'N/A'}
-                            </td>
-                          </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              ) : (
-                <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl text-gray-400">📭</span>
+                  <div className="text-xs text-gray-500">
+                    {datetime.time}
                   </div>
-                  <p className="text-gray-500 text-lg">No purchase data available</p>
-                </div>
-              )}
-            </div>
+                </td>
+                
+                <td className="py-3 px-4 text-sm text-gray-800">
+                  {purchase.product_name || purchase.productId || 'N/A'}
+                </td>
+                <td className="py-3 px-4 text-sm text-gray-600">{purchase.size || 'N/A'}</td>
+                <td className="py-3 px-4 text-sm text-gray-600 text-center">{purchase.qty || 0}</td>
+                <td className="py-3 px-4 text-sm text-gray-500 line-through">
+                  Rp {originalTotal.toLocaleString()}
+                </td>
+                <td className="py-3 px-4 text-sm font-bold text-green-600">
+                  Rp {finalTotal.toLocaleString()}
+                </td>
+                <td className="py-3 px-4 text-sm">
+                  {purchase.voucher_code ? (
+                    <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">
+                      {purchase.voucher_code}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-xs">-</span>
+                  )}
+                </td>
+                <td className="py-3 px-4 text-sm">
+                  {discount > 0 ? (
+                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                      -Rp {discount.toLocaleString()} ({discountRate}%)
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-xs">0%</span>
+                  )}
+                </td>
+                <td className="py-3 px-4 text-sm">
+                  {purchase.payment_method ? (
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium capitalize">
+                      {purchase.payment_method}
+                    </span>
+                  ) : (
+                    <span className="text-gray-400 text-xs">-</span>
+                  )}
+                </td>
+                <td className="py-3 px-4 text-sm text-gray-600">{purchase.name || 'N/A'}</td>
+                <td className="py-3 px-4 text-sm text-gray-500 font-mono">
+                  {purchase.phone || 'N/A'}
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  ) : (
+    <div className="text-center py-12">
+      <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <span className="text-2xl text-gray-400">📭</span>
+      </div>
+      <p className="text-gray-500 text-lg">No purchase data available</p>
+    </div>
+  )}
+</div>
 
             {/* Summary Section */}
             <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white">
