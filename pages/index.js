@@ -1,4 +1,3 @@
-tolong bikin transisi light & dark theme lebih smooth dan animasi lainya ya.
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { products } from '@/data/product'
