@@ -1147,12 +1147,12 @@ const Footer = () => (
     )}
 
 {cartOpen && currentPage !== 'about' && (
-  <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end justify-center">
+  <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
     <div 
-      className={`w-full max-w-md max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
+      className={`w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
         theme === 'light' ? 'bg-white' : 'bg-gray-800'
       }`}
-      style={{ margin: '0 auto' }}
+      onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside cart
     >
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
@@ -1196,9 +1196,10 @@ const Footer = () => (
                 </div>
               )}
               <button
-                onClick={() => {
-                  setCartOpen(false)
-                  navigateToPage('cart')
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent cart from closing
+                  setCartOpen(false);
+                  navigateToPage('cart');
                 }}
                 className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
               >
