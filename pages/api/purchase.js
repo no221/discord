@@ -49,7 +49,8 @@ export default async function handler(req, res) {
         product_name,
         voucher_code, 
         discount_rate, 
-        final_price 
+        final_price,
+        paymentMethod // ✅ TAMBAH INI
       } = req.body
       
       console.log('Creating purchase:', { 
@@ -61,7 +62,8 @@ export default async function handler(req, res) {
         name,
         voucher_code,
         discount_rate,
-        final_price
+        final_price,
+        paymentMethod // ✅ TAMBAH INI
       })
 
       // Validasi field required
@@ -84,7 +86,9 @@ export default async function handler(req, res) {
           address,
           voucher_code: voucher_code || null,
           discount_rate: discount_rate || 0,  
-          final_price: final_price || price
+          final_price: final_price || price,
+          payment_method: paymentMethod || '', // ✅ TAMBAH INI
+          created_at: new Date().toISOString() // ✅ TIMESTAMP AUTO
         }])
         .select()
 
@@ -111,4 +115,4 @@ export default async function handler(req, res) {
 
   res.setHeader('Allow', ['GET', 'POST'])
   res.status(405).end(`Method ${req.method} Not Allowed`)
-}
+        }
