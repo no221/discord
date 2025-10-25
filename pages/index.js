@@ -645,35 +645,70 @@ const AboutPage = () => (
       <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
     </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-      <div className="animate-slide-in-left">
-        <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
-        <div className="space-y-3">
-          {[
-            { name: "Darren", role: "Project Manager" },
-            { name: "Isabel", role: "Project Manager" },
-            { name: "Steven", role: "UI Designer" },
-            { name: "Sultanto", role: "UX Designer & Fullstack Manager" },
-          ].map((member) => (
-            <div
-              key={member.name}
-              className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
-                theme === 'light' 
-                  ? 'bg-orange-50 hover:bg-orange-100' 
-                  : 'bg-gray-700 hover:bg-gray-600'
-              }`}
-            >
-              <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">
-                {member.name.charAt(0)}
-              </div>
-              <div>
-                <div className="font-semibold">{member.name}</div>
-                <div className="text-sm opacity-75">{member.role}</div>
-              </div>
-            </div>
-          ))}
+<div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+  <div className="animate-slide-in-left">
+    <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
+    <div className="space-y-3">
+      {[
+        { 
+          name: "Darren", 
+          role: "Project Manager",
+          image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg" 
+        },
+        { 
+          name: "Isabel", 
+          role: "Project Manager",
+          image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+        },
+        { 
+          name: "Steven", 
+          role: "UI Designer",
+          image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+        },
+        { 
+          name: "Sultanto", 
+          role: "UX Designer & Fullstack Manager",
+          image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+        },
+        { 
+          name: "Anonymous", 
+          role: "Tester",
+          image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+        },
+      ].map((member) => (
+        <div
+          key={member.name}
+          className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
+            theme === 'light' 
+              ? 'bg-orange-50 hover:bg-orange-100' 
+              : 'bg-gray-700 hover:bg-gray-600'
+          }`}
+        >
+          {/* Ganti dengan gambar */}
+          <img
+            src={member.image}
+            alt={member.name}
+            className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+            onError={(e) => {
+              // Fallback ke huruf jika gambar error
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'flex';
+            }}
+          />
+          {/* Fallback avatar dengan huruf */}
+          <div 
+            className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
+          >
+            {member.name.charAt(0)}
+          </div>
+          <div>
+            <div className="font-semibold">{member.name}</div>
+            <div className="text-sm opacity-75">{member.role}</div>
+          </div>
         </div>
-      </div>
+      ))}
+    </div>
+  </div>
 
       <div className="animate-slide-in-right">
         <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
