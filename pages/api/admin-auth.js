@@ -14,12 +14,6 @@ export default async function handler(req, res) {
       // Password check di SERVER SIDE - AMAN!
       const isValid = password === process.env.ADMIN_PASSWORD
 
-      console.log('Admin auth attempt:', { 
-        received: password ? '***' : 'empty',
-        expected: process.env.ADMIN_PASSWORD ? '***' : 'not set',
-        isValid 
-      })
-
       if (isValid) {
         return res.status(200).json({ 
           success: true,
