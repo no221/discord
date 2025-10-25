@@ -8,12 +8,17 @@ export const products = [
       { size: 6, price: 299000 },
     ],
     images: [
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430939051833430066/images_16.jpg?ex=68fb9957&is=68fa47d7&hm=c572ae3d890b1e7a5c8a356f2408b6c2901d2b14883183babd7f5214af876486&',
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430527475351556146/images_11.jpg?ex=68fb6b88&is=68fa1a08&hm=aa05fb7750424428f0de1b0f9874e59f70477e76f264e6c0d6c736fcea64f69c&',
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430527475972182046/images_9.jpg?ex=68fb6b88&is=68fa1a08&hm=a00d603ae583c5a0f84fea2444db63c3d94609f07d818a07ff55aaa2da87f524&'
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Futsal%20Pro-1.jpeg',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Futsal%20Pro-2.jpeg',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Futsal%20Pro-3.jpeg'
     ],
-    description: 'Bola Futsal Pro dibuat dari bahan sintetis premium yang tahan lama dan ringan, memudahkan kontrol bola saat dribbling maupun passing. Cocok untuk latihan intensif maupun pertandingan futsal indoor dan outdoor. Permukaan yang halus dan jahitan presisi memberikan pantulan yang konsisten serta akurasi tendangan yang lebih tinggi.',
-    tags: ['futsal', 'professional', 'match', 'indoor', 'outdoor']
+    description: `Bola Futsal Pro dibuat dari bahan sintetis premium yang tahan lama dan ringan, memudahkan kontrol bola saat dribbling maupun passing. Cocok untuk latihan intensif maupun pertandingan futsal indoor dan outdoor. Permukaan yang halus dan jahitan presisi memberikan pantulan yang konsisten serta akurasi tendangan yang lebih tinggi.
+
+Ukuran dan Spesifikasi:
+- Size 4: Diameter 20 cm, Berat 420 g
+- Size 5: Diameter 22 cm, Berat 430 g
+- Size 6: Diameter 23 cm, Berat 450 g`,
+tags: ['futsal', 'professional', 'match', 'outdoor']
   },
   {
     id: 2,
@@ -24,12 +29,17 @@ export const products = [
       { size: 6, price: 259000 },
     ],
     images: [
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430507364842344540/bola-futsal-ukuran-4-diameter-63-cm-merah-putih-kipsta-8773833.jpg?ex=68fa074d&is=68f8b5cd&hm=dca60b39bce47e73b4b8eed3b471849d0716e0066c9e514dbf639b029e87871b&',
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430525330862637176/images_4.jpg?ex=68fa1808&is=68f8c688&hm=b480d955498a13276b7baa5a1d40bfda35c2bbb7c066237a83b4f669cef0a75a&',
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430525330862637176/images_4.jpg?ex=68fa1808&is=68f8c688&hm=b480d955498a13276b7baa5a1d40bfda35c2bbb7c066237a83b4f669cef0a75a&'
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Futsal%20Classic-1.jpg',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Futsal%20Classic-2.jpeg',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Futsal%20Classic-3.jpeg'
     ],
-    description: 'Bola Sepak Classic merupakan bola standar FIFA dengan bahan kulit sintetis berkualitas tinggi, cocok untuk pertandingan formal maupun latihan rutin. Desain panel klasiknya memberikan grip yang baik dan kontrol bola optimal, sementara daya tahan terhadap benturan membuat bola ini ideal untuk penggunaan jangka panjang di lapangan outdoor.',
-    tags: ['soccer', 'classic', 'fifa', 'match', 'outdoor']
+    description: `Bola Sepak Classic merupakan bola standar FIFA dengan bahan kulit sintetis berkualitas tinggi, cocok untuk pertandingan formal maupun latihan rutin. Desain panel klasiknya memberikan grip yang baik dan kontrol bola optimal, sementara daya tahan terhadap benturan membuat bola ini ideal untuk penggunaan jangka panjang di lapangan outdoor.
+
+Ukuran dan Spesifikasi:
+- Size 4: Diameter 20.5 cm, Berat 423 g
+- Size 5: Diameter 22.3 cm, Berat 430 g
+- Size 6: Diameter 23.6 cm, Berat 440 g`,
+tags: ['soccer', 'match', 'outdoor']
   },
   {
     id: 3,
@@ -40,12 +50,17 @@ export const products = [
       { size: 6, price: 149000 },
     ],
     images: [
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430528587651350618/images_12.jpg?ex=68fa1b11&is=68f8c991&hm=92e6e2c4c9b09bb1205368e2d4732fbb735b1adf9f3c14ff105b120f20372fb0&',
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430528588062654505/images_13.jpg?ex=68fa1b11&is=68f8c991&hm=c49ec9250f9da8b78949b589d18616f853e6fafa07fdf00219bbabb4f2739d87&',
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430528588481953905/images_14.jpg?ex=68fa1b11&is=68f8c991&hm=97f1fc5dd5e374e1abdb98fce3e8ba1dd88f0175ddbf3a8c6ee9335e5f760445&'
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Sepak%20Training-1.jpeg',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Sepak%20Training-2.jpeg',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Sepak%20Training-3.jpeg'
     ],
-    description: 'Bola Sepak Training dirancang khusus untuk latihan harian dan pengembangan teknik dribbling. Terbuat dari bahan sintetis yang ringan namun tahan lama, bola ini memudahkan pemain meningkatkan akurasi tendangan dan kontrol bola. Ideal untuk latihan indoor maupun outdoor, serta cocok bagi pemula maupun pemain berpengalaman yang ingin meningkatkan skill dasar sepak bola.',
-    tags: ['soccer', 'training', 'practice', 'durable', 'indoor', 'outdoor']
+    description: `Bola Sepak Training dirancang khusus untuk latihan harian dan pengembangan teknik dribbling. Terbuat dari bahan sintetis yang ringan namun tahan lama, bola ini memudahkan pemain meningkatkan akurasi tendangan dan kontrol bola. Ideal untuk latihan indoor maupun outdoor, serta cocok bagi pemula maupun pemain berpengalaman yang ingin meningkatkan skill dasar sepak bola.
+
+Ukuran dan Spesifikasi:
+- Size 4: Diameter 22 cm, Berat 410 g
+- Size 5: Diameter 23 cm, Berat 430 g
+- Size 6: Diameter 24 cm, Berat 450 g`,
+    tags: ['soccer', 'training', 'outdoor']
   },
   {
     id: 4,
@@ -56,11 +71,17 @@ export const products = [
       { size: 6, price: 379000 },
     ],
     images: [
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430939051833430066/images_16.jpg?ex=68fb9957&is=68fa47d7&hm=c572ae3d890b1e7a5c8a356f2408b6c2901d2b14883183babd7f5214af876486&',
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1430527475351556146/images_11.jpg?ex=68fb6b88&is=68fa1a08&hm=aa05fb7750424428f0de1b0f9874e59f70477e76f264e6c0d6c736fcea64f69c&'
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Match-1.webp',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Match-2.webp',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Match-3.webp'
     ],
-    description: 'Bola Futsal Match grade untuk pertandingan resmi dengan kualitas terbaik. Menggunakan teknologi terbaru untuk kontrol maksimal dan akurasi sempurna.',
-    tags: ['futsal', 'match', 'professional', 'tournament']
+    description: `Bola Futsal Match grade untuk pertandingan resmi dengan kualitas terbaik. Menggunakan teknologi terbaru untuk kontrol maksimal dan akurasi sempurna.
+    Ukuran dan Spesifikasi:
+
+Size 4: Diameter 21 cm, Berat 425 g
+Size 5: Diameter 23 cm, Berat 435 g
+Size 6: Diameter 25 cm, Berat 455 g`,
+    tags: ['futsal', 'match', 'professional']
   },
   {
     id: 5,
@@ -71,11 +92,17 @@ export const products = [
       { size: 6, price: 589000 },
     ],
     images: [
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1431234340397908008/download.webp?ex=68fcac59&is=68fb5ad9&hm=644ffe0d481757b429b15b2c943c400f7d44da15061330644f450326aa0c86d9&',
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1431234623458902057/shopping.webp?ex=68fcac9d&is=68fb5b1d&hm=b4c6119868df9525ba7a2cc1018a5524d992030437c889bc878460fef29d5015&'
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Sepak%20Premium-1.jpeg',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Sepak%20Premium-2.jpeg',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Sepak%20Premium-3.jpeg'
     ],
-    description: 'Bola Sepak Premium dengan desain modern dan performa tinggi untuk pemain yang serius tentang sepak bola.',
-    tags: ['soccer', 'premium', 'performance', 'advanced']
+    description: `Bola Sepak Premium dengan desain modern dan performa tinggi untuk pemain yang serius tentang sepak bola.
+Ukuran dan Spesifikasi:
+
+Size 4: Diameter 22 cm, Berat 415 g
+Size 5: Diameter 23 cm, Berat 430 g
+Size 6: Diameter 24 cm, Berat 445 g`,
+    tags: ['soccer', 'premium']
   },
   {
     id: 6,
@@ -86,11 +113,17 @@ export const products = [
       { size: 6, price: 179000 },
     ],
     images: [
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1431236409469046884/images_18.jpg?ex=68fcae47&is=68fb5cc7&hm=8c7b85907aca7b7bbeb4ff28a32ec437f52c7364f9e2117c5310a1af584eec08&',
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1431235134698426409/download_1.webp?ex=68fcad17&is=68fb5b97&hm=fc88613170e96afda35205795f514d63cc438f056d620ffb91577324847f876a&'
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Futsal%20Training-1.webp',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Futsal%20Training-2.webp',
+      'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Bola%20Futsal%20Training-3.webp'
     ],
-    description: 'Bola Futsal Training yang ekonomis namun tetap berkualitas untuk latihan rutin dan pengembangan skill.',
-    tags: ['futsal', 'training', 'economy', 'practice']
+    description: `Bola Futsal Training yang ekonomis namun tetap berkualitas untuk latihan rutin dan pengembangan skill.
+Ukuran dan Spesifikasi:
+
+Size 4: Diameter 21 cm, Berat 420 g
+Size 5: Diameter 22 cm, Berat 430 g
+Size 6: Diameter 23 cm, Berat 440 g`,
+    tags: ['futsal', 'training']
   },
   {
     id: 7,
@@ -101,10 +134,62 @@ export const products = [
       { size: 12, price: 499000 },
     ],
     images: [
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1431237271532867634/images_20.jpg?ex=68fcaf14&is=68fb5d94&hm=c09f8a42ce6b622df221bb5a5e0f85978824daa4733e546f9f36fc7b641ba35d&',
-      'https://cdn.discordapp.com/attachments/1419839079222218772/1431237272249827420/images_19.jpg?ex=68fcaf14&is=68fb5d94&hm=ab3dc61496a4cd6c033f235cc1a1fad68875c8fecc33b9d4a4188e43f09ab0e5&'
+      'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Sarung%20Tangan%20Kiper-1.webp',
+      'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Sarung%20Tangan%20Kiper-2.webp',
+      'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Sarung%20Tangan%20Kiper-3.webp'
     ],
-    description: 'Sarung Tangan Kiper dengan grip kuat dan bahan breathable, memberikan perlindungan optimal serta kenyamanan saat pertandingan. Cocok untuk latihan maupun kompetisi profesional.',
-tags: ['goalkeeper', 'gloves', 'protection', 'soccer']
-  }
+    description: `Sarung Tangan Kiper dengan grip kuat dan bahan breathable, memberikan perlindungan optimal serta kenyamanan saat pertandingan. Cocok untuk latihan maupun kompetisi profesional.
+    Ukuran dan Spesifikasi:
+
+Size 10: Panjang ±27 cm, Berat ±250 g
+Size 11: Panjang ±28 cm, Berat ±260 g
+Size 12: Panjang ±29 cm, Berat ±270 g`,
+    tags: ['Sarung Tangan', 'professional']
+  },
+  {
+  id: 8,
+  name: 'Shin Guard',
+  variants: [
+    { size: 'S', price: 80000 },
+    { size: 'M', price: 100000 },
+    { size: 'L', price: 120000 },
+  ],
+  images: [
+    'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Shin-1.jpeg',
+    'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Shin-2.jpeg',
+    'https://raw.githubusercontent.com/rndmq/discord/60b1df412aaa67565d7e061782e0d880c59f1dff/Product/Shin-3.jpeg'
+  ],
+  description: `Shin Guard standar sepak bola untuk perlindungan optimal saat bermain. Nyaman digunakan dan ringan sehingga tidak mengganggu gerakan kaki.
+Ukuran dan Spesifikasi:
+
+Size S – Panjang 31 cm, Berat 250 g  
+Size M – Panjang 38 cm, Berat 261 g  
+Size L – Panjang 42 cm, Berat 272 g`,
+  tags: ['protection']
+},
+{
+  id: 9,
+  name: 'Knee Support / Ankle Brace',
+  variants: [
+    { size: 'S', price: 75000},
+    { size: 'M', price: 90000},
+    { size: 'L', price: 110000},
+    { size: 'XL', price: 125000},
+    { size: 'XXL', price: 135000},
+  ],
+  images: [
+  'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/K-1.jpeg',
+  'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/K-2.jpeg'
+  ],
+  description: `Support untuk lutut atau pergelangan kaki agar tetap aman saat latihan. 
+Tersedia dalam ukuran S hingga XXL berdasarkan lingkar lutut saat posisi lurus:
+- S (28–32 cm)
+- M (32–36 cm)
+- L (36–40 cm)
+- XL (40–44 cm)
+- XXL (44–49 cm)
+
+Berat produk berkisar antara 200–1000 gram tergantung bahan dan fitur tambahan.`,
+  tags: ['protection']
+  },
 ];
