@@ -214,7 +214,7 @@ Cocok digunakan saat latihan, pertandingan, atau perjalanan singkat ke lapangan.
     name: 'Handuk Olahraga',
     variants: [
       { size: 'Standard', price: 99000 },
-      { size: 'Large', price: 119000
+      { size: 'Large', price: 119000 },
     ],
     images: [
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Handuk-1.jpeg',
