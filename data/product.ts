@@ -157,7 +157,7 @@ Size 12: Panjang ±29 cm, Berat ±270 g`,
   images: [
       'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Shin-1.jpeg',
       'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Shin-1.jpeg',
-      'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Shin-3.jpeg
+      'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Shin-3.jpeg'
   ],
   description: `Shin Guard standar sepak bola untuk perlindungan optimal saat bermain. Nyaman digunakan dan ringan sehingga tidak mengganggu gerakan kaki.
 Ukuran dan Spesifikasi:
