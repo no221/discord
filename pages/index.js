@@ -2,26 +2,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { products } from '@/data/product'
 
-// Tambahkan CSS global untuk transisi yang smooth
-const globalStyles = `
-  * {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease !important;
-  }
-  
-  .theme-transition * {
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease !important;
-  }
-  
-  /* Optimasi performa untuk animasi */
-  .will-change-transform {
-    will-change: transform;
-  }
-  
-  .will-change-opacity {
-    will-change: opacity;
-  }
-`
-
 function getDiscount(qty) {
   if (qty >= 30) return 0.15
   if (qty >= 20) return 0.1
@@ -233,17 +213,6 @@ export default function Home() {
   const [theme, setTheme] = useState('light')
   const [isThemeTransitioning, setIsThemeTransitioning] = useState(false)
 
-  // Tambahkan CSS global saat komponen dimount
-  useEffect(() => {
-    const styleElement = document.createElement('style');
-    styleElement.textContent = globalStyles;
-    document.head.appendChild(styleElement);
-    
-    return () => {
-      document.head.removeChild(styleElement);
-    };
-  }, []);
-
 const paymentMethods = [
   {
     id: 'shopeepay',
@@ -291,55 +260,23 @@ const paymentMethods = [
 
   const allTags = ['all', ...new Set(products.flatMap(product => product.tags || []))]
 
-  // Improved theme toggle dengan transisi yang lebih smooth
   const toggleTheme = useCallback(() => {
     if (isThemeTransitioning) return;
     
     setIsThemeTransitioning(true);
     const newTheme = theme === 'light' ? 'dark' : 'light';
     
-    // Tambahkan class untuk transisi global
-    document.documentElement.classList.add('theme-transition', 'will-change-transform', 'will-change-opacity');
+    document.documentElement.classList.add('theme-transition');
     
-    // Delay sedikit sebelum mengubah theme untuk memastikan transisi berjalan
     setTimeout(() => {
       setTheme(newTheme);
-    }, 50);
+    }, 150);
     
-    // Hapus class transisi setelah animasi selesai
     setTimeout(() => {
-      document.documentElement.classList.remove('theme-transition', 'will-change-transform', 'will-change-opacity');
+      document.documentElement.classList.remove('theme-transition');
       setIsThemeTransitioning(false);
     }, 600);
   }, [theme, isThemeTransitioning]);
-
-  // Set theme berdasarkan preferensi sistem
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e) => {
-      if (!localStorage.getItem('theme')) {
-        setIsThemeTransitioning(true);
-        setTheme(e.matches ? 'dark' : 'light');
-        setTimeout(() => setIsThemeTransitioning(false), 600);
-      }
-    };
-
-    // Cek localStorage untuk theme yang disimpan
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else if (mediaQuery.matches) {
-      setTheme('dark');
-    }
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  // Simpan theme ke localStorage
-  useEffect(() => {
-    localStorage.setItem('theme', theme);
-  }, [theme]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -581,7 +518,7 @@ const handleCheckout = useCallback(async () => {
     const { displayQty, isAnimating } = useAnimatedQuantity(quantity, 300)
     
     return (
-      <span className={`font-semibold transition-all duration-200 will-change-transform ${
+      <span className={`font-semibold transition-all duration-200 ${
         isAnimating ? 'animate-quantity-bounce text-orange-600 scale-125' : ''
       }`}>
         {displayQty}
@@ -596,7 +533,7 @@ const handleCheckout = useCallback(async () => {
 
     return (
       <div key={`${item.product.id}-${item.variant.size}-${index}-${priceUpdateKey}`} 
-           className="flex items-center gap-3 py-3 border-b animate-item-slide-in will-change-transform">
+           className="flex items-center gap-3 py-3 border-b animate-item-slide-in">
         {renderProductImage(
           item.product.images[0], 
           item.product.name, 
@@ -608,37 +545,37 @@ const handleCheckout = useCallback(async () => {
           <div className="flex items-center gap-2 mt-1">
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
-              className="w-5 h-5 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95 will-change-transform"
+              className="w-5 h-5 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95"
             >
               -
             </button>
             <AnimatedQuantity quantity={item.quantity} />
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
-              className="w-5 h-5 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95 will-change-transform"
+              className="w-5 h-5 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95"
             >
               +
             </button>
           </div>
         </div>
         <div className="text-right">
-          <div className="text-sm font-semibold text-orange-600 animate-price-spring will-change-transform">
+          <div className="text-sm font-semibold text-orange-600 animate-price-spring">
             Rp {animatedItemPrice.toLocaleString()}
           </div>
           {discountRate > 0 && (
-            <div className="text-xs text-green-600 animate-fade-in will-change-opacity">
+            <div className="text-xs text-green-600 animate-fade-in">
               Diskon {Math.round(discountRate * 100)}%
               {voucherApplied && ` (Voucher)`}
             </div>
           )}
           {discountRate > 0 && (
-            <div className="text-xs text-gray-400 line-through animate-strike will-change-transform">
+            <div className="text-xs text-gray-400 line-through animate-strike">
               Rp {animatedOriginalPrice.toLocaleString()}
             </div>
           )}
           <button
             onClick={() => removeFromCart(item.product.id, item.variant.size)}
-            className="text-red-500 text-xs hover:text-red-700 mt-1 transition-all duration-200 transform hover:scale-110 active:scale-95 will-change-transform"
+            className="text-red-500 text-xs hover:text-red-700 mt-1 transition-all duration-200 transform hover:scale-110 active:scale-95"
           >
             Hapus
           </button>
@@ -654,7 +591,7 @@ const handleCheckout = useCallback(async () => {
 
     return (
       <div key={`${item.product.id}-${item.variant.size}-${index}-${priceUpdateKey}`} 
-           className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border rounded-lg animate-item-slide-in transition-all duration-300 will-change-transform"
+           className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border rounded-lg animate-item-slide-in transition-all duration-300"
            style={{
              backgroundColor: theme === 'light' ? 'rgba(255, 247, 237, 0.3)' : 'rgba(55, 65, 81, 0.3)',
              borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
@@ -662,7 +599,7 @@ const handleCheckout = useCallback(async () => {
         {renderProductImage(
           item.product.images[0],
           item.product.name,
-          "w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg will-change-transform"
+          "w-16 h-16 md:w-20 md:h-20 object-cover rounded-lg"
         )}
         <div className="flex-1">
           <div className="font-semibold text-sm md:text-base">{item.product.name}</div>
@@ -670,37 +607,37 @@ const handleCheckout = useCallback(async () => {
           <div className="flex items-center gap-2 md:gap-3 mt-2">
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
-              className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-700 border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95 will-change-transform"
+              className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-700 border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95"
             >
               -
             </button>
             <AnimatedQuantity quantity={item.quantity} />
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
-              className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-700 border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95 will-change-transform"
+              className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-700 border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95"
             >
               +
             </button>
           </div>
         </div>
         <div className="text-right">
-          <div className="font-semibold text-base md:text-lg text-orange-600 animate-price-spring will-change-transform">
+          <div className="font-semibold text-base md:text-lg text-orange-600 animate-price-spring">
             Rp {animatedItemPrice.toLocaleString()}
           </div>
           {discountRate > 0 && (
-            <div className="text-xs text-green-600 animate-fade-in will-change-opacity">
+            <div className="text-xs text-green-600 animate-fade-in">
               Diskon {Math.round(discountRate * 100)}%
               {voucherApplied && ` (Voucher)`}
             </div>
           )}
           {discountRate > 0 && (
-            <div className="text-xs text-gray-400 line-through animate-strike will-change-transform">
+            <div className="text-xs text-gray-400 line-through animate-strike">
               Rp {animatedOriginalPrice.toLocaleString()}
             </div>
           )}
           <button
             onClick={() => removeFromCart(item.product.id, item.variant.size)}
-            className="text-red-500 text-xs hover:text-red-700 mt-1 transition-all duration-200 transform hover:scale-110 active:scale-95 will-change-transform"
+            className="text-red-500 text-xs hover:text-red-700 mt-1 transition-all duration-200 transform hover:scale-110 active:scale-95"
           >
             Hapus
           </button>
@@ -711,19 +648,19 @@ const handleCheckout = useCallback(async () => {
 
 const AboutPage = () => (
   <div
-    className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-500 ${
+    className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
       theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
-    } ${pageTransition ? "animate-page-exit" : "animate-page-enter"} will-change-transform`}
+    } ${pageTransition ? "animate-page-exit" : "animate-page-enter"}`}
   >
     <div className="text-center mb-8">
-      <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up will-change-transform">
+      <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
         Tentang Kami
       </h1>
-      <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in will-change-transform"></div>
+      <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
     </div>
 
 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-  <div className="animate-slide-in-left will-change-transform">
+  <div className="animate-slide-in-left">
     <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
     <div className="space-y-3">
       {[
@@ -755,7 +692,7 @@ const AboutPage = () => (
       ].map((member) => (
         <div
           key={member.name}
-          className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 will-change-transform ${
+          className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
             theme === 'light' 
               ? 'bg-orange-50 hover:bg-orange-100' 
               : 'bg-gray-700 hover:bg-gray-600'
@@ -765,7 +702,7 @@ const AboutPage = () => (
           <img
             src={member.image}
             alt={member.name}
-            className="w-10 h-10 rounded-full object-cover border-2 border-orange-500 will-change-transform"
+            className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
             onError={(e) => {
               // Fallback ke huruf jika gambar error
               e.target.style.display = 'none';
@@ -774,7 +711,7 @@ const AboutPage = () => (
           />
           {/* Fallback avatar dengan huruf */}
           <div 
-            className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden will-change-transform"
+            className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
           >
             {member.name.charAt(0)}
           </div>
@@ -787,9 +724,9 @@ const AboutPage = () => (
     </div>
   </div>
 
-      <div className="animate-slide-in-right will-change-transform">
+      <div className="animate-slide-in-right">
         <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
-        <div className={`p-6 rounded-lg border transition-all duration-500 will-change-transform ${
+        <div className={`p-6 rounded-lg border transition-all duration-300 ${
           theme === 'light' 
             ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200' 
             : 'bg-gradient-to-br from-gray-700 to-gray-600 border-gray-600'
@@ -809,7 +746,7 @@ const AboutPage = () => (
       </div>
     </div>
 
-    <div className="border-t pt-8 animate-fade-in-up-delayed will-change-transform">
+    <div className="border-t pt-8 animate-fade-in-up-delayed">
       <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
       <div className="flex flex-col sm:flex-row justify-center gap-6">
 
@@ -817,7 +754,7 @@ const AboutPage = () => (
           href="https://wa.me/6285156431675"
           target="_blank"
           rel="noopener noreferrer"
-          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple will-change-transform"
+          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
           style={{
             backgroundColor: theme === 'light' ? 'rgb(240, 253, 244)' : 'rgb(6, 78, 59)'
           }}
@@ -825,7 +762,7 @@ const AboutPage = () => (
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
             alt="WhatsApp"
-            className="w-10 h-10 will-change-transform"
+            className="w-10 h-10"
           />
           <div>
             <div className="font-semibold">WhatsApp</div>
@@ -835,7 +772,7 @@ const AboutPage = () => (
 
         <a
           href="mailto:rndm942@yahoo.com"
-          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple will-change-transform"
+          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
           style={{
             backgroundColor: theme === 'light' ? 'rgb(254, 242, 242)' : 'rgb(127, 29, 29)'
           }}
@@ -843,7 +780,7 @@ const AboutPage = () => (
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
             alt="Email"
-            className="w-10 h-10 will-change-transform"
+            className="w-10 h-10"
           />
           <div>
             <div className="font-semibold">Email</div>
@@ -856,7 +793,7 @@ const AboutPage = () => (
     <div className="text-center mt-8">
       <button
         onClick={() => navigateToPage("home")}
-        className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold will-change-transform"
+        className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
       >
         ← Kembali ke Menu Utama
       </button>
@@ -882,7 +819,7 @@ const AboutPage = () => (
 );
 
 const Footer = () => (
-  <footer className={`mt-8 py-6 border-t relative z-10 backdrop-blur-sm transition-all duration-500 ${
+  <footer className={`mt-8 py-6 border-t relative z-10 backdrop-blur-sm transition-all duration-300 ${
     theme === 'light' 
       ? 'bg-white/50 border-gray-200' 
       : 'bg-gray-900/50 border-gray-700'
@@ -894,7 +831,7 @@ const Footer = () => (
           className="text-center cursor-pointer group"
           onClick={() => navigateToPage('about')}
         >
-          <div className={`inline-block p-4 rounded-lg hover:scale-105 transition-all duration-300 will-change-transform ${
+          <div className={`inline-block p-4 rounded-lg hover:scale-105 transition-all duration-300 ${
             theme === 'light' 
               ? 'bg-orange-50 hover:bg-orange-100' 
               : 'bg-gray-800 hover:bg-gray-700'
@@ -924,7 +861,7 @@ const Footer = () => (
               href="https://wa.me/6285156431675"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105 will-change-transform"
+              className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105"
               style={{
                 color: theme === 'light' ? '#059669' : '#34d399'
               }}
@@ -932,7 +869,7 @@ const Footer = () => (
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
                 alt="WhatsApp"
-                className="w-6 h-6 will-change-transform"
+                className="w-6 h-6"
               />
               <div className="text-left">
                 <div className={`text-xs ${
@@ -948,7 +885,7 @@ const Footer = () => (
               href="mailto:rndm942@yahoo.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105 will-change-transform"
+              className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105"
               style={{
                 color: theme === 'light' ? '#dc2626' : '#f87171'
               }}
@@ -956,7 +893,7 @@ const Footer = () => (
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
                 alt="Email"
-                className="w-6 h-6 will-change-transform"
+                className="w-6 h-6"
               />
               <div className="text-left">
                 <div className={`text-xs ${
@@ -972,7 +909,7 @@ const Footer = () => (
         </div>
       </div>
 
-      <div className={`text-center mt-4 pt-4 border-t transition-all duration-500 ${
+      <div className={`text-center mt-4 pt-4 border-t ${
         theme === 'light' ? 'border-gray-200' : 'border-gray-700'
       }`}>
         <p className={`text-xs ${
@@ -990,7 +927,7 @@ const Footer = () => (
   }
 
   return (
-    <div className={`min-h-screen p-4 md:p-6 relative overflow-hidden transition-all duration-700 ${
+    <div className={`min-h-screen p-4 md:p-6 relative overflow-hidden transition-all duration-500 ${
       theme === 'light' 
         ? 'bg-gradient-to-b from-orange-50 via-white to-amber-50' 
         : 'bg-gradient-to-b from-gray-900 via-gray-800 to-black'
@@ -998,45 +935,45 @@ const Footer = () => (
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {theme === 'light' ? (
           <>
-            <div className="absolute top-1/4 -left-10 w-20 h-20 opacity-20 animate-spin-slow will-change-transform">
+            <div className="absolute top-1/4 -left-10 w-20 h-20 opacity-20 animate-spin-slow">
               <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
                 <div className="w-16 h-16 bg-white rounded-full"></div>
               </div>
             </div>
             
-            <div className="absolute top-10 left-10 w-8 h-8 bg-orange-400 rounded-full animate-float1 opacity-70 shadow-lg will-change-transform"></div>
-            <div className="absolute top-40 right-20 w-12 h-12 bg-amber-500 rounded-full animate-float2 opacity-60 shadow-lg will-change-transform"></div>
-            <div className="absolute bottom-32 left-20 w-6 h-6 bg-orange-300 rounded-full animate-float3 opacity-80 shadow-md will-change-transform"></div>
-            <div className="absolute bottom-20 right-32 w-10 h-10 bg-red-400 rounded-full animate-float4 opacity-70 shadow-lg will-change-transform"></div>
-            <div className="absolute top-64 left-1/4 w-7 h-7 bg-yellow-400 rounded-full animate-float5 opacity-75 shadow-md will-change-transform"></div>
+            <div className="absolute top-10 left-10 w-8 h-8 bg-orange-400 rounded-full animate-float1 opacity-70 shadow-lg"></div>
+            <div className="absolute top-40 right-20 w-12 h-12 bg-amber-500 rounded-full animate-float2 opacity-60 shadow-lg"></div>
+            <div className="absolute bottom-32 left-20 w-6 h-6 bg-orange-300 rounded-full animate-float3 opacity-80 shadow-md"></div>
+            <div className="absolute bottom-20 right-32 w-10 h-10 bg-red-400 rounded-full animate-float4 opacity-70 shadow-lg"></div>
+            <div className="absolute top-64 left-1/4 w-7 h-7 bg-yellow-400 rounded-full animate-float5 opacity-75 shadow-md"></div>
           </>
         ) : (
           <>
-            <div className="absolute top-1/4 -left-10 w-20 h-20 opacity-10 animate-spin-slow will-change-transform">
+            <div className="absolute top-1/4 -left-10 w-20 h-20 opacity-10 animate-spin-slow">
               <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center">
                 <div className="w-16 h-16 bg-gradient-to-br from-gray-800 to-black rounded-full"></div>
               </div>
             </div>
             
-            <div className="absolute top-10 left-10 w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full animate-float1 opacity-50 shadow-lg will-change-transform"></div>
-            <div className="absolute top-40 right-20 w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full animate-float2 opacity-40 shadow-lg will-change-transform"></div>
-            <div className="absolute bottom-32 left-20 w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full animate-float3 opacity-60 shadow-md will-change-transform"></div>
-            <div className="absolute bottom-20 right-32 w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full animate-float4 opacity-50 shadow-lg will-change-transform"></div>
-            <div className="absolute top-64 left-1/4 w-7 h-7 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full animate-float5 opacity-55 shadow-md will-change-transform"></div>
+            <div className="absolute top-10 left-10 w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full animate-float1 opacity-50 shadow-lg"></div>
+            <div className="absolute top-40 right-20 w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full animate-float2 opacity-40 shadow-lg"></div>
+            <div className="absolute bottom-32 left-20 w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full animate-float3 opacity-60 shadow-md"></div>
+            <div className="absolute bottom-20 right-32 w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full animate-float4 opacity-50 shadow-lg"></div>
+            <div className="absolute top-64 left-1/4 w-7 h-7 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full animate-float5 opacity-55 shadow-md"></div>
             
-            <div className="absolute top-20 right-1/4 w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full animate-pulse-slow opacity-30 will-change-transform"></div>
-            <div className="absolute bottom-40 left-1/3 w-14 h-14 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full animate-float3 opacity-25 will-change-transform"></div>
+            <div className="absolute top-20 right-1/4 w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full animate-pulse-slow opacity-30"></div>
+            <div className="absolute bottom-40 left-1/3 w-14 h-14 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full animate-float3 opacity-25"></div>
           </>
         )}
       </div>
 
       {currentPage !== 'about' && (
-        <header className={`flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0 transition-all duration-500 ${
+        <header className={`flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0 transition-all duration-300 ${
           theme === 'dark' ? 'text-white' : ''
-        } ${pageTransition ? 'animate-page-exit' : 'animate-page-enter'} will-change-transform`}>
+        } ${pageTransition ? 'animate-page-exit' : 'animate-page-enter'}`}>
           <div className="flex items-center justify-between w-full md:w-auto gap-4">
             <h1 
-              className="text-xl md:text-2xl font-bold flex items-center gap-2 animate-pulse-gentle cursor-pointer transition-all duration-500 will-change-transform"
+              className="text-xl md:text-2xl font-bold flex items-center gap-2 animate-pulse-gentle cursor-pointer transition-all duration-300"
               style={{
                 color: theme === 'light' ? '#c2410c' : '#fdba74'
               }}
@@ -1047,7 +984,7 @@ const Footer = () => (
             
             <div className="flex items-center gap-2">
               <div 
-                className={`relative w-14 h-8 rounded-full p-1 cursor-pointer transition-all duration-700 will-change-transform ${
+                className={`relative w-14 h-8 rounded-full p-1 cursor-pointer transition-all duration-500 ${
                   theme === 'light' 
                     ? 'bg-gradient-to-r from-orange-400 to-amber-400' 
                     : 'bg-gradient-to-r from-gray-600 to-gray-700'
@@ -1055,7 +992,7 @@ const Footer = () => (
                 onClick={toggleTheme}
               >
                 <div 
-                  className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-lg transform transition-all duration-700 will-change-transform ${
+                  className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-lg transform transition-all duration-500 ${
                     theme === 'light' 
                       ? 'left-1 translate-x-0' 
                       : 'left-7 translate-x-0'
@@ -1071,11 +1008,11 @@ const Footer = () => (
             <div className="md:hidden relative">
               <button
                 onClick={() => setCartOpen(!cartOpen)}
-                className="cart-icon p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40 will-change-transform"
+                className="cart-icon p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40"
               >
                 <span className="text-lg">🛒</span>
                 {totalItems > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-cart-bounce will-change-transform">
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center animate-cart-bounce">
                     {totalItems}
                   </span>
                 )}
@@ -1090,7 +1027,7 @@ const Footer = () => (
                 placeholder="Cari produk..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full transition-all duration-500 ${
+                className={`pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full transition-all duration-300 ${
                   theme === 'dark' 
                     ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                     : 'bg-white border-gray-300'
@@ -1107,7 +1044,7 @@ const Footer = () => (
           <div className="hidden md:flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div 
-                className={`relative w-14 h-8 rounded-full p-1 cursor-pointer transition-all duration-700 will-change-transform ${
+                className={`relative w-14 h-8 rounded-full p-1 cursor-pointer transition-all duration-500 ${
                   theme === 'light' 
                     ? 'bg-gradient-to-r from-orange-400 to-amber-400' 
                     : 'bg-gradient-to-r from-gray-600 to-gray-700'
@@ -1115,7 +1052,7 @@ const Footer = () => (
                 onClick={toggleTheme}
               >
                 <div 
-                  className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-lg transform transition-all duration-700 will-change-transform ${
+                  className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-lg transform transition-all duration-500 ${
                     theme === 'light' 
                       ? 'left-1 translate-x-0' 
                       : 'left-7 translate-x-0'
@@ -1131,73 +1068,78 @@ const Footer = () => (
             <div className="relative">
               <button
                 onClick={() => setCartOpen(!cartOpen)}
-                className="cart-icon p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40 transform hover:scale-105 active:scale-95 will-change-transform"
+                className="cart-icon p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40 transform hover:scale-105 active:scale-95"
               >
                 <span className="text-lg">🛒</span>
                 {totalItems > 0 && (
-                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-cart-bounce will-change-transform">
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-cart-bounce">
                     <AnimatedQuantity quantity={totalItems} />
                   </span>
                 )}
               </button>
 
-              {cartOpen && (
-                <div
-                  className={`cart-container fixed md:absolute right-1/2 md:right-0 top-16 md:top-14 w-[92vw] sm:w-80 md:w-96 rounded-lg shadow-2xl border z-50 max-h-[70vh] overflow-y-auto animate-dropdown will-change-transform
-                             md:translate-x-[calc(50%-1rem)] md:translate-y-0 transition-all duration-300 ${
-                               theme === 'light' 
-                                 ? 'bg-white border-orange-100' 
-                                 : 'bg-gray-800 border-gray-700'
-                             }`}
-                >
-                  <div className="p-4">
-                    <h3 className={`font-semibold mb-3 text-lg flex items-center gap-2 ${
-                      theme === 'dark' ? 'text-white' : ''
-                    }`}>
-                      🛒 Keranjang Belanja
-                    </h3>
-                                  
-                  {cart.length === 0 ? (
-                    <p className={`text-center py-4 ${
-                      theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                    }`}>Keranjang kosong</p>
-                  ) : (
-                    <>
-                      <div className="max-h-48 overflow-y-auto">
-                        {cart.map((item, index) => (
-                          <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
-                        ))}
-                      </div>
-                      
-                      <div className="mt-3 pt-3 border-t" style={{
-                        borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
-                      }}>
-                        <div className={`flex justify-between font-semibold text-lg ${
-                          theme === 'dark' ? 'text-white' : ''
-                        }`}>
-                          <span>Total:</span>
-                          <span className="text-orange-600 animate-price-spring will-change-transform">Rp {animatedTotalPrice.toLocaleString()}</span>
-                        </div>
-                        {voucherApplied && (
-                          <div className="text-sm text-green-600 mt-1 animate-pulse will-change-opacity">
-                            ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
-                          </div>
-                        )}
-                        <button
-                          onClick={() => {
-                            setCartOpen(false)
-                            navigateToPage('cart')
-                          }}
-                          className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95 will-change-transform"
-                        >
-                          Checkout ({cart.length} items)
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
+{cartOpen && (
+  <div
+    className={`cart-container fixed md:absolute left-1/2 md:left-auto md:right-0 top-16 md:top-14 w-[95vw] sm:w-80 md:w-96 rounded-lg shadow-2xl border z-50 max-h-[70vh] overflow-y-auto animate-dropdown will-change-transform
+               transition-all duration-300 ${
+                 theme === 'light' 
+                   ? 'bg-white border-orange-100' 
+                   : 'bg-gray-800 border-gray-700'
+               }`}
+    style={{
+      transform: 'translateX(-50%)'
+    }}
+  >
+    <div className="p-4">
+      <h3 className={`font-semibold mb-3 text-lg flex items-center gap-2 ${
+        theme === 'dark' ? 'text-white' : ''
+      }`}>
+        🛒 Keranjang Belanja
+      </h3>
+      
+      {cart.length === 0 ? (
+        <p className={`text-center py-4 ${
+          theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+        }`}>Keranjang kosong</p>
+      ) : (
+        <>
+          <div className="max-h-48 overflow-y-auto">
+            {cart.map((item, index) => (
+              <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+            ))}
+          </div>
+          
+          <div className="mt-3 pt-3 border-t" style={{
+            borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
+          }}>
+            <div className={`flex justify-between font-semibold text-lg ${
+              theme === 'dark' ? 'text-white' : ''
+            }`}>
+              <span>Total:</span>
+              <span className="text-orange-600 animate-price-spring will-change-transform">
+                Rp {animatedTotalPrice.toLocaleString()}
+              </span>
+            </div>
+            {voucherApplied && (
+              <div className="text-sm text-green-600 mt-1 animate-pulse will-change-opacity">
+                ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
               </div>
             )}
+            <button
+              onClick={() => {
+                setCartOpen(false)
+                navigateToPage('cart')
+              }}
+              className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95 will-change-transform"
+            >
+              Checkout ({cart.length} items)
+            </button>
+          </div>
+        </>
+      )}
+    </div>
+  </div>
+)}
           </div>
         </div>
       </header>
@@ -1205,7 +1147,7 @@ const Footer = () => (
 
     {cartOpen && currentPage !== 'about' && (
       <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
-        <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 will-change-transform ${
+        <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
           theme === 'light' ? 'bg-white' : 'bg-gray-800'
         }`}>
           <div className="p-4">
@@ -1213,7 +1155,7 @@ const Footer = () => (
               <h3 className={`font-semibold text-lg ${
                 theme === 'dark' ? 'text-white' : ''
               }`}>🛒 Keranjang Belanja</h3>
-              <button onClick={() => setCartOpen(false)} className={`text-2xl transition-transform duration-200 hover:scale-110 will-change-transform ${
+              <button onClick={() => setCartOpen(false)} className={`text-2xl transition-transform duration-200 hover:scale-110 ${
                 theme === 'dark' ? 'text-white' : ''
               }`}>×</button>
             </div>
@@ -1237,10 +1179,10 @@ const Footer = () => (
                     theme === 'dark' ? 'text-white' : ''
                   }`}>
                     <span>Total:</span>
-                    <span className="text-orange-600 animate-price-spring will-change-transform">Rp {animatedTotalPrice.toLocaleString()}</span>
+                    <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
                   </div>
                   {voucherApplied && (
-                    <div className="text-sm text-green-600 mt-1 animate-pulse will-change-opacity">
+                    <div className="text-sm text-green-600 mt-1 animate-pulse">
                       ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
                     </div>
                   )}
@@ -1249,7 +1191,7 @@ const Footer = () => (
                       setCartOpen(false)
                       navigateToPage('cart')
                     }}
-                    className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95 will-change-transform"
+                    className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
                   >
                     Checkout ({cart.length} items)
                   </button>
@@ -1265,7 +1207,7 @@ const Footer = () => (
       {currentPage === 'about' && <AboutPage />}
 
       {currentPage === 'home' && (
-        <div className={pageTransition ? 'animate-page-exit will-change-transform' : 'animate-page-enter will-change-transform'}>
+        <div className={pageTransition ? 'animate-page-exit' : 'animate-page-enter'}>
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
             <h2 className={`text-xl font-semibold mb-4 md:mb-0 ${
               theme === 'dark' ? 'text-white' : ''
@@ -1276,7 +1218,7 @@ const Footer = () => (
                 <button
                   key={tag}
                   onClick={() => setSelectedTag(tag)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 will-change-transform ${
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
                     selectedTag === tag
                       ? 'bg-orange-500 text-white shadow-lg animate-tag-select'
                       : theme === 'light'
@@ -1294,7 +1236,7 @@ const Footer = () => (
             {filteredProducts.map((product) => (
               <div
                 key={product.id}
-                className={`p-4 rounded-lg shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-500 cursor-pointer transform hover:-translate-y-1 flex flex-col min-h-[380px] will-change-transform ${
+                className={`p-4 rounded-lg shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col min-h-[380px] ${
                   theme === 'light' 
                     ? 'bg-white/90' 
                     : 'bg-gray-800/90 text-white border border-gray-700'
@@ -1304,7 +1246,7 @@ const Footer = () => (
                 {renderProductImage(
                   product.images[0],
                   product.name,
-                  "w-full h-48 object-cover rounded mb-3 transition-transform duration-500 hover:scale-105 will-change-transform"
+                  "w-full h-48 object-cover rounded mb-3 transition-transform duration-300 hover:scale-105"
                 )}
                 
                 <div className="flex flex-col flex-grow">
@@ -1316,7 +1258,7 @@ const Footer = () => (
                   {product.tags && product.tags.length > 0 && (
                     <div className="flex flex-wrap gap-1 mt-2">
                       {product.tags.slice(0, 3).map(tag => (
-                        <span key={tag} className={`px-2 py-1 text-xs rounded transition-all duration-300 ${
+                        <span key={tag} className={`px-2 py-1 text-xs rounded ${
                           theme === 'light' 
                             ? 'bg-orange-100 text-orange-700' 
                             : 'bg-orange-900 text-orange-300'
@@ -1327,7 +1269,7 @@ const Footer = () => (
                     </div>
                   )}
                   
-                  <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105 will-change-transform">
+                  <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105">
                     Rp {product.variants[1].price.toLocaleString()}
                   </p>
                   
@@ -1337,7 +1279,7 @@ const Footer = () => (
                         e.stopPropagation()
                         addToCart(product, product.variants[1], 1)
                       }}
-                      className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold will-change-transform"
+                      className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
                     >
                       + Add to Cart
                     </button>
@@ -1351,16 +1293,16 @@ const Footer = () => (
 
       {currentPage === 'product' && selectedProduct && (
         <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 ${
-          pageTransition ? 'animate-page-exit will-change-transform' : 'animate-page-enter will-change-transform'
+          pageTransition ? 'animate-page-exit' : 'animate-page-enter'
         }`}>
-          <section className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-500 will-change-transform ${
+          <section className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-300 ${
             theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
           }`}>
             <div className="relative mb-4">
               {renderProductImage(
                 selectedProduct.images[currentImageIndex],
                 selectedProduct.name,
-                `w-full h-64 md:h-80 object-contain rounded transition-all duration-700 will-change-transform ${
+                `w-full h-64 md:h-80 object-contain rounded transition-all duration-500 ${
                   imageAnim ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                 }`
               )}
@@ -1369,13 +1311,13 @@ const Footer = () => (
                 <>
                   <button
                     onClick={() => handleImageChange((currentImageIndex - 1 + selectedProduct.images.length) % selectedProduct.images.length)}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110 will-change-transform"
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
                   >
                     ←
                   </button>
                   <button
                     onClick={() => handleImageChange((currentImageIndex + 1) % selectedProduct.images.length)}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110 will-change-transform"
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
                   >
                     →
                   </button>
@@ -1388,7 +1330,7 @@ const Footer = () => (
                     <button
                       key={index}
                       onClick={() => handleImageChange(index)}
-                      className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 will-change-transform ${
+                      className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
                         index === currentImageIndex 
                           ? 'bg-orange-500 scale-125' 
                           : theme === 'light' ? 'bg-white/70 hover:bg-white' : 'bg-gray-500 hover:bg-gray-400'
@@ -1407,7 +1349,7 @@ const Footer = () => (
             {selectedProduct.tags && selectedProduct.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
                 {selectedProduct.tags.map(tag => (
-                  <span key={tag} className={`px-3 py-1 text-sm rounded-full transition-all duration-300 will-change-transform ${
+                  <span key={tag} className={`px-3 py-1 text-sm rounded-full ${
                     theme === 'light' 
                       ? 'bg-orange-100 text-orange-700' 
                       : 'bg-orange-900 text-orange-300'
@@ -1425,7 +1367,7 @@ const Footer = () => (
                   <button
                     key={variant.size}
                     onClick={() => setSelectedVariant(variant)}
-                    className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-500 font-semibold text-sm md:text-base transform hover:scale-105 will-change-transform ${
+                    className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base transform hover:scale-105 ${
                       selectedVariant.size === variant.size
                         ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
                         : theme === 'light'
@@ -1443,12 +1385,12 @@ const Footer = () => (
             </div>
 
             <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
-              <div className={`flex items-center gap-3 rounded-lg p-2 w-full sm:w-auto justify-center transition-all duration-500 will-change-transform ${
+              <div className={`flex items-center gap-3 rounded-lg p-2 w-full sm:w-auto justify-center transition-all duration-300 ${
                 theme === 'light' ? 'bg-orange-50' : 'bg-gray-700'
               }`}>
                 <button
                   onClick={() => setQty(Math.max(1, qty - 1))}
-                  className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 will-change-transform ${
+                  className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
                     theme === 'light' ? 'bg-white' : 'bg-gray-600 border-gray-500'
                   }`}
                 >
@@ -1457,7 +1399,7 @@ const Footer = () => (
                 <AnimatedQuantity quantity={qty} />
                 <button
                   onClick={() => setQty(qty + 1)}
-                  className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 will-change-transform ${
+                  className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
                     theme === 'light' ? 'bg-white' : 'bg-gray-600 border-gray-500'
                   }`}
                 >
@@ -1470,14 +1412,14 @@ const Footer = () => (
                   addToCart(selectedProduct, selectedVariant, qty)
                   setQty(1)
                 }}
-                className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg will-change-transform"
+                className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg"
               >
                 + Add to Cart
               </button>
             </div>
 
             {selectedVariant && (
-              <div className={`mt-4 p-4 rounded-lg animate-price-change transition-all duration-500 will-change-transform ${
+              <div className={`mt-4 p-4 rounded-lg animate-price-change transition-all duration-300 ${
                 theme === 'light' ? 'bg-orange-50' : 'bg-gray-700'
               }`}>
                 <div className="flex items-center justify-between">
@@ -1486,15 +1428,15 @@ const Footer = () => (
                   }`}>Harga Total:</div>
                   <div className="text-right">
                     {discountRate > 0 && (
-                      <div className="text-sm text-gray-400 line-through animate-strike will-change-transform">
+                      <div className="text-sm text-gray-400 line-through animate-strike">
                         Rp {priceBeforeDiscount.toLocaleString()}
                       </div>
                     )}
-                    <div className="text-lg font-bold text-orange-600 animate-price-spring will-change-transform">
+                    <div className="text-lg font-bold text-orange-600 animate-price-spring">
                       Rp {animatedPrice.toLocaleString()}
                     </div>
                     {discountRate > 0 && (
-                      <div className="text-xs text-green-600 animate-fade-in will-change-opacity">
+                      <div className="text-xs text-green-600 animate-fade-in">
                         🎉 Diskon {Math.round(discountRate * 100)}%
                         {voucherApplied && ` (Voucher: ${form.code.toUpperCase()})`}
                       </div>
@@ -1502,7 +1444,7 @@ const Footer = () => (
                   </div>
                 </div>
                 {voucherApplied && (
-                  <div className="mt-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded animate-pulse will-change-opacity">
+                  <div className="mt-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded animate-pulse">
                     ✅ Voucher berhasil diterapkan!
                   </div>
                 )}
@@ -1511,7 +1453,7 @@ const Footer = () => (
 
             <button
               onClick={() => navigateToPage('home')}
-              className={`w-full mt-4 py-2 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold will-change-transform ${
+              className={`w-full mt-4 py-2 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold ${
                 theme === 'light'
                   ? 'border-orange-500 text-orange-500 hover:bg-orange-50'
                   : 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white'
@@ -1521,7 +1463,7 @@ const Footer = () => (
             </button>
           </section>
 
-          <aside className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-500 will-change-transform ${
+          <aside className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-300 ${
             theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
           }`}>
             <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
@@ -1529,7 +1471,7 @@ const Footer = () => (
               {getRecommendedProducts(selectedProduct).map((p) => (
                 <div
                   key={p.id}
-                  className={`flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-500 rounded-lg p-3 border transform hover:-translate-y-1 will-change-transform ${
+                  className={`flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border transform hover:-translate-y-1 ${
                     theme === 'light'
                       ? 'border-transparent hover:border-orange-200 bg-orange-50/50'
                       : 'border-gray-600 hover:border-orange-500 bg-gray-700/50'
@@ -1539,11 +1481,11 @@ const Footer = () => (
                   {renderProductImage(
                     p.images[0],
                     p.name,
-                    "w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg transition-transform duration-500 hover:scale-110 will-change-transform"
+                    "w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg transition-transform duration-300 hover:scale-110"
                   )}
                   <div className="flex-1">
                     <div className="font-semibold text-sm md:text-base">{p.name}</div>
-                    <div className={`text-xs md:text-sm transition-all duration-300 hover:scale-105 will-change-transform ${
+                    <div className={`text-xs md:text-sm transition-all duration-300 hover:scale-105 ${
                       theme === 'light' ? 'text-gray-600' : 'text-gray-300'
                     }`}>
                       Rp {p.variants[1].price.toLocaleString()}
@@ -1551,7 +1493,7 @@ const Footer = () => (
                     {p.tags && p.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1">
                         {p.tags.slice(0, 2).map(tag => (
-                          <span key={tag} className={`px-1 py-0.5 text-xs rounded transition-all duration-300 will-change-transform ${
+                          <span key={tag} className={`px-1 py-0.5 text-xs rounded ${
                             theme === 'light'
                               ? 'bg-orange-200 text-orange-800'
                               : 'bg-orange-900 text-orange-300'
@@ -1563,7 +1505,7 @@ const Footer = () => (
                     )}
                   </div>
                   <button
-                    className={`text-xs md:text-sm px-2 py-1 md:px-3 md:py-2 border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95 will-change-transform ${
+                    className={`text-xs md:text-sm px-2 py-1 md:px-3 md:py-2 border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95 ${
                       theme === 'light'
                         ? 'border-orange-500 text-orange-500'
                         : 'border-orange-500 text-orange-400'
@@ -1583,22 +1525,22 @@ const Footer = () => (
       )}
 
       {currentPage === 'cart' && (
-        <div className={`max-w-4xl mx-auto rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm transition-all duration-500 will-change-transform ${
+        <div className={`max-w-4xl mx-auto rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm transition-all duration-300 ${
           theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
-        } ${pageTransition ? 'animate-page-exit will-change-transform' : 'animate-page-enter will-change-transform'}`}>
+        } ${pageTransition ? 'animate-page-exit' : 'animate-page-enter'}`}>
           <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 flex items-center gap-2">
             🛒 Checkout
           </h2>
           
           {cart.length === 0 ? (
             <div className="text-center py-8 md:py-12">
-              <div className="text-6xl mb-4 animate-bounce will-change-transform">🛒</div>
+              <div className="text-6xl mb-4 animate-bounce">🛒</div>
               <p className={`text-lg mb-6 ${
                 theme === 'light' ? 'text-gray-500' : 'text-gray-400'
               }`}>Keranjang Anda kosong</p>
               <button
                 onClick={() => navigateToPage('home')}
-                className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold transform hover:scale-105 active:scale-95 will-change-transform"
+                className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold transform hover:scale-105 active:scale-95"
               >
                 Belanja Sekarang
               </button>
@@ -1623,7 +1565,7 @@ const Footer = () => (
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     placeholder="Masukkan nama lengkap"
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-500 ${
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
                       theme === 'dark' 
                         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300'
@@ -1638,7 +1580,7 @@ const Footer = () => (
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     placeholder="Masukkan nomor telepon"
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-500 ${
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
                       theme === 'dark' 
                         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300'
@@ -1654,7 +1596,7 @@ const Footer = () => (
                     onChange={(e) => setForm({ ...form, address: e.target.value })}
                     placeholder="Masukkan alamat lengkap untuk pengiriman"
                     rows="3"
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-500 ${
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
                       theme === 'dark' 
                         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300'
@@ -1669,14 +1611,14 @@ const Footer = () => (
                     value={form.code}
                     onChange={(e) => setForm({ ...form, code: e.target.value })}
                     placeholder="Masukkan kode diskon"
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-500 ${
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
                       theme === 'dark' 
                         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300'
                     }`}
                   />
                   {voucherApplied && (
-                    <div className="text-sm text-green-600 mt-1 animate-pulse will-change-opacity">
+                    <div className="text-sm text-green-600 mt-1 animate-pulse">
                       ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
                     </div>
                   )}
@@ -1691,7 +1633,7 @@ const Footer = () => (
                   <label className="block text-sm font-medium mb-2">Metode Pembayaran *</label>
                   <button
                     onClick={() => setPaymentOpen(!paymentOpen)}
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-left flex justify-between items-center transition-all duration-500 transform hover:scale-105 will-change-transform ${
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-left flex justify-between items-center transition-all duration-300 transform hover:scale-105 ${
                       theme === 'dark' 
                         ? 'bg-gray-700 border-gray-600 text-white' 
                         : 'bg-white border-gray-300'
@@ -1703,11 +1645,11 @@ const Footer = () => (
                         'Pilih metode pembayaran'
                       }
                     </span>
-                    <span className={`transition-transform duration-300 ${paymentOpen ? 'rotate-180' : ''} will-change-transform`}>▼</span>
+                    <span className={`transition-transform duration-300 ${paymentOpen ? 'rotate-180' : ''}`}>▼</span>
                   </button>
                   
                   {paymentOpen && (
-                    <div className={`absolute top-full left-0 right-0 border rounded-lg shadow-2xl z-50 max-h-60 overflow-y-auto mt-1 animate-dropdown transition-all duration-300 will-change-transform ${
+                    <div className={`absolute top-full left-0 right-0 border rounded-lg shadow-2xl z-50 max-h-60 overflow-y-auto mt-1 animate-dropdown transition-all duration-300 ${
                       theme === 'light' 
                         ? 'bg-white border-gray-200' 
                         : 'bg-gray-800 border-gray-600'
@@ -1719,7 +1661,7 @@ const Footer = () => (
                             setForm({ ...form, paymentMethod: method.id })
                             setPaymentOpen(false)
                           }}
-                          className={`p-3 border-b cursor-pointer transition-all duration-200 transform hover:scale-105 will-change-transform ${
+                          className={`p-3 border-b cursor-pointer transition-all duration-200 transform hover:scale-105 ${
                             form.paymentMethod === method.id 
                               ? theme === 'light'
                                 ? 'bg-orange-100 border-orange-500'
@@ -1733,7 +1675,7 @@ const Footer = () => (
                             <img
                               src={method.icon}
                               alt={method.name}
-                              className="w-6 h-6 object-contain will-change-transform"
+                              className="w-6 h-6 object-contain"
                             />
                             <div>
                               <div className="font-semibold">{method.name}</div>
@@ -1748,21 +1690,21 @@ const Footer = () => (
                   )}
                 </div>
 
-                <div className="border-t pt-4 animate-total-update will-change-transform" style={{
+                <div className="border-t pt-4 animate-total-update" style={{
                   borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
                 }}>
                   <div className="flex justify-between text-lg font-semibold">
                     <span>Total Items:</span>
-                    <span className="animate-quantity-bounce will-change-transform">{totalItems} items</span>
+                    <span className="animate-quantity-bounce">{totalItems} items</span>
                   </div>
                   <div className="flex justify-between text-xl font-bold mt-2">
                     <span>Total Pembayaran:</span>
-                    <span className="text-orange-600 animate-price-spring will-change-transform">
+                    <span className="text-orange-600 animate-price-spring">
                       Rp {animatedTotalPrice.toLocaleString()}
                     </span>
                   </div>
                   {voucherApplied && (
-                    <div className="text-sm text-green-600 mt-2 bg-green-50 p-2 rounded animate-pulse will-change-opacity">
+                    <div className="text-sm text-green-600 mt-2 bg-green-50 p-2 rounded animate-pulse">
                       🎉 Hemat {Math.round((calculateDiscount(1, form.code) - getDiscount(1)) * 100)}% dengan voucher!
                     </div>
                   )}
@@ -1771,7 +1713,7 @@ const Footer = () => (
                 <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
                   <button
                     onClick={() => navigateToPage('home')}
-                    className={`flex-1 py-3 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold will-change-transform ${
+                    className={`flex-1 py-3 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold ${
                       theme === 'light'
                         ? 'border-orange-500 text-orange-500 hover:bg-orange-50'
                         : 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white'
@@ -1782,7 +1724,7 @@ const Footer = () => (
                   <button
                     onClick={handleCheckout}
                     disabled={!form.name || !form.phone || !form.address || !form.paymentMethod}
-                    className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95 will-change-transform"
+                    className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
                   >
                     💳 Bayar Sekarang
                   </button>
@@ -1796,12 +1738,12 @@ const Footer = () => (
 
     {showSuccessPopup && (
       <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 backdrop-blur-sm p-4">
-        <div className={`p-6 md:p-8 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border max-w-md w-full text-center transition-all duration-500 will-change-transform ${
+        <div className={`p-6 md:p-8 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border max-w-md w-full text-center transition-all duration-300 ${
           theme === 'light' 
             ? 'bg-white border-orange-200' 
             : 'bg-gray-800 border-gray-700 text-white'
         }`}>
-          <div className="text-6xl text-green-500 animate-bounce will-change-transform">✓</div>
+          <div className="text-6xl text-green-500 animate-bounce">✓</div>
           <h3 className="text-xl md:text-2xl font-semibold">Pesanan Berhasil!</h3>
           <p className={`text-sm md:text-base ${
             theme === 'light' ? 'text-gray-600' : 'text-gray-300'
@@ -1810,7 +1752,7 @@ const Footer = () => (
             {form.paymentMethod && ` Pembayaran dengan ${paymentMethods.find(p => p.id === form.paymentMethod)?.name} berhasil. Pesananmu akan kami siapkan!`}
           </p>
           <button
-            className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold will-change-transform"
+            className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
             onClick={() => {
               setShowSuccessPopup(false)
               navigateToPage('home')
@@ -1827,11 +1769,11 @@ const Footer = () => (
 
     <style jsx>{`
       .theme-transition * {
-        transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease !important;
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
       }
       
       .animate-fadeIn {
-        animation: fadeIn 0.5s ease-out forwards;
+        animation: fadeIn 0.3s ease-out forwards;
       }
       @keyframes fadeIn {
         from { opacity: 0; transform: scale(0.9); }
@@ -2107,6 +2049,20 @@ const Footer = () => (
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
+
+.cart-container {
+  max-width: calc(100vw - 2rem); 
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .cart-container {
+    width: 95vw !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    right: auto !important;
+  }
+}
     `}</style>
   </div>
 )
