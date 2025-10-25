@@ -135,8 +135,8 @@ Size 6: Diameter 23 cm, Berat 440 g`,
     ],
     images: [
       'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Sarung%20Tangan%20Kiper-1.webp',
-      'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Sarung%20Tangan%20Kiper-2.webp',
-      'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Sarung%20Tangan%20Kiper-3.webp'
+      'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Sarung%20Tangan%20Kiper-2.jpeg',
+      'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Sarung%20Tangan%20Kiper-3.jpeg'
     ],
     description: `Sarung Tangan Kiper dengan grip kuat dan bahan breathable, memberikan perlindungan optimal serta kenyamanan saat pertandingan. Cocok untuk latihan maupun kompetisi profesional.
     Ukuran dan Spesifikasi:
@@ -191,5 +191,37 @@ Tersedia dalam ukuran S hingga XXL berdasarkan lingkar lutut saat posisi lurus:
 
 Berat produk berkisar antara 200–1000 gram tergantung bahan dan fitur tambahan.`,
   tags: ['protection']
+  },
+  {
+    id: 10,
+    name: 'Tas Olahraga',
+    variants: [
+      { size: '55L', price: 499000 },
+    ],
+    images: [
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/tas%20or-1.jpeg',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/tas%20or-2.jpeg'],
+    description: `Tas multifungsi untuk membawa sepatu, bola, dan perlengkapan lainnya. 
+Dirancang dengan kompartemen terpisah untuk menjaga kebersihan dan kenyamanan, cocok untuk atlet, pelajar, atau kegiatan outdoor. 
+Material tahan air dan mudah dibersihkan, dilengkapi dengan ventilasi agar barang tetap kering dan bebas bau. 
+Kapasitas cukup untuk sepatu ukuran besar, bola standar, botol minum, handuk, dan aksesoris lainnya. 
+Cocok digunakan saat latihan, pertandingan, atau perjalanan singkat ke lapangan.`,
+    tags: ['accessory']
+  },
+  {
+    id: 11,
+    name: 'Handuk Olahraga',
+    variants: [
+      { size: 'Standard', price: 99000 },
+    ],
+    images: [
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Handuk-1.jpeg',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Handuk-2.jpeg'],
+    description: `Handuk microfiber cepat kering, cocok untuk latihan dan pertandingan. 
+Terbuat dari bahan microfiber berkualitas tinggi yang menyerap keringat dengan efisien dan tetap ringan saat basah. 
+Tekstur lembut dan tidak mengiritasi kulit, ideal untuk penggunaan intensif di gym, lapangan, atau outdoor. 
+Ukuran 30 cm x 76 cm pas untuk dibawa dalam tas olahraga tanpa memakan banyak ruang. 
+Mudah dicuci dan cepat kering, cocok untuk atlet, pelajar, atau siapa pun yang aktif bergerak.`,
+    tags: ['accessory']
   },
 ];
