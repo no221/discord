@@ -150,9 +150,9 @@ Size 12: Panjang ±29 cm, Berat ±270 g`,
   id: 8,
   name: 'Shin Guard',
   variants: [
-    { size: 36, price: 80000 },
-    { size: 38, price: 100000 },
-    { size: 40, price: 120000 },
+    { size: 'S', price: 80000 },
+    { size: 'M', price: 100000 },
+    { size: 'L', price: 120000 },
   ],
   images: [
       'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Shin-1.jpeg',
@@ -171,11 +171,11 @@ Size L – Panjang 42 cm, Berat 272 g`,
   id: 9,
   name: 'Knee Support / Ankle Brace',
   variants: [
-    { size: 36, price: 75000 },
-    { size: 38, price: 90000 },
-    { size: 40, price: 110000 },
-    { size: 42, price: 125000 },
-    { size: 44, price: 135000 },
+    { size: 'S', price: 75000 },
+    { size: 'M', price: 90000 },
+    { size: 'L', price: 110000 },
+    { size: 'XL', price: 125000 },
+    { size: 'XXL', price: 135000 },
   ],
   images: [
   'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/K-1.jpeg',
@@ -196,7 +196,8 @@ Berat produk berkisar antara 200–1000 gram tergantung bahan dan fitur tambahan
     id: 10,
     name: 'Tas Olahraga',
     variants: [
-      { size: 55, price: 499000 },
+      { size: '55L', price: 499000 },
+      { size: '65L', price: 599000 },
     ],
     images: [
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/tas%20or-1.jpeg',
@@ -212,7 +213,8 @@ Cocok digunakan saat latihan, pertandingan, atau perjalanan singkat ke lapangan.
     id: 11,
     name: 'Handuk Olahraga',
     variants: [
-      { size: 36, price: 99000 },
+      { size: 'Standard', price: 99000 },
+      { size: 'Large', price: 119000
     ],
     images: [
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Handuk-1.jpeg',
