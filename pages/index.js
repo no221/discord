@@ -1080,14 +1080,15 @@ const Footer = () => (
 
 {cartOpen && (
   <div
-    className={`cart-container fixed md:absolute left-1/2 md:left-auto md:right-0 top-16 md:top-14 w-[95vw] sm:w-80 md:w-96 rounded-lg shadow-2xl border z-50 max-h-[70vh] overflow-y-auto animate-dropdown will-change-transform
+    className={`cart-container fixed md:absolute right-4 top-16 md:top-14 w-[95vw] sm:w-80 md:w-96 rounded-lg shadow-2xl border z-50 max-h-[70vh] overflow-y-auto animate-dropdown will-change-transform
                transition-all duration-300 ${
                  theme === 'light' 
                    ? 'bg-white border-orange-100' 
                    : 'bg-gray-800 border-gray-700'
                }`}
     style={{
-      transform: 'translateX(-50%)'
+      transform: 'none',
+      left: 'auto'
     }}
   >
     <div className="p-4">
@@ -1145,11 +1146,11 @@ const Footer = () => (
       </header>
     )}
 
-    {cartOpen && currentPage !== 'about' && (
-      <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
-        <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
-          theme === 'light' ? 'bg-white' : 'bg-gray-800'
-        }`}>
+{cartOpen && currentPage !== 'about' && (
+  <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
+    <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
+      theme === 'light' ? 'bg-white' : 'bg-gray-800'
+    }`}>
           <div className="p-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className={`font-semibold text-lg ${
