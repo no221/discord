@@ -1195,16 +1195,17 @@ const Footer = () => (
                   ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
                 </div>
               )}
-              <button
-                onClick={(e) => {
-                  e.stopPropagation(); // Prevent cart from closing
-                  setCartOpen(false);
-                  navigateToPage('cart');
-                }}
-                className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
-              >
-                Checkout ({cart.length} items)
-              </button>
+   <button
+          onClick={() => {
+            setCartOpen(false);
+            setTimeout(() => {
+              navigateToPage('cart');
+            }, 300); // Tunggu animasi selesai
+          }}
+          className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
+        >
+          Checkout ({cart.length} items)
+        </button>
             </div>
           </>
         )}
