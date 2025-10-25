@@ -191,7 +191,34 @@ export default function Admin() {
     ? mostBoughtEntries.sort((a, b) => b[1] - a[1])[0]
     : ['No data', 0]
 
-  const totalRevenue = purchases.reduce((sum, purchase) => sum + (Number(purchase?.price) || 0) * (Number(purchase?.qty) || 0), 0)
+  // Voucher-specific calculations
+  const purchasesWithVoucher = purchases.filter(p => p.voucher_code)
+  const uniqueVouchersUsed = [...new Set(purchases.map(p => p.voucher_code).filter(Boolean))]
+  
+  const voucherUsageCount = {}
+  purchases.forEach(purchase => {
+    if (purchase.voucher_code) {
+      voucherUsageCount[purchase.voucher_code] = (voucherUsageCount[purchase.voucher_code] || 0) + 1
+    }
+  })
+  
+  const mostUsedVoucher = Object.entries(voucherUsageCount).length > 0
+    ? Object.entries(voucherUsageCount).sort((a, b) => b[1] - a[1])[0]
+    : ['No voucher used', 0]
+
+  // Revenue calculations with voucher discounts
+  const totalOriginalRevenue = purchases.reduce((sum, purchase) => 
+    sum + (Number(purchase?.price) || 0) * (Number(purchase?.qty) || 0), 0
+  )
+  
+  const totalFinalRevenue = purchases.reduce((sum, purchase) => 
+    sum + (Number(purchase?.final_price) || (Number(purchase?.price) || 0) * (Number(purchase?.qty) || 0)), 0
+  )
+  
+  const totalDiscountGiven = totalOriginalRevenue - totalFinalRevenue
+  const averageDiscountRate = purchasesWithVoucher.length > 0 
+    ? purchasesWithVoucher.reduce((sum, p) => sum + (Number(p.discount_rate) || 0), 0) / purchasesWithVoucher.length
+    : 0
 
   const uniqueCustomers = [...new Set(purchases.map(p => p?.phone).filter(Boolean))].length
 
@@ -202,6 +229,18 @@ export default function Admin() {
       backgroundColor: [
         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
         '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+      ],
+      borderWidth: 1,
+    }],
+  }
+
+  const voucherPieData = {
+    labels: uniqueVouchersUsed.length > 0 ? uniqueVouchersUsed : ['No Vouchers'],
+    datasets: [{
+      data: uniqueVouchersUsed.length > 0 ? uniqueVouchersUsed.map(voucher => voucherUsageCount[voucher]) : [1],
+      backgroundColor: [
+        '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
+        '#9966FF', '#FF9F40', '#8C9EFF', '#80CBC4'
       ],
       borderWidth: 1,
     }],
@@ -291,9 +330,9 @@ export default function Admin() {
                   <div>
                     <p className="text-gray-600 text-sm font-medium">Total Revenue</p>
                     <p className="text-2xl font-bold text-gray-800 mt-2">
-                      Rp {totalRevenue.toLocaleString()}
+                      Rp {totalFinalRevenue.toLocaleString()}
                     </p>
-                    <p className="text-xs text-gray-500 mt-1">gross income</p>
+                    <p className="text-xs text-gray-500 mt-1">after discounts</p>
                   </div>
                   <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
                     <span className="text-2xl text-purple-500">💰</span>
@@ -304,61 +343,82 @@ export default function Admin() {
               <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-orange-500 hover:shadow-xl transition-all duration-300">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 text-sm font-medium">Most Popular</p>
-                    <p className="text-lg font-bold text-gray-800 mt-2 truncate" title={mostBought[0]}>
-                      {mostBought[0]}
+                    <p className="text-gray-600 text-sm font-medium">Voucher Usage</p>
+                    <p className="text-3xl font-bold text-gray-800 mt-2">{purchasesWithVoucher.length}</p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {mostUsedVoucher[0]} ({mostUsedVoucher[1]}x)
                     </p>
-                    <p className="text-gray-600 text-sm">({mostBought[1]} sold)</p>
                   </div>
                   <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-orange-500">🔥</span>
+                    <span className="text-2xl text-orange-500">🎫</span>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl shadow-lg">
+            {/* Voucher Analytics Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-red-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 text-sm font-medium">Total Orders</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-2">{purchases.length}</p>
+                    <p className="text-gray-600 text-sm font-medium">Total Discount</p>
+                    <p className="text-2xl font-bold text-gray-800 mt-2">
+                      Rp {totalDiscountGiven.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">given via vouchers</p>
+                  </div>
+                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                    <span className="text-2xl text-red-500">💸</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-indigo-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm font-medium">Unique Vouchers</p>
+                    <p className="text-3xl font-bold text-gray-800 mt-2">{uniqueVouchersUsed.length}</p>
+                    <p className="text-xs text-gray-500 mt-1">different codes used</p>
                   </div>
                   <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-indigo-500">📦</span>
+                    <span className="text-2xl text-indigo-500">🏷️</span>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg">
+              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-teal-500">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-gray-600 text-sm font-medium">Unique Customers</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-2">{uniqueCustomers}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-pink-500">👥</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-2xl shadow-lg">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Avg Order Value</p>
+                    <p className="text-gray-600 text-sm font-medium">Avg Discount</p>
                     <p className="text-2xl font-bold text-gray-800 mt-2">
-                      Rp {purchases.length > 0 ? Math.round(totalRevenue / purchases.length).toLocaleString() : '0'}
+                      {Math.round(averageDiscountRate * 100)}%
                     </p>
+                    <p className="text-xs text-gray-500 mt-1">per voucher order</p>
                   </div>
                   <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
                     <span className="text-2xl text-teal-500">📊</span>
                   </div>
                 </div>
               </div>
+
+              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-pink-500">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-600 text-sm font-medium">Voucher Rate</p>
+                    <p className="text-3xl font-bold text-gray-800 mt-2">
+                      {Math.round((purchasesWithVoucher.length / purchases.length) * 100)}%
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">of orders use voucher</p>
+                  </div>
+                  <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
+                    <span className="text-2xl text-pink-500">🎯</span>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              {/* Chart Section */}
+              {/* Product Distribution Chart */}
               <div className="bg-white p-6 rounded-2xl shadow-lg">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
                   📊 Product Distribution
@@ -368,48 +428,19 @@ export default function Admin() {
                 </div>
               </div>
 
-              {/* Recent Activity */}
+              {/* Voucher Usage Chart */}
               <div className="bg-white p-6 rounded-2xl shadow-lg">
                 <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                  📈 Recent Activity
+                  🎫 Voucher Usage
                 </h3>
-                <div className="space-y-4">
-                  {purchases.slice(0, 5).map((purchase, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
-                          <span className="text-white text-sm font-bold">👤</span>
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm text-gray-800">
-                            {purchase.name || 'Customer'}
-                          </p>
-                          <p className="text-xs text-gray-500">
-                            {purchase.product_name || purchase.productId} • {purchase.qty}x
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold text-sm text-gray-800">
-                          Rp {Number(purchase.price || 0).toLocaleString()}
-                        </p>
-                        <p className="text-xs text-gray-500">
-                          {purchase.created_at ? new Date(purchase.created_at).toLocaleDateString('id-ID') : 'N/A'}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                  {purchases.length === 0 && (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>No recent activity</p>
-                    </div>
-                  )}
+                <div className="w-full max-w-md mx-auto">
+                  <Pie data={voucherPieData} options={chartOptions} />
                 </div>
               </div>
             </div>
 
             {/* Purchase History Table */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
               <div className="p-6 border-b border-gray-200">
                 <div className="flex flex-col md:flex-row md:items-center justify-between">
                   <h3 className="text-xl font-semibold text-gray-800 flex items-center">
@@ -420,7 +451,7 @@ export default function Admin() {
                       Total: {purchases.length} orders
                     </span>
                     <span className="text-gray-500 text-sm">
-                      • Unique products: {Object.keys(countByProduct).length}
+                      • With voucher: {purchasesWithVoucher.length}
                     </span>
                   </div>
                 </div>
@@ -434,34 +465,59 @@ export default function Admin() {
                         <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Product</th>
                         <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Size</th>
                         <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Qty</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Price</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Total</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Original</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Final</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Voucher</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Discount</th>
                         <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Customer</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Phone</th>
                         <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Date</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200">
-                      {purchases.map((purchase, index) => (
-                        <tr key={index} className="hover:bg-gray-50 transition-colors">
-                          <td className="py-3 px-4 text-sm text-gray-800">
-                            {purchase.product_name || purchase.productId || 'N/A'}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-gray-600">{purchase.size || 'N/A'}</td>
-                          <td className="py-3 px-4 text-sm text-gray-600 text-center">{purchase.qty || 0}</td>
-                          <td className="py-3 px-4 text-sm font-medium text-gray-800">
-                            Rp {Number(purchase.price || 0).toLocaleString()}
-                          </td>
-                          <td className="py-3 px-4 text-sm font-bold text-green-600">
-                            Rp {((Number(purchase.price) || 0) * (Number(purchase.qty) || 0)).toLocaleString()}
-                          </td>
-                          <td className="py-3 px-4 text-sm text-gray-600">{purchase.name || 'N/A'}</td>
-                          <td className="py-3 px-4 text-sm text-gray-500">{purchase.phone || 'N/A'}</td>
-                          <td className="py-3 px-4 text-sm text-gray-500">
-                            {purchase.created_at ? new Date(purchase.created_at).toLocaleDateString('id-ID') : 'N/A'}
-                          </td>
-                        </tr>
-                      ))}
+                      {purchases.map((purchase, index) => {
+                        const originalTotal = (Number(purchase.price) || 0) * (Number(purchase.qty) || 0)
+                        const finalTotal = Number(purchase.final_price) || originalTotal
+                        const discount = originalTotal - finalTotal
+                        const discountRate = purchase.discount_rate ? Math.round(purchase.discount_rate * 100) : 0
+                        
+                        return (
+                          <tr key={index} className="hover:bg-gray-50 transition-colors">
+                            <td className="py-3 px-4 text-sm text-gray-800">
+                              {purchase.product_name || purchase.productId || 'N/A'}
+                            </td>
+                            <td className="py-3 px-4 text-sm text-gray-600">{purchase.size || 'N/A'}</td>
+                            <td className="py-3 px-4 text-sm text-gray-600 text-center">{purchase.qty || 0}</td>
+                            <td className="py-3 px-4 text-sm text-gray-500 line-through">
+                              Rp {originalTotal.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-4 text-sm font-bold text-green-600">
+                              Rp {finalTotal.toLocaleString()}
+                            </td>
+                            <td className="py-3 px-4 text-sm">
+                              {purchase.voucher_code ? (
+                                <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">
+                                  {purchase.voucher_code}
+                                </span>
+                              ) : (
+                                <span className="text-gray-400 text-xs">-</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-sm">
+                              {discount > 0 ? (
+                                <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                                  -Rp {discount.toLocaleString()} ({discountRate}%)
+                                </span>
+                              ) : (
+                                <span className="text-gray-400 text-xs">0%</span>
+                              )}
+                            </td>
+                            <td className="py-3 px-4 text-sm text-gray-600">{purchase.name || 'N/A'}</td>
+                            <td className="py-3 px-4 text-sm text-gray-500">
+                              {purchase.created_at ? new Date(purchase.created_at).toLocaleDateString('id-ID') : 'N/A'}
+                            </td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
@@ -471,28 +527,29 @@ export default function Admin() {
                     <span className="text-2xl text-gray-400">📭</span>
                   </div>
                   <p className="text-gray-500 text-lg">No purchase data available</p>
-                  <p className="text-gray-400 text-sm mt-2">
-                    Purchases will appear here when customers complete orders
-                  </p>
                 </div>
               )}
             </div>
 
             {/* Summary Section */}
-            <div className="mt-6 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
                 <div>
                   <p className="text-sm opacity-90">Total Revenue</p>
-                  <p className="text-2xl font-bold">Rp {totalRevenue.toLocaleString()}</p>
+                  <p className="text-xl font-bold">Rp {totalFinalRevenue.toLocaleString()}</p>
                 </div>
                 <div>
                   <p className="text-sm opacity-90">Total Orders</p>
-                  <p className="text-2xl font-bold">{purchases.length}</p>
+                  <p className="text-xl font-bold">{purchases.length}</p>
                 </div>
                 <div>
-                  <p className="text-sm opacity-90">Avg per Order</p>
-                  <p className="text-2xl font-bold">
-                    Rp {purchases.length > 0 ? Math.round(totalRevenue / purchases.length).toLocaleString() : '0'}
+                  <p className="text-sm opacity-90">Discount Given</p>
+                  <p className="text-xl font-bold">Rp {totalDiscountGiven.toLocaleString()}</p>
+                </div>
+                <div>
+                  <p className="text-sm opacity-90">Voucher Orders</p>
+                  <p className="text-xl font-bold">
+                    {purchasesWithVoucher.length} ({Math.round((purchasesWithVoucher.length / purchases.length) * 100)}%)
                   </p>
                 </div>
               </div>
