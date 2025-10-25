@@ -1147,12 +1147,15 @@ const Footer = () => (
     )}
 
 {cartOpen && currentPage !== 'about' && (
-  <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
+  <div 
+    className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end"
+    onClick={() => setCartOpen(false)} // Tutup modal ketika klik di area gelap
+  >
     <div 
       className={`w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
         theme === 'light' ? 'bg-white' : 'bg-gray-800'
       }`}
-      onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside cart
+      onClick={(e) => e.stopPropagation()} 
     >
       <div className="p-4">
         <div className="flex justify-between items-center mb-4">
@@ -1195,14 +1198,15 @@ const Footer = () => (
                   ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
                 </div>
               )}
-<button
-  onClick={() => {
-    setCartOpen(false);
-    navigateToPage('cart');
-  }}
-  className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
->
-  Checkout ({cart.length} items)
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          setCartOpen(false);
+          navigateToPage('cart');
+        }}
+        className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
+      >
+        Checkout ({cart.length} items)
 </button>
             </div>
           </>
