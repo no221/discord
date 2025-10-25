@@ -920,12 +920,12 @@ export default function Home() {
               { 
                 name: "Sultanto", 
                 role: "UX Designer & Fullstack Manager",
-                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Sultanto.jpg"
               },
               { 
                 name: "Anonymous", 
                 role: "Tester",
-                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Anonymous.jpg"
               },
             ].map((member) => (
               <div
