@@ -1146,11 +1146,11 @@ const Footer = () => (
       </header>
     )}
 
-{cartOpen && currentPage !== 'about' && (
-  <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
-    <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
-      theme === 'light' ? 'bg-white' : 'bg-gray-800'
-    }`}>
+    {cartOpen && currentPage !== 'about' && (
+      <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
+        <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
+          theme === 'light' ? 'bg-white' : 'bg-gray-800'
+        }`}>
           <div className="p-4">
             <div className="flex justify-between items-center mb-4">
               <h3 className={`font-semibold text-lg ${
