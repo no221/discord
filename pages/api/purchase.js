@@ -1,64 +1,76 @@
-// app/api/purchase/route.js
+// pages/api/purchase.js
 import { supabase } from '../../lib/supabaseClient'
 
-export async function GET() {
-  try {
-    const { data, error } = await supabase
-      .from('purchases')
-      .select('*')
-      .order('created_at', { ascending: false })
+export default async function handler(req, res) {
+  console.log('Purchase API called:', req.method)
+  
+  if (req.method === 'GET') {
+    try {
+      console.log('Fetching purchases from Supabase...')
+      
+      const { data, error } = await supabase
+        .from('purchases')
+        .select('*')
+        .order('created_at', { ascending: false })
 
-    if (error) {
-      console.error('Supabase error:', error)
-      return Response.json({ 
-        error: error.message,
+      if (error) {
+        console.error('Supabase error:', error)
+        return res.status(500).json({ 
+          error: error.message,
+          purchases: [] 
+        })
+      }
+
+      console.log('Successfully fetched purchases:', data?.length || 0)
+      return res.status(200).json({ 
+        purchases: data || [],
+        count: data?.length || 0
+      })
+      
+    } catch (error) {
+      console.error('Server error:', error)
+      return res.status(500).json({ 
+        error: 'Internal server error: ' + error.message,
         purchases: [] 
-      }, { status: 500 })
+      })
     }
-
-    console.log('Fetched purchases:', data?.length || 0)
-    return Response.json({ 
-      purchases: data || [],
-      count: data?.length || 0
-    })
-  } catch (error) {
-    console.error('Server error:', error)
-    return Response.json({ 
-      error: 'Internal server error',
-      purchases: [] 
-    }, { status: 500 })
   }
-}
 
-export async function POST(request) {
-  try {
-    const { productId, size, price, qty, name, phone, address, product_name } = await request.json()
-    
-    const { data, error } = await supabase
-      .from('purchases')
-      .insert([{ 
-        product_id: productId,
-        product_name: product_name,
-        size, 
-        price, 
-        qty, 
-        name, 
-        phone, 
-        address 
-      }])
-      .select()
+  if (req.method === 'POST') {
+    try {
+      const { productId, size, price, qty, name, phone, address, product_name } = req.body
+      console.log('Creating purchase:', { productId, product_name, size, price, qty, name })
+      
+      const { data, error } = await supabase
+        .from('purchases')
+        .insert([{ 
+          product_id: productId,
+          product_name: product_name,
+          size, 
+          price, 
+          qty, 
+          name, 
+          phone, 
+          address 
+        }])
+        .select()
 
-    if (error) {
-      console.error('Insert error:', error)
-      return Response.json({ error: error.message }, { status: 500 })
+      if (error) {
+        console.error('Insert error:', error)
+        return res.status(500).json({ error: error.message })
+      }
+
+      console.log('Purchase created successfully:', data[0])
+      return res.status(200).json({ 
+        success: true, 
+        data: data[0] 
+      })
+    } catch (error) {
+      console.error('Server error:', error)
+      return res.status(500).json({ error: 'Internal server error: ' + error.message })
     }
-
-    return Response.json({ 
-      success: true, 
-      data: data[0] 
-    })
-  } catch (error) {
-    console.error('Server error:', error)
-    return Response.json({ error: 'Internal server error' }, { status: 500 })
   }
+
+  res.setHeader('Allow', ['GET', 'POST'])
+  res.status(405).end(`Method ${req.method} Not Allowed`)
 }
