@@ -1146,63 +1146,71 @@ const Footer = () => (
       </header>
     )}
 
-    {cartOpen && currentPage !== 'about' && (
-      <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
-        <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
-          theme === 'light' ? 'bg-white' : 'bg-gray-800'
-        }`}>
-          <div className="p-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className={`font-semibold text-lg ${
-                theme === 'dark' ? 'text-white' : ''
-              }`}>🛒 Keranjang Belanja</h3>
-              <button onClick={() => setCartOpen(false)} className={`text-2xl transition-transform duration-200 hover:scale-110 ${
-                theme === 'dark' ? 'text-white' : ''
-              }`}>×</button>
+{cartOpen && currentPage !== 'about' && (
+  <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end justify-center">
+    <div 
+      className={`w-full max-w-md max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
+        theme === 'light' ? 'bg-white' : 'bg-gray-800'
+      }`}
+      style={{ margin: '0 auto' }}
+    >
+      <div className="p-4">
+        <div className="flex justify-between items-center mb-4">
+          <h3 className={`font-semibold text-lg ${
+            theme === 'dark' ? 'text-white' : ''
+          }`}>🛒 Keranjang Belanja</h3>
+          <button 
+            onClick={() => setCartOpen(false)} 
+            className={`text-2xl transition-transform duration-200 hover:scale-110 ${
+              theme === 'dark' ? 'text-white' : ''
+            }`}
+          >
+            ×
+          </button>
+        </div>
+        
+        {cart.length === 0 ? (
+          <p className={`text-center py-8 ${
+            theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+          }`}>Keranjang kosong</p>
+        ) : (
+          <>
+            <div className="max-h-96 overflow-y-auto">
+              {cart.map((item, index) => (
+                <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+              ))}
             </div>
             
-            {cart.length === 0 ? (
-              <p className={`text-center py-8 ${
-                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-              }`}>Keranjang kosong</p>
-            ) : (
-              <>
-                <div className="max-h-96 overflow-y-auto">
-                  {cart.map((item, index) => (
-                    <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
-                  ))}
+            <div className="mt-4 pt-4 border-t" style={{
+              borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
+            }}>
+              <div className={`flex justify-between font-semibold text-lg ${
+                theme === 'dark' ? 'text-white' : ''
+              }`}>
+                <span>Total:</span>
+                <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
+              </div>
+              {voucherApplied && (
+                <div className="text-sm text-green-600 mt-1 animate-pulse">
+                  ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
                 </div>
-                
-                <div className="mt-4 pt-4 border-t" style={{
-                  borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
-                }}>
-                  <div className={`flex justify-between font-semibold text-lg ${
-                    theme === 'dark' ? 'text-white' : ''
-                  }`}>
-                    <span>Total:</span>
-                    <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
-                  </div>
-                  {voucherApplied && (
-                    <div className="text-sm text-green-600 mt-1 animate-pulse">
-                      ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
-                    </div>
-                  )}
-                  <button
-                    onClick={() => {
-                      setCartOpen(false)
-                      navigateToPage('cart')
-                    }}
-                    className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
-                  >
-                    Checkout ({cart.length} items)
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
+              )}
+              <button
+                onClick={() => {
+                  setCartOpen(false)
+                  navigateToPage('cart')
+                }}
+                className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
+              >
+                Checkout ({cart.length} items)
+              </button>
+            </div>
+          </>
+        )}
       </div>
-    )}
+    </div>
+  </div>
+)}
 
     <main className="relative z-10">
       {currentPage === 'about' && <AboutPage />}
