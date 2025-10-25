@@ -41,19 +41,23 @@ export default async function handler(req, res) {
       const { productId, size, price, qty, name, phone, address, product_name } = req.body
       console.log('Creating purchase:', { productId, product_name, size, price, qty, name })
       
-      const { data, error } = await supabase
-        .from('purchases')
-        .insert([{ 
-          product_id: productId,
-          product_name: product_name,
-          size, 
-          price, 
-          qty, 
-          name, 
-          phone, 
-          address 
-        }])
-        .select()
+// Di pages/api/purchase.js - POST handler
+const { data, error } = await supabase
+  .from('purchases')
+  .insert([{ 
+    product_id: productId,
+    product_name: product_name,
+    size, 
+    price, 
+    qty, 
+    name, 
+    phone, 
+    address,
+    voucher_code: voucher_code, // ✅ TAMBAH
+    discount_rate: discount_rate, // ✅ TAMBAH  
+    final_price: final_price // ✅ TAMBAH
+  }])
+  .select()
 
       if (error) {
         console.error('Insert error:', error)
