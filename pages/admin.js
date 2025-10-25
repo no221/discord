@@ -125,7 +125,54 @@ export default function Admin() {
       </div>
     )
   }
-
+// Di bagian setelah authorized check, tambahkan:
+if (purchases.length === 0) {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6">
+      <div className="max-w-4xl mx-auto">
+        <header className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+          <h1 className="text-3xl font-bold text-gray-800">🎯 Admin Dashboard</h1>
+        </header>
+        
+        <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+          <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">📝</span>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">No Purchase Data Yet</h2>
+          <p className="text-gray-600 mb-6">
+            The purchases table is empty. Make a test purchase from the store or add data manually in Supabase.
+          </p>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+            <a 
+              href="/" 
+              className="bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+            >
+              🏪 Go to Store
+            </a>
+            <a 
+              href={`https://app.supabase.com/project/${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}/editor`}
+              target="_blank"
+              className="bg-green-500 text-white py-3 px-6 rounded-lg hover:bg-green-600 transition-colors font-medium"
+            >
+              📊 Open Supabase
+            </a>
+          </div>
+          
+          <div className="mt-8 p-4 bg-gray-50 rounded-lg text-left">
+            <h3 className="font-semibold mb-2">Quick Setup:</h3>
+            <ol className="list-decimal list-inside space-y-1 text-sm text-gray-600">
+              <li>Go to Supabase Table Editor</li>
+              <li>Create table named "purchases"</li>
+              <li>Add columns: product_id, size, price, qty, name, phone, address, created_at</li>
+              <li>Insert test data or make a real purchase</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
   // Safe calculations dengan protection lengkap
   const purchases = Array.isArray(data?.purchases) ? data.purchases : []
   
