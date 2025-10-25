@@ -12,6 +12,8 @@ export default function Admin() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  const purchases = Array.isArray(data?.purchases) ? data.purchases : []
+
   useEffect(() => {
     if (authorized) {
       fetchData()
@@ -24,7 +26,6 @@ export default function Admin() {
     try {
       const res = await fetch('/api/purchase')
       if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`)
-      
       const json = await res.json()
       setData(json || { purchases: [] })
     } catch (err) {
@@ -37,7 +38,7 @@ export default function Admin() {
 
   async function handleLogin() {
     if (!pwd.trim()) return
-    
+
     setLoading(true)
     try {
       const res = await fetch('/api/admin-auth', {
@@ -45,9 +46,8 @@ export default function Admin() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ password: pwd.trim() })
       })
-      
+
       const result = await res.json()
-      
       if (result.success) {
         setAuthorized(true)
         setError('')
@@ -62,7 +62,7 @@ export default function Admin() {
     }
   }
 
-  const handleKeyPress = (e) => {
+  const handleKeyDown = (e) => {
     if (e.key === 'Enter' && pwd.trim()) {
       handleLogin()
     }
@@ -79,18 +79,18 @@ export default function Admin() {
             <h2 className="text-3xl font-bold text-gray-800">Admin Access</h2>
             <p className="text-gray-600 mt-2">Enter password to continue</p>
           </div>
-          
+
           <div className="space-y-4">
             <input
               type="password"
               placeholder="Enter admin password"
               value={pwd}
               onChange={(e) => setPwd(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               className="w-full border border-gray-300 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               disabled={loading}
             />
-            
+
             <button
               className="w-full px-4 py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 transition-all duration-200 font-medium text-lg shadow-md hover:shadow-lg"
               onClick={handleLogin}
@@ -114,8 +114,8 @@ export default function Admin() {
           )}
 
           <div className="mt-6 text-center">
-            <a 
-              href="/" 
+            <a
+              href="/"
               className="text-blue-500 hover:text-blue-700 text-sm font-medium"
             >
               ← Back to Main Store
@@ -125,72 +125,60 @@ export default function Admin() {
       </div>
     )
   }
-// Di bagian setelah authorized check, tambahkan:
-if (purchases.length === 0) {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6">
-      <div className="max-w-4xl mx-auto">
-        <header className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h1 className="text-3xl font-bold text-gray-800">🎯 Admin Dashboard</h1>
-        </header>
-        
-        <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-          <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-3xl">📝</span>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">No Purchase Data Yet</h2>
-          <p className="text-gray-600 mb-6">
-            The purchases table is empty. Make a test purchase from the store or add data manually in Supabase.
-          </p>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
-            <a 
-              href="/" 
-              className="bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors font-medium"
-            >
-              🏪 Go to Store
-            </a>
-            <a 
-              href={`https://app.supabase.com/project/${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}/editor`}
-              target="_blank"
-              className="bg-green-500 text-white py-3 px-6 rounded-lg hover:bg-green-600 transition-colors font-medium"
-            >
-              📊 Open Supabase
-            </a>
-          </div>
-          
-          <div className="mt-8 p-4 bg-gray-50 rounded-lg text-left">
-            <h3 className="font-semibold mb-2">Quick Setup:</h3>
-            <ol className="list-decimal list-inside space-y-1 text-sm text-gray-600">
-              <li>Go to Supabase Table Editor</li>
-              <li>Create table named "purchases"</li>
-              <li>Add columns: product_id, size, price, qty, name, phone, address, created_at</li>
-              <li>Insert test data or make a real purchase</li>
-            </ol>
+
+  if (purchases.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6">
+        <div className="max-w-4xl mx-auto">
+          <header className="bg-white rounded-2xl shadow-lg p-6 mb-6">
+            <h1 className="text-3xl font-bold text-gray-800">🎯 Admin Dashboard</h1>
+          </header>
+
+          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-3xl">📝</span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">No Purchase Data Yet</h2>
+            <p className="text-gray-600 mb-6">
+              The purchases table is empty. Make a test purchase from the store or add data manually in Supabase.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
+              <a
+                href="/"
+                className="bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+              >
+                🏪 Go to Store
+              </a>
+              <a
+                href={`https://app.supabase.com/project/${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}/editor`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-green-500 text-white py-3 px-6 rounded-lg hover:bg-green-600 transition-colors font-medium"
+              >
+                📊 Open Supabase
+              </a>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  )
-}
-  // Safe calculations dengan protection lengkap
-  const purchases = Array.isArray(data?.purchases) ? data.purchases : []
-  
-  const totalBought = purchases.reduce((sum, purchase) => {
-    return sum + (Number(purchase?.qty) || 0)
-  }, 0)
+    )
+  }
+
+  // ==================== Stats Calculations ====================
+  const totalBought = purchases.reduce((sum, purchase) => sum + (Number(purchase?.qty) || 0), 0)
 
   const currentMonth = new Date().getMonth()
   const currentYear = new Date().getFullYear()
-  
-  const monthlyBuy = purchases.filter(purchase => {
-    if (!purchase?.created_at) return false
-    const purchaseDate = new Date(purchase.created_at)
-    return purchaseDate.getMonth() === currentMonth && 
-           purchaseDate.getFullYear() === currentYear
-  }).reduce((sum, purchase) => sum + (Number(purchase?.qty) || 0), 0)
 
-  // Count by product dengan safety check
+  const monthlyBuy = purchases
+    .filter(purchase => {
+      if (!purchase?.created_at) return false
+      const purchaseDate = new Date(purchase.created_at)
+      return purchaseDate.getMonth() === currentMonth && purchaseDate.getFullYear() === currentYear
+    })
+    .reduce((sum, purchase) => sum + (Number(purchase?.qty) || 0), 0)
+
   const countByProduct = {}
   purchases.forEach((purchase) => {
     const productName = purchase?.product_name || purchase?.productId || 'Unknown Product'
@@ -199,27 +187,18 @@ if (purchases.length === 0) {
   })
 
   const mostBoughtEntries = Object.entries(countByProduct)
-  const mostBought = mostBoughtEntries.length > 0 
-    ? mostBoughtEntries.sort((a, b) => b[1] - a[1])[0] 
+  const mostBought = mostBoughtEntries.length > 0
+    ? mostBoughtEntries.sort((a, b) => b[1] - a[1])[0]
     : ['No data', 0]
 
-  // Total revenue
-  const totalRevenue = purchases.reduce((sum, purchase) => {
-    return sum + (Number(purchase?.price) || 0) * (Number(purchase?.qty) || 0)
-  }, 0)
+  const totalRevenue = purchases.reduce((sum, purchase) => sum + (Number(purchase?.price) || 0) * (Number(purchase?.qty) || 0), 0)
 
-  // Unique customers
   const uniqueCustomers = [...new Set(purchases.map(p => p?.phone).filter(Boolean))].length
 
-  // Chart data dengan fallback
   const pieData = {
-    labels: Object.keys(countByProduct).length > 0 
-      ? Object.keys(countByProduct) 
-      : ['No Data'],
+    labels: Object.keys(countByProduct).length > 0 ? Object.keys(countByProduct) : ['No Data'],
     datasets: [{
-      data: Object.values(countByProduct).length > 0 
-        ? Object.values(countByProduct) 
-        : [1],
+      data: Object.values(countByProduct).length > 0 ? Object.values(countByProduct) : [1],
       backgroundColor: [
         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
         '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
@@ -231,12 +210,11 @@ if (purchases.length === 0) {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: {
-        position: 'bottom',
-      },
+      legend: { position: 'bottom' },
     },
   }
 
+  // ==================== Render Dashboard ====================
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
@@ -244,34 +222,17 @@ if (purchases.length === 0) {
         <header className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-200">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between">
             <div className="mb-4 lg:mb-0">
-              <h1 className="text-3xl font-bold text-gray-800 flex items-center">
-                🎯 Admin Dashboard
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-800 flex items-center">🎯 Admin Dashboard</h1>
               <p className="text-gray-600 mt-1">Manage your store analytics and purchases</p>
             </div>
-            
             <div className="flex flex-wrap gap-3">
-              <button 
-                onClick={fetchData}
-                disabled={loading}
-                className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-400 transition-all duration-200 font-medium flex items-center shadow-md hover:shadow-lg"
-              >
-                {loading ? '🔄' : '📊'} {loading ? 'Loading...' : 'Refresh Data'}
+              <button onClick={fetchData} disabled={loading} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-400 transition-all duration-200 font-medium flex items-center shadow-md hover:shadow-lg">
+                {loading ? '🔄 Loading...' : '📊 Refresh Data'}
               </button>
-              <button 
-                onClick={() => {
-                  setAuthorized(false)
-                  setPwd('')
-                  setError('')
-                }}
-                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 font-medium flex items-center shadow-md hover:shadow-lg"
-              >
+              <button onClick={() => { setAuthorized(false); setPwd(''); setError('') }} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 font-medium flex items-center shadow-md hover:shadow-lg">
                 🚪 Logout
               </button>
-              <a 
-                href="/" 
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 font-medium flex items-center shadow-md hover:shadow-lg"
-              >
+              <a href="/" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 font-medium flex items-center shadow-md hover:shadow-lg">
                 🏪 Store Front
               </a>
             </div>
