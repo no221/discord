@@ -1695,7 +1695,7 @@ const Footer = () => (
             theme === 'light' ? 'text-gray-600' : 'text-gray-300'
           }`}>
             Terima kasih telah berbelanja di Soccer Ball Shop. 
-            {form.paymentMethod && ` Pembayaran dengan ${paymentMethods.find(p => p.id === form.paymentMethod)?.name} berhasil.`}
+            {form.paymentMethod && ` Pembayaran dengan ${paymentMethods.find(p => p.id === form.paymentMethod)?.name} berhasil. Pesananmu akan kami siapkan!`}
           </p>
           <button
             className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
