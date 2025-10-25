@@ -38,30 +38,61 @@ export default async function handler(req, res) {
 
   if (req.method === 'POST') {
     try {
-      const { productId, size, price, qty, name, phone, address, product_name } = req.body
-      console.log('Creating purchase:', { productId, product_name, size, price, qty, name })
+      const { 
+        productId, 
+        size, 
+        price, 
+        qty, 
+        name, 
+        phone, 
+        address, 
+        product_name,
+        voucher_code, 
+        discount_rate, 
+        final_price 
+      } = req.body
       
-// Di pages/api/purchase.js - POST handler
-const { data, error } = await supabase
-  .from('purchases')
-  .insert([{ 
-    product_id: productId,
-    product_name: product_name,
-    size, 
-    price, 
-    qty, 
-    name, 
-    phone, 
-    address,
-    voucher_code: voucher_code, // ✅ TAMBAH
-    discount_rate: discount_rate, // ✅ TAMBAH  
-    final_price: final_price // ✅ TAMBAH
-  }])
-  .select()
+      console.log('Creating purchase:', { 
+        productId, 
+        product_name, 
+        size, 
+        price, 
+        qty, 
+        name,
+        voucher_code,
+        discount_rate,
+        final_price
+      })
+
+      // Validasi field required
+      if (!productId || !name || !phone || !address) {
+        return res.status(400).json({ 
+          error: 'Missing required fields: productId, name, phone, address' 
+        })
+      }
+
+      const { data, error } = await supabase
+        .from('purchases')
+        .insert([{ 
+          product_id: productId,
+          product_name: product_name || '',
+          size: size || '', 
+          price: price || 0, 
+          qty: qty || 1, 
+          name, 
+          phone, 
+          address,
+          voucher_code: voucher_code || null,
+          discount_rate: discount_rate || 0,  
+          final_price: final_price || price
+        }])
+        .select()
 
       if (error) {
-        console.error('Insert error:', error)
-        return res.status(500).json({ error: error.message })
+        console.error('Supabase insert error:', error)
+        return res.status(500).json({ 
+          error: 'Database error: ' + error.message 
+        })
       }
 
       console.log('Purchase created successfully:', data[0])
@@ -69,9 +100,12 @@ const { data, error } = await supabase
         success: true, 
         data: data[0] 
       })
+      
     } catch (error) {
       console.error('Server error:', error)
-      return res.status(500).json({ error: 'Internal server error: ' + error.message })
+      return res.status(500).json({ 
+        error: 'Internal server error: ' + error.message 
+      })
     }
   }
 
