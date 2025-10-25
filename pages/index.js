@@ -1,3 +1,4 @@
+tolong bikin transisi light & dark theme lebih smooth dan animasi lainya ya.
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { products } from '@/data/product'
@@ -246,7 +247,7 @@ const paymentMethods = [
   },
   {
     id: 'cod',
-    name: 'Cash Or Duel',
+    name: 'Cash On Delivery',
     description: 'Bayar di Tempat untuk memastikan kualitas barang',
     icon: 'https://cdn-icons-png.flaticon.com/512/679/679720.png'
   },
