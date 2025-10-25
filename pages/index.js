@@ -1,3 +1,4 @@
+tolong bikin transisi light & dark theme lebih smooth dan animasi lainya ya.
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import { products } from '@/data/product'
@@ -1078,143 +1079,125 @@ const Footer = () => (
                 )}
               </button>
 
-{cartOpen && (
-  <div
-    className={`cart-container fixed md:absolute right-4 top-16 md:top-14 w-[95vw] sm:w-80 md:w-96 rounded-lg shadow-2xl border z-50 max-h-[70vh] overflow-y-auto animate-dropdown will-change-transform
-               transition-all duration-300 ${
-                 theme === 'light' 
-                   ? 'bg-white border-orange-100' 
-                   : 'bg-gray-800 border-gray-700'
-               }`}
-    style={{
-      transform: 'none',
-      left: 'auto'
-    }}
-  >
-    <div className="p-4">
-      <h3 className={`font-semibold mb-3 text-lg flex items-center gap-2 ${
-        theme === 'dark' ? 'text-white' : ''
-      }`}>
-        🛒 Keranjang Belanja
-      </h3>
-      
-      {cart.length === 0 ? (
-        <p className={`text-center py-4 ${
-          theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-        }`}>Keranjang kosong</p>
-      ) : (
-        <>
-          <div className="max-h-48 overflow-y-auto">
-            {cart.map((item, index) => (
-              <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
-            ))}
-          </div>
-          
-          <div className="mt-3 pt-3 border-t" style={{
-            borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
-          }}>
-            <div className={`flex justify-between font-semibold text-lg ${
-              theme === 'dark' ? 'text-white' : ''
-            }`}>
-              <span>Total:</span>
-              <span className="text-orange-600 animate-price-spring will-change-transform">
-                Rp {animatedTotalPrice.toLocaleString()}
-              </span>
-            </div>
-            {voucherApplied && (
-              <div className="text-sm text-green-600 mt-1 animate-pulse will-change-opacity">
-                ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+              {cartOpen && (
+                <div
+                  className={`cart-container fixed md:absolute right-1/2 md:right-0 top-16 md:top-14 w-[92vw] sm:w-80 md:w-96 rounded-lg shadow-2xl border z-50 max-h-[70vh] overflow-y-auto animate-dropdown
+                             md:translate-x-[calc(50%-1rem)] md:translate-y-0 transition-all duration-300 ${
+                               theme === 'light' 
+                                 ? 'bg-white border-orange-100' 
+                                 : 'bg-gray-800 border-gray-700'
+                             }`}
+                >
+                  <div className="p-4">
+                    <h3 className={`font-semibold mb-3 text-lg flex items-center gap-2 ${
+                      theme === 'dark' ? 'text-white' : ''
+                    }`}>
+                      🛒 Keranjang Belanja
+                    </h3>
+                                  
+                  {cart.length === 0 ? (
+                    <p className={`text-center py-4 ${
+                      theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Keranjang kosong</p>
+                  ) : (
+                    <>
+                      <div className="max-h-48 overflow-y-auto">
+                        {cart.map((item, index) => (
+                          <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+                        ))}
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t" style={{
+                        borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
+                      }}>
+                        <div className={`flex justify-between font-semibold text-lg ${
+                          theme === 'dark' ? 'text-white' : ''
+                        }`}>
+                          <span>Total:</span>
+                          <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
+                        </div>
+                        {voucherApplied && (
+                          <div className="text-sm text-green-600 mt-1 animate-pulse">
+                            ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+                          </div>
+                        )}
+                        <button
+                          onClick={() => {
+                            setCartOpen(false)
+                            navigateToPage('cart')
+                          }}
+                          className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
+                        >
+                          Checkout ({cart.length} items)
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             )}
-            <button
-              onClick={() => {
-                setCartOpen(false)
-                navigateToPage('cart')
-              }}
-              className="w-full mt-3 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95 will-change-transform"
-            >
-              Checkout ({cart.length} items)
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-  </div>
-)}
           </div>
         </div>
       </header>
     )}
 
-{cartOpen && currentPage !== 'about' && (
-  <div 
-    className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end"
-    onClick={() => setCartOpen(false)} // Tutup modal ketika klik di area gelap
-  >
-    <div 
-      className={`w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
-        theme === 'light' ? 'bg-white' : 'bg-gray-800'
-      }`}
-      onClick={(e) => e.stopPropagation()} 
-    >
-      <div className="p-4">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className={`font-semibold text-lg ${
-            theme === 'dark' ? 'text-white' : ''
-          }`}>🛒 Keranjang Belanja</h3>
-          <button 
-            onClick={() => setCartOpen(false)} 
-            className={`text-2xl transition-transform duration-200 hover:scale-110 ${
-              theme === 'dark' ? 'text-white' : ''
-            }`}
-          >
-            ×
-          </button>
-        </div>
-        
-        {cart.length === 0 ? (
-          <p className={`text-center py-8 ${
-            theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-          }`}>Keranjang kosong</p>
-        ) : (
-          <>
-            <div className="max-h-96 overflow-y-auto">
-              {cart.map((item, index) => (
-                <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
-              ))}
+    {cartOpen && currentPage !== 'about' && (
+      <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
+        <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
+          theme === 'light' ? 'bg-white' : 'bg-gray-800'
+        }`}>
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className={`font-semibold text-lg ${
+                theme === 'dark' ? 'text-white' : ''
+              }`}>🛒 Keranjang Belanja</h3>
+              <button onClick={() => setCartOpen(false)} className={`text-2xl transition-transform duration-200 hover:scale-110 ${
+                theme === 'dark' ? 'text-white' : ''
+              }`}>×</button>
             </div>
             
-            <div className="mt-4 pt-4 border-t" style={{
-              borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
-            }}>
-              <div className={`flex justify-between font-semibold text-lg ${
-                theme === 'dark' ? 'text-white' : ''
-              }`}>
-                <span>Total:</span>
-                <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
-              </div>
-              {voucherApplied && (
-                <div className="text-sm text-green-600 mt-1 animate-pulse">
-                  ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+            {cart.length === 0 ? (
+              <p className={`text-center py-8 ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+              }`}>Keranjang kosong</p>
+            ) : (
+              <>
+                <div className="max-h-96 overflow-y-auto">
+                  {cart.map((item, index) => (
+                    <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+                  ))}
                 </div>
-              )}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          setCartOpen(false);
-          navigateToPage('cart');
-        }}
-        className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
-      >
-        Checkout ({cart.length} items)
-</button>
-            </div>
-          </>
-        )}
+                
+                <div className="mt-4 pt-4 border-t" style={{
+                  borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
+                }}>
+                  <div className={`flex justify-between font-semibold text-lg ${
+                    theme === 'dark' ? 'text-white' : ''
+                  }`}>
+                    <span>Total:</span>
+                    <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
+                  </div>
+                  {voucherApplied && (
+                    <div className="text-sm text-green-600 mt-1 animate-pulse">
+                      ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+                    </div>
+                  )}
+                  <button
+                    onClick={() => {
+                      setCartOpen(false)
+                      navigateToPage('cart')
+                    }}
+                    className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
+                  >
+                    Checkout ({cart.length} items)
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
-)}
+    )}
 
     <main className="relative z-10">
       {currentPage === 'about' && <AboutPage />}
@@ -2062,20 +2045,17 @@ const Footer = () => (
         -webkit-box-orient: vertical;
         overflow: hidden;
       }
-
-.cart-container {
-  max-width: calc(100vw - 2rem); 
-  margin: 0 auto;
-}
-
-@media (max-width: 768px) {
-  .cart-container {
-    width: 95vw !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    right: auto !important;
-  }
-}
+      .min-h-\[380px\] {
+        min-height: 380px;
+      }
+      .mt-auto {
+        margin-top: auto;
+      }
+      .product-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
     `}</style>
   </div>
 )
