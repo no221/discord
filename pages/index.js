@@ -221,6 +221,8 @@ export default function Home() {
   const [quantityUpdateKey, setQuantityUpdateKey] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [pageTransition, setPageTransition] = useState(false)
+  // Tambahkan state untuk theme
+  const [theme, setTheme] = useState('light') // 'light' atau 'dark'
 
   // Payment methods data
 const paymentMethods = [
@@ -270,6 +272,19 @@ const paymentMethods = [
 
   // Get all unique tags from products
   const allTags = ['all', ...new Set(products.flatMap(product => product.tags || []))]
+
+  // Function untuk toggle theme dengan animasi
+  const toggleTheme = useCallback(() => {
+    setTheme(prev => {
+      const newTheme = prev === 'light' ? 'dark' : 'light'
+      // Trigger animasi theme transition
+      document.documentElement.classList.add('theme-transition')
+      setTimeout(() => {
+        document.documentElement.classList.remove('theme-transition')
+      }, 300)
+      return newTheme
+    })
+  }, [])
 
   // Simulate loading effect
   useEffect(() => {
@@ -544,18 +559,18 @@ const paymentMethods = [
         )}
         <div className="flex-1">
           <div className="font-medium text-sm">{item.product.name}</div>
-          <div className="text-xs text-gray-600">Size: {item.variant.size}</div>
+          <div className="text-xs text-gray-600 dark:text-gray-400">Size: {item.variant.size}</div>
           <div className="flex items-center gap-2 mt-1">
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
-              className="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300 transition-all duration-200 transform hover:scale-110 active:scale-95"
+              className="w-5 h-5 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95"
             >
               -
             </button>
             <AnimatedQuantity quantity={item.quantity} />
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
-              className="w-5 h-5 flex items-center justify-center bg-gray-200 rounded text-xs hover:bg-gray-300 transition-all duration-200 transform hover:scale-110 active:scale-95"
+              className="w-5 h-5 flex items-center justify-center bg-gray-200 dark:bg-gray-700 rounded text-xs hover:bg-gray-300 dark:hover:bg-gray-600 transition-all duration-200 transform hover:scale-110 active:scale-95"
             >
               +
             </button>
@@ -595,7 +610,11 @@ const paymentMethods = [
 
     return (
       <div key={`${item.product.id}-${item.variant.size}-${index}-${priceUpdateKey}`} 
-           className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border rounded-lg bg-orange-50/30 animate-item-slide-in">
+           className="flex items-center gap-3 md:gap-4 p-3 md:p-4 border rounded-lg animate-item-slide-in transition-all duration-300"
+           style={{
+             backgroundColor: theme === 'light' ? 'rgba(255, 247, 237, 0.3)' : 'rgba(55, 65, 81, 0.3)',
+             borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
+           }}>
         {renderProductImage(
           item.product.images[0],
           item.product.name,
@@ -603,18 +622,18 @@ const paymentMethods = [
         )}
         <div className="flex-1">
           <div className="font-semibold text-sm md:text-base">{item.product.name}</div>
-          <div className="text-xs md:text-sm text-gray-600">Size: {item.variant.size}</div>
+          <div className="text-xs md:text-sm text-gray-600 dark:text-gray-400">Size: {item.variant.size}</div>
           <div className="flex items-center gap-2 md:gap-3 mt-2">
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity - 1)}
-              className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95"
+              className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-700 border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95"
             >
               -
             </button>
             <AnimatedQuantity quantity={item.quantity} />
             <button
               onClick={() => updateQuantity(item.product.id, item.variant.size, item.quantity + 1)}
-              className="w-6 h-6 flex items-center justify-center bg-white border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95"
+              className="w-6 h-6 flex items-center justify-center bg-white dark:bg-gray-700 border rounded hover:bg-orange-500 hover:text-white transition-all duration-200 transform hover:scale-110 active:scale-95"
             >
               +
             </button>
@@ -646,15 +665,14 @@ const paymentMethods = [
     )
   }
 
-
 const AboutPage = () => (
   <div
-    className={`max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm bg-white/90 ${
-      pageTransition ? "animate-page-exit" : "animate-page-enter"
-    }`}
+    className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
+      theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
+    } ${pageTransition ? "animate-page-exit" : "animate-page-enter"}`}
   >
     <div className="text-center mb-8">
-      <h1 className="text-3xl md:text-4xl font-bold text-orange-700 mb-4 animate-fade-in-up">
+      <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
         Tentang Kami
       </h1>
       <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
@@ -663,7 +681,7 @@ const AboutPage = () => (
     {/* TIM KAMI */}
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
       <div className="animate-slide-in-left">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Tim Kami</h2>
+        <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
         <div className="space-y-3">
           {[
             { name: "Darren", role: "Project Manager" },
@@ -673,14 +691,18 @@ const AboutPage = () => (
           ].map((member) => (
             <div
               key={member.name}
-              className="flex items-center gap-3 p-3 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105"
+              className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
+                theme === 'light' 
+                  ? 'bg-orange-50 hover:bg-orange-100' 
+                  : 'bg-gray-700 hover:bg-gray-600'
+              }`}
             >
               <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold">
                 {member.name.charAt(0)}
               </div>
               <div>
                 <div className="font-semibold">{member.name}</div>
-                <div className="text-sm text-gray-600">{member.role}</div>
+                <div className="text-sm opacity-75">{member.role}</div>
               </div>
             </div>
           ))}
@@ -689,16 +711,20 @@ const AboutPage = () => (
 
       {/* TENTANG PROYEK */}
       <div className="animate-slide-in-right">
-        <h2 className="text-2xl font-semibold text-gray-800 mb-4">Tentang Proyek</h2>
-        <div className="bg-gradient-to-br from-orange-50 to-amber-50 p-6 rounded-lg border border-orange-200">
-          <p className="text-gray-700 leading-relaxed mb-4">
+        <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
+        <div className={`p-6 rounded-lg border transition-all duration-300 ${
+          theme === 'light' 
+            ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200' 
+            : 'bg-gradient-to-br from-gray-700 to-gray-600 border-gray-600'
+        }`}>
+          <p className="leading-relaxed mb-4">
             <strong>Made By Kelompok 4</strong>
           </p>
-          <p className="text-gray-600 leading-relaxed mb-4">
+          <p className="opacity-75 leading-relaxed mb-4">
             Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi.
             Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
           </p>
-          <div className="flex items-center gap-2 text-sm text-gray-500">
+          <div className="flex items-center gap-2 text-sm opacity-75">
             <span>⚡</span>
             <span>Dibuat dengan React.js & Next.js</span>
           </div>
@@ -716,7 +742,10 @@ const AboutPage = () => (
           href="https://wa.me/6285156431675"
           target="_blank"
           rel="noopener noreferrer"
-          className="relative overflow-hidden flex items-center gap-3 p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-all duration-300 transform hover:scale-105 active:animate-ripple"
+          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
+          style={{
+            backgroundColor: theme === 'light' ? 'rgb(240, 253, 244)' : 'rgb(6, 78, 59)'
+          }}
         >
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
@@ -725,14 +754,17 @@ const AboutPage = () => (
           />
           <div>
             <div className="font-semibold">WhatsApp</div>
-            <div className="text-sm text-gray-600">+62 851-5643-1675</div>
+            <div className="text-sm opacity-75">+62 851-5643-1675</div>
           </div>
         </a>
 
         {/* Email */}
         <a
           href="mailto:rndm942@yahoo.com"
-          className="relative overflow-hidden flex items-center gap-3 p-4 bg-red-50 rounded-lg hover:bg-red-100 transition-all duration-300 transform hover:scale-105 active:animate-ripple"
+          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
+          style={{
+            backgroundColor: theme === 'light' ? 'rgb(254, 242, 242)' : 'rgb(127, 29, 29)'
+          }}
         >
           <img
             src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
@@ -741,7 +773,7 @@ const AboutPage = () => (
           />
           <div>
             <div className="font-semibold">Email</div>
-            <div className="text-sm text-gray-600">rndm942@yahoo.com</div>
+            <div className="text-sm opacity-75">rndm942@yahoo.com</div>
           </div>
         </a>
       </div>
@@ -776,10 +808,13 @@ const AboutPage = () => (
     `}</style>
   </div>
 );
-  // Footer Component
-  
+
 const Footer = () => (
-  <footer className="mt-8 py-6 border-t border-gray-200 relative z-10 backdrop-blur-sm bg-white/50">
+  <footer className={`mt-8 py-6 border-t relative z-10 backdrop-blur-sm transition-all duration-300 ${
+    theme === 'light' 
+      ? 'bg-white/50 border-gray-200' 
+      : 'bg-gray-900/50 border-gray-700'
+  }`}>
     <div className="max-w-6xl mx-auto px-4">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
@@ -788,14 +823,24 @@ const Footer = () => (
           className="text-center cursor-pointer group"
           onClick={() => navigateToPage('about')}
         >
-          <div className="inline-block p-4 bg-orange-50 rounded-lg hover:bg-orange-100 transition-all duration-300 transform hover:scale-105">
-            <div className="text-sm text-gray-600 mb-2 group-hover:text-orange-600 transition-colors">
+          <div className={`inline-block p-4 rounded-lg hover:scale-105 transition-all duration-300 ${
+            theme === 'light' 
+              ? 'bg-orange-50 hover:bg-orange-100' 
+              : 'bg-gray-800 hover:bg-gray-700'
+          }`}>
+            <div className={`text-sm mb-2 transition-colors ${
+              theme === 'light' ? 'text-gray-600 group-hover:text-orange-600' : 'text-gray-400 group-hover:text-orange-400'
+            }`}>
               Made by
             </div>
-            <div className="font-semibold text-orange-700 group-hover:text-orange-800 transition-colors">
+            <div className={`font-semibold transition-colors ${
+              theme === 'light' ? 'text-orange-700 group-hover:text-orange-800' : 'text-orange-400 group-hover:text-orange-300'
+            }`}>
               Kelompok 4
             </div>
-            <div className="text-xs text-gray-500 mt-1 group-hover:text-gray-600 transition-colors">
+            <div className={`text-xs mt-1 transition-colors ${
+              theme === 'light' ? 'text-gray-500 group-hover:text-gray-600' : 'text-gray-500 group-hover:text-gray-400'
+            }`}>
               Klik untuk info lebih lanjut →
             </div>
           </div>
@@ -810,7 +855,10 @@ const Footer = () => (
               href="https://wa.me/6285156431675"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-all duration-300 transform hover:scale-105"
+              className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105"
+              style={{
+                color: theme === 'light' ? '#059669' : '#34d399'
+              }}
             >
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
@@ -818,8 +866,12 @@ const Footer = () => (
                 className="w-6 h-6"
               />
               <div className="text-left">
-                <div className="text-xs text-gray-500">WhatsApp</div>
-                <div className="text-sm font-medium text-gray-700">0851-5643-1675</div>
+                <div className={`text-xs ${
+                  theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+                }`}>WhatsApp</div>
+                <div className={`text-sm font-medium ${
+                  theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+                }`}>0851-5643-1675</div>
               </div>
             </a>
 
@@ -828,7 +880,10 @@ const Footer = () => (
               href="mailto:rndm942@yahoo.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 text-red-600 hover:text-red-700 transition-all duration-300 transform hover:scale-105"
+              className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105"
+              style={{
+                color: theme === 'light' ? '#dc2626' : '#f87171'
+              }}
             >
               <img
                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
@@ -836,8 +891,12 @@ const Footer = () => (
                 className="w-6 h-6"
               />
               <div className="text-left">
-                <div className="text-xs text-gray-500">Email</div>
-                <div className="text-sm font-medium text-gray-700">rndm942@yahoo.com</div>
+                <div className={`text-xs ${
+                  theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+                }`}>Email</div>
+                <div className={`text-sm font-medium ${
+                  theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+                }`}>rndm942@yahoo.com</div>
               </div>
             </a>
 
@@ -846,47 +905,91 @@ const Footer = () => (
       </div>
 
       {/* Copyright */}
-      <div className="text-center mt-4 pt-4 border-t border-gray-200">
-        <p className="text-xs text-gray-500">
+      <div className={`text-center mt-4 pt-4 border-t ${
+        theme === 'light' ? 'border-gray-200' : 'border-gray-700'
+      }`}>
+        <p className={`text-xs ${
+          theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+        }`}>
           © 2025 Soccer Ball Shop. All rights reserved.
         </p>
       </div>
     </div>
   </footer>
 );
+
   if (isLoading) {
     return <LoadingScreen />;
   }
 
   return (
-    <div className="min-h-screen p-4 md:p-6 bg-gradient-to-br from-orange-50 via-white to-amber-50 relative overflow-hidden">
+    <div className={`min-h-screen p-4 md:p-6 relative overflow-hidden transition-all duration-500 ${
+      theme === 'light' 
+        ? 'bg-gradient-to-br from-orange-50 via-white to-amber-50' 
+        : 'bg-gradient-to-br from-gray-900 via-gray-800 to-black'
+    }`}>
       {/* Enhanced Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 -left-10 w-20 h-20 opacity-20 animate-spin-slow">
-          <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
-            <div className="w-16 h-16 bg-white rounded-full"></div>
-          </div>
-        </div>
-        
-        <div className="absolute top-10 left-10 w-8 h-8 bg-orange-400 rounded-full animate-float1 opacity-70 shadow-lg"></div>
-        <div className="absolute top-40 right-20 w-12 h-12 bg-amber-500 rounded-full animate-float2 opacity-60 shadow-lg"></div>
-        <div className="absolute bottom-32 left-20 w-6 h-6 bg-orange-300 rounded-full animate-float3 opacity-80 shadow-md"></div>
-        <div className="absolute bottom-20 right-32 w-10 h-10 bg-red-400 rounded-full animate-float4 opacity-70 shadow-lg"></div>
-        <div className="absolute top-64 left-1/4 w-7 h-7 bg-yellow-400 rounded-full animate-float5 opacity-75 shadow-md"></div>
+        {theme === 'light' ? (
+          // Light theme background elements
+          <>
+            <div className="absolute top-1/4 -left-10 w-20 h-20 opacity-20 animate-spin-slow">
+              <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 bg-white rounded-full"></div>
+              </div>
+            </div>
+            
+            <div className="absolute top-10 left-10 w-8 h-8 bg-orange-400 rounded-full animate-float1 opacity-70 shadow-lg"></div>
+            <div className="absolute top-40 right-20 w-12 h-12 bg-amber-500 rounded-full animate-float2 opacity-60 shadow-lg"></div>
+            <div className="absolute bottom-32 left-20 w-6 h-6 bg-orange-300 rounded-full animate-float3 opacity-80 shadow-md"></div>
+            <div className="absolute bottom-20 right-32 w-10 h-10 bg-red-400 rounded-full animate-float4 opacity-70 shadow-lg"></div>
+            <div className="absolute top-64 left-1/4 w-7 h-7 bg-yellow-400 rounded-full animate-float5 opacity-75 shadow-md"></div>
+          </>
+        ) : (
+          // Dark theme background elements - gradasi abu-abu ke hitam
+          <>
+            <div className="absolute top-1/4 -left-10 w-20 h-20 opacity-10 animate-spin-slow">
+              <div className="w-full h-full bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-gray-800 to-black rounded-full"></div>
+              </div>
+            </div>
+            
+            <div className="absolute top-10 left-10 w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full animate-float1 opacity-50 shadow-lg"></div>
+            <div className="absolute top-40 right-20 w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full animate-float2 opacity-40 shadow-lg"></div>
+            <div className="absolute bottom-32 left-20 w-6 h-6 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full animate-float3 opacity-60 shadow-md"></div>
+            <div className="absolute bottom-20 right-32 w-10 h-10 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full animate-float4 opacity-50 shadow-lg"></div>
+            <div className="absolute top-64 left-1/4 w-7 h-7 bg-gradient-to-br from-gray-400 to-gray-600 rounded-full animate-float5 opacity-55 shadow-md"></div>
+            
+            {/* Additional dark theme elements */}
+            <div className="absolute top-20 right-1/4 w-16 h-16 bg-gradient-to-br from-gray-700 to-gray-900 rounded-full animate-pulse-slow opacity-30"></div>
+            <div className="absolute bottom-40 left-1/3 w-14 h-14 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full animate-float3 opacity-25"></div>
+          </>
+        )}
       </div>
 
       {/* Header dengan Search dan Cart */}
       {currentPage !== 'about' && (
-        <header className={`flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0 ${
-          pageTransition ? 'animate-page-exit' : 'animate-page-enter'
-        }`}>
-          <div className="flex items-center justify-between w-full md:w-auto">
+        <header className={`flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0 transition-all duration-300 ${
+          theme === 'dark' ? 'text-white' : ''
+        } ${pageTransition ? 'animate-page-exit' : 'animate-page-enter'}`}>
+          <div className="flex items-center justify-between w-full md:w-auto gap-4">
             <h1 
-              className="text-xl md:text-2xl font-bold text-orange-700 flex items-center gap-2 animate-pulse-gentle cursor-pointer"
+              className="text-xl md:text-2xl font-bold flex items-center gap-2 animate-pulse-gentle cursor-pointer transition-all duration-300"
+              style={{
+                color: theme === 'light' ? '#c2410c' : '#fdba74'
+              }}
               onClick={() => navigateToPage('home')}
             >
               ⚽ Soccer Ball Shop - Steven
             </h1>
+            
+            {/* Theme Toggle Button */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 animate-theme-toggle"
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
             
             {/* Cart Icon - Mobile */}
             <div className="md:hidden relative">
@@ -912,42 +1015,64 @@ const Footer = () => (
                 placeholder="Cari produk..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full transition-all duration-300"
+                className={`pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent w-full transition-all duration-300 ${
+                  theme === 'dark' 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                    : 'bg-white border-gray-300'
+                }`}
               />
-              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              <div className={`absolute left-3 top-1/2 transform -translate-y-1/2 ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+              }`}>
                 🔍
               </div>
             </div>
           )}
 
-{/* Cart Icon - Desktop */}
-<div className="hidden md:block relative">
-  <button
-    onClick={() => setCartOpen(!cartOpen)}
-    className="cart-icon p-3 md:p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40 transform hover:scale-105 active:scale-95"
-    style={{ maxWidth: '100%', overflow: 'hidden' }}
-  >
-    <span className="text-lg">🛒</span>
-    {totalItems > 0 && (
-      <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-cart-bounce">
-        <AnimatedQuantity quantity={totalItems} />
-      </span>
-    )}
-  </button>
+          {/* Cart Icon - Desktop */}
+          <div className="hidden md:flex items-center gap-4">
+            {/* Theme Toggle Button - Desktop */}
+            <button
+              onClick={toggleTheme}
+              className="p-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 animate-theme-toggle"
+            >
+              {theme === 'light' ? '🌙' : '☀️'}
+            </button>
 
-            {/* Cart Dropdown */}
-{cartOpen && (
-  <div
-    className="cart-container fixed md:absolute right-1/2 md:right-0 top-16 md:top-14 w-[92vw] sm:w-80 md:w-96 bg-white rounded-lg shadow-2xl border border-orange-100 z-50 max-h-[70vh] overflow-y-auto animate-dropdown
-               md:translate-x-[calc(50%-1rem)] md:translate-y-0"
-  >
-    <div className="p-4">
-      <h3 className="font-semibold mb-3 text-lg flex items-center gap-2">
-        🛒 Keranjang Belanja
-      </h3>
-                  
+            <div className="relative">
+              <button
+                onClick={() => setCartOpen(!cartOpen)}
+                className="cart-icon p-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 relative shadow-lg z-40 transform hover:scale-105 active:scale-95"
+              >
+                <span className="text-lg">🛒</span>
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center animate-cart-bounce">
+                    <AnimatedQuantity quantity={totalItems} />
+                  </span>
+                )}
+              </button>
+
+              {/* Cart Dropdown */}
+              {cartOpen && (
+                <div
+                  className={`cart-container fixed md:absolute right-1/2 md:right-0 top-16 md:top-14 w-[92vw] sm:w-80 md:w-96 rounded-lg shadow-2xl border z-50 max-h-[70vh] overflow-y-auto animate-dropdown
+                             md:translate-x-[calc(50%-1rem)] md:translate-y-0 transition-all duration-300 ${
+                               theme === 'light' 
+                                 ? 'bg-white border-orange-100' 
+                                 : 'bg-gray-800 border-gray-700'
+                             }`}
+                >
+                  <div className="p-4">
+                    <h3 className={`font-semibold mb-3 text-lg flex items-center gap-2 ${
+                      theme === 'dark' ? 'text-white' : ''
+                    }`}>
+                      🛒 Keranjang Belanja
+                    </h3>
+                                  
                   {cart.length === 0 ? (
-                    <p className="text-gray-500 text-center py-4">Keranjang kosong</p>
+                    <p className={`text-center py-4 ${
+                      theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+                    }`}>Keranjang kosong</p>
                   ) : (
                     <>
                       <div className="max-h-48 overflow-y-auto">
@@ -956,8 +1081,12 @@ const Footer = () => (
                         ))}
                       </div>
                       
-                      <div className="mt-3 pt-3 border-t">
-                        <div className="flex justify-between font-semibold text-lg">
+                      <div className="mt-3 pt-3 border-t" style={{
+                        borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
+                      }}>
+                        <div className={`flex justify-between font-semibold text-lg ${
+                          theme === 'dark' ? 'text-white' : ''
+                        }`}>
                           <span>Total:</span>
                           <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
                         </div>
@@ -982,836 +1111,961 @@ const Footer = () => (
               </div>
             )}
           </div>
-        </header>
-      )}
-
-      {/* Mobile Cart Dropdown */}
-      {cartOpen && currentPage !== 'about' && (
-        <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
-          <div className="cart-container bg-white rounded-t-2xl w-full max-h-3/4 overflow-y-auto animate-slide-up">
-            <div className="p-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="font-semibold text-lg">🛒 Keranjang Belanja</h3>
-                <button onClick={() => setCartOpen(false)} className="text-2xl transition-transform duration-200 hover:scale-110">×</button>
-              </div>
-              
-              {cart.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">Keranjang kosong</p>
-              ) : (
-                <>
-                  <div className="max-h-96 overflow-y-auto">
-                    {cart.map((item, index) => (
-                      <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
-                    ))}
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t">
-                    <div className="flex justify-between font-semibold text-lg">
-                      <span>Total:</span>
-                      <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
-                    </div>
-                    {voucherApplied && (
-                      <div className="text-sm text-green-600 mt-1 animate-pulse">
-                        ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
-                      </div>
-                    )}
-                    <button
-                      onClick={() => {
-                        setCartOpen(false)
-                        navigateToPage('cart')
-                      }}
-                      className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
-                    >
-                      Checkout ({cart.length} items)
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          </div>
         </div>
-      )}
+      </header>
+    )}
 
-      {/* Main Content */}
-      <main className="relative z-10">
-        {/* About Page */}
-        {currentPage === 'about' && <AboutPage />}
-
-        {/* Homepage - All Products */}
-        {currentPage === 'home' && (
-          <div className={pageTransition ? 'animate-page-exit' : 'animate-page-enter'}>
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold mb-4 md:mb-0">Semua Produk Bola</h2>
-              
-              {/* Tag Filter */}
-              <div className="flex flex-wrap gap-2">
-                {allTags.map(tag => (
-                  <button
-                    key={tag}
-                    onClick={() => setSelectedTag(tag)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
-                      selectedTag === tag
-                        ? 'bg-orange-500 text-white shadow-lg animate-tag-select'
-                        : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                    }`}
-                  >
-                    {tag === 'all' ? 'Semua' : `#${tag}`}
-                  </button>
-                ))}
-              </div>
+    {/* Mobile Cart Dropdown */}
+    {cartOpen && currentPage !== 'about' && (
+      <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
+        <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
+          theme === 'light' ? 'bg-white' : 'bg-gray-800'
+        }`}>
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className={`font-semibold text-lg ${
+                theme === 'dark' ? 'text-white' : ''
+              }`}>🛒 Keranjang Belanja</h3>
+              <button onClick={() => setCartOpen(false)} className={`text-2xl transition-transform duration-200 hover:scale-110 ${
+                theme === 'dark' ? 'text-white' : ''
+              }`}>×</button>
             </div>
-
-<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-  {filteredProducts.map((product) => (
-    <div
-      key={product.id}
-      className="bg-white p-4 rounded-lg shadow-lg backdrop-blur-sm bg-white/90 hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col min-h-[380px]"
-      onClick={() => openProductDetail(product)}
-    >
-      {renderProductImage(
-        product.images[0],
-        product.name,
-        "w-full h-48 object-cover rounded mb-3 transition-transform duration-300 hover:scale-105"
-      )}
-      
-      {/* Konten produk dengan flex-grow */}
-      <div className="flex flex-col flex-grow">
-        <h3 className="font-semibold text-lg">{product.name}</h3>
-        <p className="text-sm text-gray-600 mt-1 line-clamp-2 flex-grow">{product.description}</p>
-        
-        {/* Product Tags */}
-        {product.tags && product.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {product.tags.slice(0, 3).map(tag => (
-              <span key={tag} className="px-2 py-1 bg-orange-100 text-orange-700 text-xs rounded">
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
-        
-        <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105">
-          Rp {product.variants[1].price.toLocaleString()}
-        </p>
-        
-        {/* Tombol Add to Cart yang selalu di bagian bawah */}
-        <div className="mt-auto pt-3">
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              addToCart(product, product.variants[1], 1)
-            }}
-            className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-          >
-            + Add to Cart
-          </button>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
-          </div>
-        )}
-
-        {/* Product Detail Page */}
-        {currentPage === 'product' && selectedProduct && (
-          <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 ${
-            pageTransition ? 'animate-page-exit' : 'animate-page-enter'
-          }`}>
-            {/* Product Detail dengan Image Slider */}
-            <section className="bg-white p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
-              {/* Image Slider */}
-              <div className="relative mb-4">
-                {renderProductImage(
-                  selectedProduct.images[currentImageIndex],
-                  selectedProduct.name,
-                  `w-full h-64 md:h-80 object-contain rounded transition-all duration-500 ${
-                    imageAnim ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-                  }`
-                )}
-                
-                {/* Navigation Arrows */}
-                {selectedProduct.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => handleImageChange((currentImageIndex - 1 + selectedProduct.images.length) % selectedProduct.images.length)}
-                      className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
-                    >
-                      ←
-                    </button>
-                    <button
-                      onClick={() => handleImageChange((currentImageIndex + 1) % selectedProduct.images.length)}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
-                    >
-                      →
-                    </button>
-                  </>
-                )}
-                
-                {/* Image Indicators */}
-                {selectedProduct.images.length > 1 && (
-                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
-                    {selectedProduct.images.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleImageChange(index)}
-                        className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
-                          index === currentImageIndex 
-                            ? 'bg-orange-500 scale-125' 
-                            : 'bg-white/70 hover:bg-white'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <h2 className="text-xl md:text-2xl font-semibold">{selectedProduct.name}</h2>
-              <p className="text-gray-600 mt-2 text-sm md:text-base">{selectedProduct.description}</p>
-              
-              {/* Product Tags */}
-              {selectedProduct.tags && selectedProduct.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {selectedProduct.tags.map(tag => (
-                    <span key={tag} className="px-3 py-1 bg-orange-100 text-orange-700 text-sm rounded-full">
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              
-              {/* Variant Selection */}
-              <div className="mt-4 md:mt-6">
-                <h4 className="font-semibold mb-3">Pilih Size:</h4>
-                <div className="flex flex-wrap gap-2 md:gap-3">
-                  {selectedProduct.variants.map((variant) => (
-                    <button
-                      key={variant.size}
-                      onClick={() => setSelectedVariant(variant)}
-                      className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base transform hover:scale-105 ${
-                        selectedVariant.size === variant.size
-                          ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
-                          : 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
-                      }`}
-                    >
-                      {variant.size}<br/>
-                      <span className="text-xs md:text-sm font-normal">
-                        Rp {variant.price.toLocaleString()}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Quantity & Add to Cart */}
-              <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
-                <div className="flex items-center gap-3 bg-orange-50 rounded-lg p-2 w-full sm:w-auto justify-center">
-                  <button
-                    onClick={() => setQty(Math.max(1, qty - 1))}
-                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95"
-                  >
-                    -
-                  </button>
-                  <AnimatedQuantity quantity={qty} />
-                  <button
-                    onClick={() => setQty(qty + 1)}
-                    className="w-8 h-8 flex items-center justify-center bg-white border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95"
-                  >
-                    +
-                  </button>
-                </div>
-                
-                <button
-                  onClick={() => {
-                    addToCart(selectedProduct, selectedVariant, qty)
-                    setQty(1)
-                  }}
-                  className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg"
-                >
-                  + Add to Cart
-                </button>
-              </div>
-
-              {/* Harga dengan diskon dan animasi */}
-              {selectedVariant && (
-                <div className="mt-4 p-4 bg-orange-50 rounded-lg animate-price-change">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm text-gray-600">Harga Total:</div>
-                    <div className="text-right">
-                      {discountRate > 0 && (
-                        <div className="text-sm text-gray-400 line-through animate-strike">
-                          Rp {priceBeforeDiscount.toLocaleString()}
-                        </div>
-                      )}
-                      <div className="text-lg font-bold text-orange-600 animate-price-spring">
-                        Rp {animatedPrice.toLocaleString()}
-                      </div>
-                      {discountRate > 0 && (
-                        <div className="text-xs text-green-600 animate-fade-in">
-                          🎉 Diskon {Math.round(discountRate * 100)}%
-                          {voucherApplied && ` (Voucher: ${form.code.toUpperCase()})`}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {voucherApplied && (
-                    <div className="mt-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded animate-pulse">
-                      ✅ Voucher berhasil diterapkan!
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <button
-                onClick={() => navigateToPage('home')}
-                className="w-full mt-4 py-2 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
-              >
-                ← Kembali ke Home
-              </button>
-            </section>
-
-            {/* You May Like This Too */}
-            <aside className="bg-white p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm bg-white/90">
-              <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
-              <div className="grid grid-cols-1 gap-3 md:gap-4">
-                {getRecommendedProducts(selectedProduct).map((p) => (
-                  <div
-                    key={p.id}
-                    className="flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border border-transparent hover:border-orange-200 bg-orange-50/50 transform hover:-translate-y-1"
-                    onClick={() => openProductDetail(p)}
-                  >
-                    {renderProductImage(
-                      p.images[0],
-                      p.name,
-                      "w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg transition-transform duration-300 hover:scale-110"
-                    )}
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm md:text-base">{p.name}</div>
-                      <div className="text-xs md:text-sm text-gray-600 transition-all duration-300 hover:scale-105">
-                        Rp {p.variants[1].price.toLocaleString()}
-                      </div>
-                      {/* Tags untuk recommended products */}
-                      {p.tags && p.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {p.tags.slice(0, 2).map(tag => (
-                            <span key={tag} className="px-1 py-0.5 bg-orange-200 text-orange-800 text-xs rounded">
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      className="text-xs md:text-sm px-2 py-1 md:px-3 md:py-2 border border-orange-500 text-orange-500 rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        addToCart(p, p.variants[1], 1)
-                      }}
-                    >
-                      + Tambah
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </aside>
-          </div>
-        )}
-
-        {/* Cart/Checkout Page */}
-        {currentPage === 'cart' && (
-          <div className={`max-w-4xl mx-auto bg-white rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm bg-white/90 ${
-            pageTransition ? 'animate-page-exit' : 'animate-page-enter'
-          }`}>
-            <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 flex items-center gap-2">
-              🛒 Checkout
-            </h2>
             
             {cart.length === 0 ? (
-              <div className="text-center py-8 md:py-12">
-                <div className="text-6xl mb-4 animate-bounce">🛒</div>
-                <p className="text-gray-500 text-lg mb-6">Keranjang Anda kosong</p>
-                <button
-                  onClick={() => navigateToPage('home')}
-                  className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold transform hover:scale-105 active:scale-95"
-                >
-                  Belanja Sekarang
-                </button>
-              </div>
+              <p className={`text-center py-8 ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+              }`}>Keranjang kosong</p>
             ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                {/* Cart Items */}
-                <div className="lg:col-span-2">
-                  <h3 className="font-semibold text-lg mb-4">Items dalam Keranjang</h3>
-                  <div className="space-y-3 md:space-y-4">
-                    {cart.map((item, index) => (
-                      <CheckoutCartItem key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
-                    ))}
+              <>
+                <div className="max-h-96 overflow-y-auto">
+                  {cart.map((item, index) => (
+                    <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+                  ))}
+                </div>
+                
+                <div className="mt-4 pt-4 border-t" style={{
+                  borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
+                }}>
+                  <div className={`flex justify-between font-semibold text-lg ${
+                    theme === 'dark' ? 'text-white' : ''
+                  }`}>
+                    <span>Total:</span>
+                    <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
+                  </div>
+                  {voucherApplied && (
+                    <div className="text-sm text-green-600 mt-1 animate-pulse">
+                      ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+                    </div>
+                  )}
+                  <button
+                    onClick={() => {
+                      setCartOpen(false)
+                      navigateToPage('cart')
+                    }}
+                    className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
+                  >
+                    Checkout ({cart.length} items)
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {/* Main Content */}
+    <main className="relative z-10">
+      {/* About Page */}
+      {currentPage === 'about' && <AboutPage />}
+
+      {/* Homepage - All Products */}
+      {currentPage === 'home' && (
+        <div className={pageTransition ? 'animate-page-exit' : 'animate-page-enter'}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+            <h2 className={`text-xl font-semibold mb-4 md:mb-0 ${
+              theme === 'dark' ? 'text-white' : ''
+            }`}>Semua Produk Bola</h2>
+            
+            {/* Tag Filter */}
+            <div className="flex flex-wrap gap-2">
+              {allTags.map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => setSelectedTag(tag)}
+                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+                    selectedTag === tag
+                      ? 'bg-orange-500 text-white shadow-lg animate-tag-select'
+                      : theme === 'light'
+                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  {tag === 'all' ? 'Semua' : `#${tag}`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                className={`p-4 rounded-lg shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col min-h-[380px] ${
+                  theme === 'light' 
+                    ? 'bg-white/90' 
+                    : 'bg-gray-800/90 text-white border border-gray-700'
+                }`}
+                onClick={() => openProductDetail(product)}
+              >
+                {renderProductImage(
+                  product.images[0],
+                  product.name,
+                  "w-full h-48 object-cover rounded mb-3 transition-transform duration-300 hover:scale-105"
+                )}
+                
+                {/* Konten produk dengan flex-grow */}
+                <div className="flex flex-col flex-grow">
+                  <h3 className="font-semibold text-lg">{product.name}</h3>
+                  <p className={`text-sm mt-1 line-clamp-2 flex-grow ${
+                    theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+                  }`}>{product.description}</p>
+                  
+                  {/* Product Tags */}
+                  {product.tags && product.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1 mt-2">
+                      {product.tags.slice(0, 3).map(tag => (
+                        <span key={tag} className={`px-2 py-1 text-xs rounded ${
+                          theme === 'light' 
+                            ? 'bg-orange-100 text-orange-700' 
+                            : 'bg-orange-900 text-orange-300'
+                        }`}>
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  
+                  <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105">
+                    Rp {product.variants[1].price.toLocaleString()}
+                  </p>
+                  
+                  {/* Tombol Add to Cart yang selalu di bagian bawah */}
+                  <div className="mt-auto pt-3">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation()
+                        addToCart(product, product.variants[1], 1)
+                      }}
+                      className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+                    >
+                      + Add to Cart
+                    </button>
                   </div>
                 </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-                {/* Customer Form */}
-                <div className="space-y-4 md:space-y-6">
-                  <h3 className="font-semibold text-lg">Informasi Pelanggan</h3>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Nama Lengkap *</label>
-                    <input
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      placeholder="Masukkan nama lengkap"
-                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Nomor Telepon *</label>
-                    <input
-                      value={form.phone}
-                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                      placeholder="Masukkan nomor telepon"
-                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Alamat Lengkap *</label>
-                    <textarea
-                      value={form.address}
-                      onChange={(e) => setForm({ ...form, address: e.target.value })}
-                      placeholder="Masukkan alamat lengkap untuk pengiriman"
-                      rows="3"
-                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Kode Diskon (Opsional)</label>
-                    <input
-                      value={form.code}
-                      onChange={(e) => setForm({ ...form, code: e.target.value })}
-                      placeholder="Masukkan kode diskon"
-                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300"
-                    />
-                    {voucherApplied && (
-                      <div className="text-sm text-green-600 mt-1 animate-pulse">
-                        ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
-                      </div>
-                    )}
-                    {form.code && !voucherApplied && (
-                      <div className="text-sm text-red-600 mt-1">
-                        ❌ Kode voucher tidak valid
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Payment Method */}
-                  <div className="payment-container relative">
-                    <label className="block text-sm font-medium mb-2">Metode Pembayaran *</label>
+      {/* Product Detail Page */}
+      {currentPage === 'product' && selectedProduct && (
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 ${
+          pageTransition ? 'animate-page-exit' : 'animate-page-enter'
+        }`}>
+          {/* Product Detail dengan Image Slider */}
+          <section className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-300 ${
+            theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
+          }`}>
+            {/* Image Slider */}
+            <div className="relative mb-4">
+              {renderProductImage(
+                selectedProduct.images[currentImageIndex],
+                selectedProduct.name,
+                `w-full h-64 md:h-80 object-contain rounded transition-all duration-500 ${
+                  imageAnim ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                }`
+              )}
+              
+              {/* Navigation Arrows */}
+              {selectedProduct.images.length > 1 && (
+                <>
+                  <button
+                    onClick={() => handleImageChange((currentImageIndex - 1 + selectedProduct.images.length) % selectedProduct.images.length)}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
+                  >
+                    ←
+                  </button>
+                  <button
+                    onClick={() => handleImageChange((currentImageIndex + 1) % selectedProduct.images.length)}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
+                  >
+                    →
+                  </button>
+                </>
+              )}
+              
+              {/* Image Indicators */}
+              {selectedProduct.images.length > 1 && (
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
+                  {selectedProduct.images.map((_, index) => (
                     <button
-                      onClick={() => setPaymentOpen(!paymentOpen)}
-                      className="w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-left flex justify-between items-center transition-all duration-300 transform hover:scale-105"
-                    >
-                      <span>
-                        {form.paymentMethod ? 
-                          paymentMethods.find(p => p.id === form.paymentMethod)?.name : 
-                          'Pilih metode pembayaran'
-                        }
-                      </span>
-                      <span className={`transition-transform duration-300 ${paymentOpen ? 'rotate-180' : ''}`}>▼</span>
-                    </button>
-                    
-                    {paymentOpen && (
-                      <div className="absolute top-full left-0 right-0 bg-white border rounded-lg shadow-2xl z-50 max-h-60 overflow-y-auto mt-1 animate-dropdown">
-                        {paymentMethods.map((method) => (
-                          <div
-                            key={method.id}
-                            onClick={() => {
-                              setForm({ ...form, paymentMethod: method.id })
-                              setPaymentOpen(false)
-                            }}
-                            className={`p-3 border-b cursor-pointer hover:bg-orange-50 transition-all duration-200 transform hover:scale-105 ${
-                              form.paymentMethod === method.id ? 'bg-orange-100 border-orange-500' : ''
-                            }`}
-                          >
-<div className="flex items-center gap-3">
-  <img
-    src={method.icon}
-    alt={method.name}
-    className="w-6 h-6 object-contain"
-  />
-  <div>
-    <div className="font-semibold">{method.name}</div>
-    <div className="text-xs text-gray-600">{method.description}</div>
-  </div>
-</div>
-                          </div>
+                      key={index}
+                      onClick={() => handleImageChange(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
+                        index === currentImageIndex 
+                          ? 'bg-orange-500 scale-125' 
+                          : theme === 'light' ? 'bg-white/70 hover:bg-white' : 'bg-gray-500 hover:bg-gray-400'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <h2 className="text-xl md:text-2xl font-semibold">{selectedProduct.name}</h2>
+            <p className={`mt-2 text-sm md:text-base ${
+              theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+            }`}>{selectedProduct.description}</p>
+            
+            {/* Product Tags */}
+            {selectedProduct.tags && selectedProduct.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {selectedProduct.tags.map(tag => (
+                  <span key={tag} className={`px-3 py-1 text-sm rounded-full ${
+                    theme === 'light' 
+                      ? 'bg-orange-100 text-orange-700' 
+                      : 'bg-orange-900 text-orange-300'
+                  }`}>
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            {/* Variant Selection */}
+            <div className="mt-4 md:mt-6">
+              <h4 className="font-semibold mb-3">Pilih Size:</h4>
+              <div className="flex flex-wrap gap-2 md:gap-3">
+                {selectedProduct.variants.map((variant) => (
+                  <button
+                    key={variant.size}
+                    onClick={() => setSelectedVariant(variant)}
+                    className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base transform hover:scale-105 ${
+                      selectedVariant.size === variant.size
+                        ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
+                        : theme === 'light'
+                        ? 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
+                        : 'bg-gray-700 text-gray-300 border-gray-600 hover:border-orange-500 hover:shadow-md'
+                    }`}
+                  >
+                    {variant.size}<br/>
+                    <span className="text-xs md:text-sm font-normal">
+                      Rp {variant.price.toLocaleString()}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Quantity & Add to Cart */}
+            <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
+              <div className={`flex items-center gap-3 rounded-lg p-2 w-full sm:w-auto justify-center transition-all duration-300 ${
+                theme === 'light' ? 'bg-orange-50' : 'bg-gray-700'
+              }`}>
+                <button
+                  onClick={() => setQty(Math.max(1, qty - 1))}
+                  className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
+                    theme === 'light' ? 'bg-white' : 'bg-gray-600 border-gray-500'
+                  }`}
+                >
+                  -
+                </button>
+                <AnimatedQuantity quantity={qty} />
+                <button
+                  onClick={() => setQty(qty + 1)}
+                  className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
+                    theme === 'light' ? 'bg-white' : 'bg-gray-600 border-gray-500'
+                  }`}
+                >
+                  +
+                </button>
+              </div>
+              
+              <button
+                onClick={() => {
+                  addToCart(selectedProduct, selectedVariant, qty)
+                  setQty(1)
+                }}
+                className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg"
+              >
+                + Add to Cart
+              </button>
+            </div>
+
+            {/* Harga dengan diskon dan animasi */}
+            {selectedVariant && (
+              <div className={`mt-4 p-4 rounded-lg animate-price-change transition-all duration-300 ${
+                theme === 'light' ? 'bg-orange-50' : 'bg-gray-700'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className={`text-sm ${
+                    theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+                  }`}>Harga Total:</div>
+                  <div className="text-right">
+                    {discountRate > 0 && (
+                      <div className="text-sm text-gray-400 line-through animate-strike">
+                        Rp {priceBeforeDiscount.toLocaleString()}
+                      </div>
+                    )}
+                    <div className="text-lg font-bold text-orange-600 animate-price-spring">
+                      Rp {animatedPrice.toLocaleString()}
+                    </div>
+                    {discountRate > 0 && (
+                      <div className="text-xs text-green-600 animate-fade-in">
+                        🎉 Diskon {Math.round(discountRate * 100)}%
+                        {voucherApplied && ` (Voucher: ${form.code.toUpperCase()})`}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {voucherApplied && (
+                  <div className="mt-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded animate-pulse">
+                    ✅ Voucher berhasil diterapkan!
+                  </div>
+                )}
+              </div>
+            )}
+
+            <button
+              onClick={() => navigateToPage('home')}
+              className={`w-full mt-4 py-2 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold ${
+                theme === 'light'
+                  ? 'border-orange-500 text-orange-500 hover:bg-orange-50'
+                  : 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white'
+              }`}
+            >
+              ← Kembali ke Home
+            </button>
+          </section>
+
+          {/* You May Like This Too */}
+          <aside className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-300 ${
+            theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
+          }`}>
+            <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
+            <div className="grid grid-cols-1 gap-3 md:gap-4">
+              {getRecommendedProducts(selectedProduct).map((p) => (
+                <div
+                  key={p.id}
+                  className={`flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border transform hover:-translate-y-1 ${
+                    theme === 'light'
+                      ? 'border-transparent hover:border-orange-200 bg-orange-50/50'
+                      : 'border-gray-600 hover:border-orange-500 bg-gray-700/50'
+                  }`}
+                  onClick={() => openProductDetail(p)}
+                >
+                  {renderProductImage(
+                    p.images[0],
+                    p.name,
+                    "w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg transition-transform duration-300 hover:scale-110"
+                  )}
+                  <div className="flex-1">
+                    <div className="font-semibold text-sm md:text-base">{p.name}</div>
+                    <div className={`text-xs md:text-sm transition-all duration-300 hover:scale-105 ${
+                      theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+                    }`}>
+                      Rp {p.variants[1].price.toLocaleString()}
+                    </div>
+                    {/* Tags untuk recommended products */}
+                    {p.tags && p.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {p.tags.slice(0, 2).map(tag => (
+                          <span key={tag} className={`px-1 py-0.5 text-xs rounded ${
+                            theme === 'light'
+                              ? 'bg-orange-200 text-orange-800'
+                              : 'bg-orange-900 text-orange-300'
+                          }`}>
+                            #{tag}
+                          </span>
                         ))}
                       </div>
                     )}
                   </div>
-
-                  {/* Total */}
-                  <div className="border-t pt-4 animate-total-update">
-                    <div className="flex justify-between text-lg font-semibold">
-                      <span>Total Items:</span>
-                      <span className="animate-quantity-bounce">{totalItems} items</span>
-                    </div>
-                    <div className="flex justify-between text-xl font-bold mt-2">
-                      <span>Total Pembayaran:</span>
-                      <span className="text-orange-600 animate-price-spring">
-                        Rp {animatedTotalPrice.toLocaleString()}
-                      </span>
-                    </div>
-                    {voucherApplied && (
-                      <div className="text-sm text-green-600 mt-2 bg-green-50 p-2 rounded animate-pulse">
-                        🎉 Hemat {Math.round((calculateDiscount(1, form.code) - getDiscount(1)) * 100)}% dengan voucher!
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
-                    <button
-                      onClick={() => navigateToPage('home')}
-                      className="flex-1 py-3 border-2 border-orange-500 text-orange-500 rounded-lg hover:bg-orange-50 transition-all duration-300 font-semibold transform hover:scale-105 active:scale-95"
-                    >
-                      ← Kembali
-                    </button>
-                    <button
-                      onClick={handleCheckout}
-                      disabled={!form.name || !form.phone || !form.address || !form.paymentMethod}
-                      className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
-                    >
-                      💳 Bayar Sekarang
-                    </button>
-                  </div>
+                  <button
+                    className={`text-xs md:text-sm px-2 py-1 md:px-3 md:py-2 border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95 ${
+                      theme === 'light'
+                        ? 'border-orange-500 text-orange-500'
+                        : 'border-orange-500 text-orange-400'
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      addToCart(p, p.variants[1], 1)
+                    }}
+                  >
+                    + Tambah
+                  </button>
                 </div>
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-
-      {/* Success Popup */}
-      {showSuccessPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 backdrop-blur-sm p-4">
-          <div className="bg-white p-6 md:p-8 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border border-orange-200 max-w-md w-full text-center">
-            <div className="text-6xl text-green-500 animate-bounce">✓</div>
-            <h3 className="text-xl md:text-2xl font-semibold">Pesanan Berhasil!</h3>
-            <p className="text-gray-600 text-sm md:text-base">
-              Terima kasih telah berbelanja di Soccer Ball Shop. 
-              {form.paymentMethod && ` Pembayaran dengan ${paymentMethods.find(p => p.id === form.paymentMethod)?.name} berhasil.`}
-            </p>
-            <button
-              className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-              onClick={() => {
-                setShowSuccessPopup(false)
-                navigateToPage('home')
-                setForm({ name: '', phone: '', address: '', code: '', paymentMethod: '' })
-              }}
-            >
-              Kembali ke Home
-            </button>
-          </div>
+              ))}
+            </div>
+          </aside>
         </div>
       )}
 
-      {/* Footer */}
-      {currentPage !== 'about' && <Footer />}
+      {/* Cart/Checkout Page */}
+      {currentPage === 'cart' && (
+        <div className={`max-w-4xl mx-auto rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm transition-all duration-300 ${
+          theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
+        } ${pageTransition ? 'animate-page-exit' : 'animate-page-enter'}`}>
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 flex items-center gap-2">
+            🛒 Checkout
+          </h2>
+          
+          {cart.length === 0 ? (
+            <div className="text-center py-8 md:py-12">
+              <div className="text-6xl mb-4 animate-bounce">🛒</div>
+              <p className={`text-lg mb-6 ${
+                theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+              }`}>Keranjang Anda kosong</p>
+              <button
+                onClick={() => navigateToPage('home')}
+                className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold transform hover:scale-105 active:scale-95"
+              >
+                Belanja Sekarang
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+              {/* Cart Items */}
+              <div className="lg:col-span-2">
+                <h3 className="font-semibold text-lg mb-4">Items dalam Keranjang</h3>
+                <div className="space-y-3 md:space-y-4">
+                  {cart.map((item, index) => (
+                    <CheckoutCartItem key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+                  ))}
+                </div>
+              </div>
 
-      <style jsx>{`
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out forwards;
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
-        }
-        .animate-bounce {
-          animation: bounce 0.6s ease infinite alternate;
-        }
-        @keyframes bounce {
-          from { transform: translateY(0); }
-          to { transform: translateY(-10px); }
-        }
-        .animate-cart-bounce {
-          animation: cartBounce 0.5s ease-out;
-        }
-        @keyframes cartBounce {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.3); }
-          100% { transform: scale(1); }
-        }
-        .animate-float1 {
-          animation: float1 6s ease-in-out infinite;
-        }
-        .animate-float2 {
-          animation: float2 8s ease-in-out infinite;
-        }
-        .animate-float3 {
-          animation: float3 7s ease-in-out infinite;
-        }
-        .animate-float4 {
-          animation: float4 10s ease-in-out infinite;
-        }
-        .animate-float5 {
-          animation: float5 9s ease-in-out infinite;
-        }
-        @keyframes float1 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          33% { transform: translateY(-30px) translateX(20px) rotate(120deg); }
-          66% { transform: translateY(15px) translateX(-15px) rotate(240deg); }
-        }
-        @keyframes float2 {
-          0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
-          50% { transform: translateY(25px) translateX(-25px) scale(1.1); }
-        }
-        @keyframes float3 {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          25% { transform: translateY(-20px) translateX(-10px); }
-          75% { transform: translateY(10px) translateX(15px); }
-        }
-        @keyframes float4 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          50% { transform: translateY(35px) translateX(20px) rotate(180deg); }
-        }
-        @keyframes float5 {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          33% { transform: translateY(-15px) translateX(25px); }
-          66% { transform: translateY(20px) translateX(-10px); }
-        }
-        .animate-slide-up {
-          animation: slideUp 0.3s ease-out forwards;
-        }
-        @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
-        }
-        .animate-pulse-gentle {
-          animation: pulseGentle 3s ease-in-out infinite;
-        }
-        @keyframes pulseGentle {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.8; }
-        }
-        .animate-pulse-slow {
-          animation: pulseSlow 2s ease-in-out infinite;
-        }
-        @keyframes pulseSlow {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.9; transform: scale(1.05); }
-        }
-        .animate-spin-slow {
-          animation: spin 20s linear infinite;
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-price-change {
-          animation: priceChange 0.5s ease-out;
-        }
-        @keyframes priceChange {
-          0% { transform: scale(0.95); opacity: 0.7; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-price-spring {
-          animation: priceSpring 0.4s ease-out;
-        }
-        @keyframes priceSpring {
-          0% { transform: scale(1); color: #ea580c; }
-          50% { transform: scale(1.1); color: #dc2626; }
-          100% { transform: scale(1); color: #ea580c; }
-        }
-        .animate-strike {
-          animation: strike 0.3s ease-out;
-        }
-        @keyframes strike {
-          0% { transform: scaleX(0); }
-          100% { transform: scaleX(1); }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out;
-        }
-        .animate-fade-in-delayed {
-          animation: fadeIn 1s ease-out 0.5s both;
-        }
-        .animate-dropdown {
-          animation: dropdown 0.2s ease-out;
-        }
-        @keyframes dropdown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-total-update {
-          animation: totalUpdate 0.3s ease-out;
-        }
-        @keyframes totalUpdate {
-          0% { background-color: rgba(255, 247, 237, 0.5); }
-          100% { background-color: transparent; }
-        }
-        .animate-quantity-bounce {
-          animation: quantityBounce 0.3s ease-out;
-        }
-        @keyframes quantityBounce {
-          0% { transform: scale(1); color: inherit; }
-          50% { transform: scale(1.3); color: #ea580c; }
-          100% { transform: scale(1); color: inherit; }
-        }
-        .animate-item-slide-in {
-          animation: itemSlideIn 0.3s ease-out;
-        }
-        @keyframes itemSlideIn {
-          from { opacity: 0; transform: translateX(-10px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .animate-variant-bounce {
-          animation: variantBounce 0.3s ease-out;
-        }
-        @keyframes variantBounce {
-          0% { transform: scale(0.95); }
-          50% { transform: scale(1.05); }
-          100% { transform: scale(1); }
-        }
-        .animate-tag-select {
-          animation: tagSelect 0.3s ease-out;
-        }
-        @keyframes tagSelect {
-          0% { transform: scale(0.95); }
-          50% { transform: scale(1.05); }
-          100% { transform: scale(1); }
-        }
-        .animate-page-enter {
-          animation: pageEnter 0.6s ease-out forwards;
-        }
-        @keyframes pageEnter {
-          from { 
-            opacity: 0; 
-            transform: scale(0.8) translateY(20px); 
-          }
-          to { 
-            opacity: 1; 
-            transform: scale(1) translateY(0); 
-          }
-        }
-        .animate-page-exit {
-          animation: pageExit 0.3s ease-in forwards;
-        }
-        @keyframes pageExit {
-          from { 
-            opacity: 1; 
-            transform: scale(1) translateY(0); 
-          }
-          to { 
-            opacity: 0; 
-            transform: scale(0.9) translateY(-10px); 
-          }
-        }
-        .animate-dribble {
-          animation: dribble 1s ease-in-out infinite;
-        }
-        @keyframes dribble {
-          0% { transform: translateY(0) rotate(0deg); }
-          25% { transform: translateY(-40px) rotate(90deg); }
-          50% { transform: translateY(-20px) rotate(180deg); }
-          75% { transform: translateY(-35px) rotate(270deg); }
-          100% { transform: translateY(0) rotate(360deg); }
-        }
-        .animate-shadow-dribble {
-          animation: shadowDribble 1s ease-in-out infinite;
-        }
-        @keyframes shadowDribble {
-          0% { transform: scale(0.8); opacity: 0.3; }
-          25% { transform: scale(1.1); opacity: 0.6; }
-          50% { transform: scale(0.9); opacity: 0.4; }
-          75% { transform: scale(1.05); opacity: 0.5; }
-          100% { transform: scale(0.8); opacity: 0.3; }
-        }
-        .animate-gradient-flow {
-          animation: gradientFlow 3s ease-in-out infinite;
-          background-size: 200% 200%;
-        }
-        @keyframes gradientFlow {
-          0% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-          100% { background-position: 0% 50%; }
-        }
-        .animate-text-slide-up {
-          animation: textSlideUp 0.8s ease-out 0.5s both;
-        }
-        @keyframes textSlideUp {
-          from { 
-            opacity: 0; 
-            transform: translateY(30px); 
-          }
-          to { 
-            opacity: 1; 
-            transform: translateY(0); 
-          }
-        }
-        .animate-text-slide-up-delayed {
-          animation: textSlideUp 0.8s ease-out 1s both;
-        }
-        .animate-fade-in-up {
-          animation: fadeInUp 0.6s ease-out;
-        }
-        @keyframes fadeInUp {
-          from { opacity: 0; transform: translateY(30px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-scale-in {
-          animation: scaleIn 0.6s ease-out 0.2s both;
-        }
-        @keyframes scaleIn {
-          from { transform: scaleX(0); }
-          to { transform: scaleX(1); }
-        }
-        .animate-slide-in-left {
-          animation: slideInLeft 0.6s ease-out;
-        }
-        @keyframes slideInLeft {
-          from { opacity: 0; transform: translateX(-50px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .animate-slide-in-right {
-          animation: slideInRight 0.6s ease-out;
-        }
-        @keyframes slideInRight {
-          from { opacity: 0; transform: translateX(50px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .animate-fade-in-up-delayed {
-          animation: fadeInUp 0.6s ease-out 0.4s both;
-        }
-        .clip-pentagon {
-          clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
-        }
-        .clip-hexagon {
-          clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
-        }
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-  .min-h-\[380px\] {
-    min-height: 380px;
-  }
-  
-  .mt-auto {
-    margin-top: auto;
-  }
-  
-  .product-card {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-  }
-      `}</style>
-    </div>
-  )
+              {/* Customer Form */}
+              <div className="space-y-4 md:space-y-6">
+                <h3 className="font-semibold text-lg">Informasi Pelanggan</h3>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-2">Nama Lengkap *</label>
+                  <input
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="Masukkan nama lengkap"
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300'
+                    }`}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Nomor Telepon *</label>
+                  <input
+                    value={form.phone}
+                    onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                    placeholder="Masukkan nomor telepon"
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300'
+                    }`}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Alamat Lengkap *</label>
+                  <textarea
+                    value={form.address}
+                    onChange={(e) => setForm({ ...form, address: e.target.value })}
+                    placeholder="Masukkan alamat lengkap untuk pengiriman"
+                    rows="3"
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300'
+                    }`}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Kode Diskon (Opsional)</label>
+                  <input
+                    value={form.code}
+                    onChange={(e) => setForm({ ...form, code: e.target.value })}
+                    placeholder="Masukkan kode diskon"
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300'
+                    }`}
+                  />
+                  {voucherApplied && (
+                    <div className="text-sm text-green-600 mt-1 animate-pulse">
+                      ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+                    </div>
+                  )}
+                  {form.code && !voucherApplied && (
+                    <div className="text-sm text-red-600 mt-1">
+                      ❌ Kode voucher tidak valid
+                    </div>
+                  )}
+                </div>
+
+                {/* Payment Method */}
+                <div className="payment-container relative">
+                  <label className="block text-sm font-medium mb-2">Metode Pembayaran *</label>
+                  <button
+                    onClick={() => setPaymentOpen(!paymentOpen)}
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-left flex justify-between items-center transition-all duration-300 transform hover:scale-105 ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300'
+                    }`}
+                  >
+                    <span>
+                      {form.paymentMethod ? 
+                        paymentMethods.find(p => p.id === form.paymentMethod)?.name : 
+                        'Pilih metode pembayaran'
+                      }
+                    </span>
+                    <span className={`transition-transform duration-300 ${paymentOpen ? 'rotate-180' : ''}`}>▼</span>
+                  </button>
+                  
+                  {paymentOpen && (
+                    <div className={`absolute top-full left-0 right-0 border rounded-lg shadow-2xl z-50 max-h-60 overflow-y-auto mt-1 animate-dropdown transition-all duration-300 ${
+                      theme === 'light' 
+                        ? 'bg-white border-gray-200' 
+                        : 'bg-gray-800 border-gray-600'
+                    }`}>
+                      {paymentMethods.map((method) => (
+                        <div
+                          key={method.id}
+                          onClick={() => {
+                            setForm({ ...form, paymentMethod: method.id })
+                            setPaymentOpen(false)
+                          }}
+                          className={`p-3 border-b cursor-pointer transition-all duration-200 transform hover:scale-105 ${
+                            form.paymentMethod === method.id 
+                              ? theme === 'light'
+                                ? 'bg-orange-100 border-orange-500'
+                                : 'bg-orange-900 border-orange-500'
+                              : theme === 'light'
+                              ? 'hover:bg-orange-50 border-gray-200'
+                              : 'hover:bg-gray-700 border-gray-600'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={method.icon}
+                              alt={method.name}
+                              className="w-6 h-6 object-contain"
+                            />
+                            <div>
+                              <div className="font-semibold">{method.name}</div>
+                              <div className={`text-xs ${
+                                theme === 'light' ? 'text-gray-600' : 'text-gray-400'
+                              }`}>{method.description}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* Total */}
+                <div className="border-t pt-4 animate-total-update" style={{
+                  borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
+                }}>
+                  <div className="flex justify-between text-lg font-semibold">
+                    <span>Total Items:</span>
+                    <span className="animate-quantity-bounce">{totalItems} items</span>
+                  </div>
+                  <div className="flex justify-between text-xl font-bold mt-2">
+                    <span>Total Pembayaran:</span>
+                    <span className="text-orange-600 animate-price-spring">
+                      Rp {animatedTotalPrice.toLocaleString()}
+                    </span>
+                  </div>
+                  {voucherApplied && (
+                    <div className="text-sm text-green-600 mt-2 bg-green-50 p-2 rounded animate-pulse">
+                      🎉 Hemat {Math.round((calculateDiscount(1, form.code) - getDiscount(1)) * 100)}% dengan voucher!
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
+                  <button
+                    onClick={() => navigateToPage('home')}
+                    className={`flex-1 py-3 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold ${
+                      theme === 'light'
+                        ? 'border-orange-500 text-orange-500 hover:bg-orange-50'
+                        : 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white'
+                    }`}
+                  >
+                    ← Kembali
+                  </button>
+                  <button
+                    onClick={handleCheckout}
+                    disabled={!form.name || !form.phone || !form.address || !form.paymentMethod}
+                    className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
+                  >
+                    💳 Bayar Sekarang
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </main>
+
+    {/* Success Popup */}
+    {showSuccessPopup && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 backdrop-blur-sm p-4">
+        <div className={`p-6 md:p-8 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border max-w-md w-full text-center transition-all duration-300 ${
+          theme === 'light' 
+            ? 'bg-white border-orange-200' 
+            : 'bg-gray-800 border-gray-700 text-white'
+        }`}>
+          <div className="text-6xl text-green-500 animate-bounce">✓</div>
+          <h3 className="text-xl md:text-2xl font-semibold">Pesanan Berhasil!</h3>
+          <p className={`text-sm md:text-base ${
+            theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+          }`}>
+            Terima kasih telah berbelanja di Soccer Ball Shop. 
+            {form.paymentMethod && ` Pembayaran dengan ${paymentMethods.find(p => p.id === form.paymentMethod)?.name} berhasil.`}
+          </p>
+          <button
+            className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+            onClick={() => {
+              setShowSuccessPopup(false)
+              navigateToPage('home')
+              setForm({ name: '', phone: '', address: '', code: '', paymentMethod: '' })
+            }}
+          >
+            Kembali ke Home
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Footer */}
+    {currentPage !== 'about' && <Footer />}
+
+    <style jsx>{`
+      .theme-transition * {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+      }
+      
+      .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out forwards;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .animate-bounce {
+        animation: bounce 0.6s ease infinite alternate;
+      }
+      @keyframes bounce {
+        from { transform: translateY(0); }
+        to { transform: translateY(-10px); }
+      }
+      .animate-cart-bounce {
+        animation: cartBounce 0.5s ease-out;
+      }
+      @keyframes cartBounce {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+      }
+      .animate-float1 {
+        animation: float1 6s ease-in-out infinite;
+      }
+      .animate-float2 {
+        animation: float2 8s ease-in-out infinite;
+      }
+      .animate-float3 {
+        animation: float3 7s ease-in-out infinite;
+      }
+      .animate-float4 {
+        animation: float4 10s ease-in-out infinite;
+      }
+      .animate-float5 {
+        animation: float5 9s ease-in-out infinite;
+      }
+      .animate-theme-toggle {
+        animation: themeToggle 0.5s ease-out;
+      }
+      @keyframes themeToggle {
+        0% { transform: scale(1) rotate(0deg); }
+        50% { transform: scale(1.2) rotate(180deg); }
+        100% { transform: scale(1) rotate(360deg); }
+      }
+      @keyframes float1 {
+        0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+        33% { transform: translateY(-30px) translateX(20px) rotate(120deg); }
+        66% { transform: translateY(15px) translateX(-15px) rotate(240deg); }
+      }
+      @keyframes float2 {
+        0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
+        50% { transform: translateY(25px) translateX(-25px) scale(1.1); }
+      }
+      @keyframes float3 {
+        0%, 100% { transform: translateY(0px) translateX(0px); }
+        25% { transform: translateY(-20px) translateX(-10px); }
+        75% { transform: translateY(10px) translateX(15px); }
+      }
+      @keyframes float4 {
+        0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+        50% { transform: translateY(35px) translateX(20px) rotate(180deg); }
+      }
+      @keyframes float5 {
+        0%, 100% { transform: translateY(0px) translateX(0px); }
+        33% { transform: translateY(-15px) translateX(25px); }
+        66% { transform: translateY(20px) translateX(-10px); }
+      }
+      .animate-slide-up {
+        animation: slideUp 0.3s ease-out forwards;
+      }
+      @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+      .animate-pulse-gentle {
+        animation: pulseGentle 3s ease-in-out infinite;
+      }
+      @keyframes pulseGentle {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+      }
+      .animate-pulse-slow {
+        animation: pulseSlow 2s ease-in-out infinite;
+      }
+      @keyframes pulseSlow {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.9; transform: scale(1.05); }
+      }
+      .animate-spin-slow {
+        animation: spin 20s linear infinite;
+      }
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .animate-price-change {
+        animation: priceChange 0.5s ease-out;
+      }
+      @keyframes priceChange {
+        0% { transform: scale(0.95); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .animate-price-spring {
+        animation: priceSpring 0.4s ease-out;
+      }
+      @keyframes priceSpring {
+        0% { transform: scale(1); color: #ea580c; }
+        50% { transform: scale(1.1); color: #dc2626; }
+        100% { transform: scale(1); color: #ea580c; }
+      }
+      .animate-strike {
+        animation: strike 0.3s ease-out;
+      }
+      @keyframes strike {
+        0% { transform: scaleX(0); }
+        100% { transform: scaleX(1); }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      .animate-fade-in-delayed {
+        animation: fadeIn 1s ease-out 0.5s both;
+      }
+      .animate-dropdown {
+        animation: dropdown 0.2s ease-out;
+      }
+      @keyframes dropdown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-total-update {
+        animation: totalUpdate 0.3s ease-out;
+      }
+      @keyframes totalUpdate {
+        0% { 
+          background-color: ${theme === 'light' ? 'rgba(255, 247, 237, 0.5)' : 'rgba(55, 65, 81, 0.5)'}; 
+        }
+        100% { background-color: transparent; }
+      }
+      .animate-quantity-bounce {
+        animation: quantityBounce 0.3s ease-out;
+      }
+      @keyframes quantityBounce {
+        0% { transform: scale(1); color: inherit; }
+        50% { transform: scale(1.3); color: #ea580c; }
+        100% { transform: scale(1); color: inherit; }
+      }
+      .animate-item-slide-in {
+        animation: itemSlideIn 0.3s ease-out;
+      }
+      @keyframes itemSlideIn {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      .animate-variant-bounce {
+        animation: variantBounce 0.3s ease-out;
+      }
+      @keyframes variantBounce {
+        0% { transform: scale(0.95); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+      .animate-tag-select {
+        animation: tagSelect 0.3s ease-out;
+      }
+      @keyframes tagSelect {
+        0% { transform: scale(0.95); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+      .animate-page-enter {
+        animation: pageEnter 0.6s ease-out forwards;
+      }
+      @keyframes pageEnter {
+        from { 
+          opacity: 0; 
+          transform: scale(0.8) translateY(20px); 
+        }
+        to { 
+          opacity: 1; 
+          transform: scale(1) translateY(0); 
+        }
+      }
+      .animate-page-exit {
+        animation: pageExit 0.3s ease-in forwards;
+      }
+      @keyframes pageExit {
+        from { 
+          opacity: 1; 
+          transform: scale(1) translateY(0); 
+        }
+        to { 
+          opacity: 0; 
+          transform: scale(0.9) translateY(-10px); 
+        }
+      }
+      .animate-dribble {
+        animation: dribble 1s ease-in-out infinite;
+      }
+      @keyframes dribble {
+        0% { transform: translateY(0) rotate(0deg); }
+        25% { transform: translateY(-40px) rotate(90deg); }
+        50% { transform: translateY(-20px) rotate(180deg); }
+        75% { transform: translateY(-35px) rotate(270deg); }
+        100% { transform: translateY(0) rotate(360deg); }
+      }
+      .animate-shadow-dribble {
+        animation: shadowDribble 1s ease-in-out infinite;
+      }
+      @keyframes shadowDribble {
+        0% { transform: scale(0.8); opacity: 0.3; }
+        25% { transform: scale(1.1); opacity: 0.6; }
+        50% { transform: scale(0.9); opacity: 0.4; }
+        75% { transform: scale(1.05); opacity: 0.5; }
+        100% { transform: scale(0.8); opacity: 0.3; }
+      }
+      .animate-gradient-flow {
+        animation: gradientFlow 3s ease-in-out infinite;
+        background-size: 200% 200%;
+      }
+      @keyframes gradientFlow {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+      .animate-text-slide-up {
+        animation: textSlideUp 0.8s ease-out 0.5s both;
+      }
+      @keyframes textSlideUp {
+        from { 
+          opacity: 0; 
+          transform: translateY(30px); 
+        }
+        to { 
+          opacity: 1; 
+          transform: translateY(0); 
+        }
+      }
+      .animate-text-slide-up-delayed {
+        animation: textSlideUp 0.8s ease-out 1s both;
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+      }
+      @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-scale-in {
+        animation: scaleIn 0.6s ease-out 0.2s both;
+      }
+      @keyframes scaleIn {
+        from { transform: scaleX(0); }
+        to { transform: scaleX(1); }
+      }
+      .animate-slide-in-left {
+        animation: slideInLeft 0.6s ease-out;
+      }
+      @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-50px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      .animate-slide-in-right {
+        animation: slideInRight 0.6s ease-out;
+      }
+      @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(50px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      .animate-fade-in-up-delayed {
+        animation: fadeInUp 0.6s ease-out 0.4s both;
+      }
+      .clip-pentagon {
+        clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+      }
+      .clip-hexagon {
+        clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+      }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .min-h-\[380px\] {
+        min-height: 380px;
+      }
+      .mt-auto {
+        margin-top: auto;
+      }
+      .product-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+    `}</style>
+  </div>
+)
 }
