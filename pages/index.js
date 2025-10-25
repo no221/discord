@@ -672,7 +672,7 @@ const AboutPage = () => (
         { 
           name: "Isabel", 
           role: "Project Manager",
-          image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+          image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg"
         },
         { 
           name: "Steven", 
