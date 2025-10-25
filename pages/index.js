@@ -440,7 +440,7 @@ const paymentMethods = [
     setCartOpen(false)
   }, [navigateToPage])
 
- const handleCheckout = useCallback(async () => {
+const handleCheckout = useCallback(async () => {
   if (!form.paymentMethod) {
     alert('Pilih metode pembayaran terlebih dahulu!')
     return
@@ -459,7 +459,10 @@ const paymentMethods = [
         name: form.name,
         phone: form.phone,
         address: form.address,
-        paymentMethod: form.paymentMethod
+        paymentMethod: form.paymentMethod,
+        voucher_code: form.code || null, // ✅ TAMBAH INI - simpan kode voucher
+        discount_rate: voucherApplied ? calculateDiscount(item.quantity, form.code) : 0, // ✅ TAMBAH discount rate
+        final_price: voucherApplied ? Math.round(item.variant.price * item.quantity * (1 - calculateDiscount(item.quantity, form.code))) : item.variant.price * item.quantity // ✅ Harga setelah diskon
       }
 
       console.log('📦 Sending purchase:', purchaseData)
@@ -479,7 +482,7 @@ const paymentMethods = [
     console.error('Checkout error:', error)
     setStatus('error')
   }
-}, [cart, form, totalPrice])
+}, [cart, form, totalPrice, voucherApplied, calculateDiscount])
 
   useEffect(() => {
     function handleClickOutside(event) {
