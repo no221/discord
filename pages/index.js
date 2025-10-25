@@ -1811,18 +1811,6 @@ const Footer = () => (
     flex-direction: column;
     height: 100%;
   }
-  @keyframes cart-bounce {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.3);
-  }
-}
-
-.animate-cart-bounce {
-  animation: cart-bounce 0.4s ease-in-out;
-}
       `}</style>
     </div>
   )
