@@ -974,7 +974,7 @@ const AboutPage = () => (
           </div>
         </div>
         <div className="mt-8 animate-slide-in-left">
-          <h2 className="text-2xl font-semibold mb-4">Also Thanks To</h2>
+          <h2 className="text-2xl font-semibold mb-4">Special Thanks To</h2>
           <div className="space-y-3">
             {[
               { 
