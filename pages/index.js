@@ -884,173 +884,218 @@ const handleCheckout = useCallback(async () => {
     )
   }
 
-  const AboutPage = () => (
-    <div
-      className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
-        theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
-      } ${pageTransition ? "animate-page-exit" : "animate-page-enter"}`}
-    >
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
-          Tentang Kami
-        </h1>
-        <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
+const AboutPage = () => (
+  <div
+    className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
+      theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
+    } ${pageTransition ? "animate-page-exit" : "animate-page-enter"}`}
+  >
+    <div className="text-center mb-8">
+      <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
+        Tentang Kami
+      </h1>
+      <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div className="animate-slide-in-left">
+        <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
+        <div className="space-y-3">
+          {[
+            { 
+              name: "Darren", 
+              role: "Project Manager",
+              image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg" 
+            },
+            { 
+              name: "Isabel", 
+              role: "Project Manager",
+              image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg"
+            },
+            { 
+              name: "Steven", 
+              role: "UI Designer",
+              image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+            },
+            { 
+              name: "Sultanto", 
+              role: "UX Designer & Fullstack Manager",
+              image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Sultanto.jpg"
+            },
+          ].map((member) => (
+            <div
+              key={member.name}
+              className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
+                theme === 'light' 
+                  ? 'bg-orange-50 hover:bg-orange-100' 
+                  : 'bg-gray-700 hover:bg-gray-600'
+              }`}
+            >
+              <img
+                src={member.image}
+                alt={member.name}
+                className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div 
+                className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
+              >
+                {member.name.charAt(0)}
+              </div>
+              <div>
+                <div className="font-semibold">{member.name}</div>
+                <div className="text-sm opacity-75">{member.role}</div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <div className="animate-slide-in-left">
-          <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
+      <div className="animate-slide-in-right">
+        <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
+        <div className={`p-6 rounded-lg border transition-all duration-300 ${
+          theme === 'light' 
+            ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200' 
+            : 'bg-gradient-to-br from-gray-700 to-gray-600 border-gray-600'
+        }`}>
+          <p className="leading-relaxed mb-4">
+            <strong>Made By Kelompok 4</strong>
+          </p>
+          <p className="opacity-75 leading-relaxed mb-4">
+            Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi.
+            Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
+          </p>
+          <div className="flex items-center gap-2 text-sm opacity-75">
+            <span>⚡</span>
+            <span>Dibuat dengan React.js & Next.js</span>
+          </div>
+        </div>
+        <div className="mt-8 animate-slide-in-left">
+          <h2 className="text-2xl font-semibold mb-4">Also Thanks To</h2>
           <div className="space-y-3">
             {[
               { 
-                name: "Darren", 
-                role: "Project Manager",
-                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg" 
+                name: "Hans", 
+                role: "Web Tester",
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Hans.jpg" 
               },
               { 
-                name: "Isabel", 
-                role: "Project Manager",
-                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg"
-              },
-              { 
-                name: "Steven", 
-                role: "UI Designer",
-                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
-              },
-              { 
-                name: "Sultanto", 
-                role: "UX Designer & Fullstack Manager",
-                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Sultanto.jpg"
+                name: "Albert", 
+                role: "Product Feedback", 
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Albert.jpg"
               },
               { 
                 name: "Anonymous", 
-                role: "Tester",
+                role: "UX Feedback & Web Tester",
                 image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Anonymous.jpg"
               },
-            ].map((member) => (
+            ].map((person, index) => (
               <div
-                key={member.name}
+                key={person.name}
                 className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
                   theme === 'light' 
-                    ? 'bg-orange-50 hover:bg-orange-100' 
+                    ? 'bg-green-50 hover:bg-green-100' 
                     : 'bg-gray-700 hover:bg-gray-600'
                 }`}
               >
                 <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+                  src={person.image}
+                  alt={person.name}
+                  className="w-10 h-10 rounded-full object-cover border-2 border-green-500"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
                 />
                 <div 
-                  className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
+                  className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold hidden"
                 >
-                  {member.name.charAt(0)}
+                  {person.name.charAt(0)}
                 </div>
                 <div>
-                  <div className="font-semibold">{member.name}</div>
-                  <div className="text-sm opacity-75">{member.role}</div>
+                  <div className="font-semibold">{person.name}</div>
+                  <div className="text-sm opacity-75">{person.role}</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
-
-        <div className="animate-slide-in-right">
-          <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
-          <div className={`p-6 rounded-lg border transition-all duration-300 ${
-            theme === 'light' 
-              ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200' 
-              : 'bg-gradient-to-br from-gray-700 to-gray-600 border-gray-600'
-          }`}>
-            <p className="leading-relaxed mb-4">
-              <strong>Made By Kelompok 4</strong>
-            </p>
-            <p className="opacity-75 leading-relaxed mb-4">
-              Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi.
-              Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
-            </p>
-            <div className="flex items-center gap-2 text-sm opacity-75">
-              <span>⚡</span>
-              <span>Dibuat dengan React.js & Next.js</span>
-            </div>
-          </div>
-        </div>
       </div>
-
-      <div className="border-t pt-8 animate-fade-in-up-delayed">
-        <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
-        <div className="flex flex-col sm:flex-row justify-center gap-6">
-          <a
-            href="https://wa.me/6285156431675"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
-            style={{
-              backgroundColor: theme === 'light' ? 'rgb(240, 253, 244)' : 'rgb(6, 78, 59)'
-            }}
-          >
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-              alt="WhatsApp"
-              className="w-10 h-10"
-            />
-            <div>
-              <div className="font-semibold">WhatsApp</div>
-              <div className="text-sm opacity-75">+62 851-5643-1675</div>
-            </div>
-          </a>
-
-          <a
-            href="mailto:rndm942@yahoo.com"
-            className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
-            style={{
-              backgroundColor: theme === 'light' ? 'rgb(254, 242, 242)' : 'rgb(127, 29, 29)'
-            }}
-          >
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
-              alt="Email"
-              className="w-10 h-10"
-            />
-            <div>
-              <div className="font-semibold">Email</div>
-              <div className="text-sm opacity-75">rndm942@yahoo.com</div>
-            </div>
-          </a>
-        </div>
-      </div>
-
-      <div className="text-center mt-8">
-        <button
-          onClick={() => navigateToPage("home")}
-          className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-        >
-          ← Kembali ke Menu Utama
-        </button>
-      </div>
-
-      <style jsx>{`
-        @keyframes ripple {
-          0% {
-            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.15);
-          }
-          70% {
-            box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-          }
-        }
-        .animate-ripple {
-          animation: ripple 0.4s linear;
-        }
-      `}</style>
     </div>
-  );
+
+    <div className="border-t pt-8 animate-fade-in-up-delayed">
+      <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
+      <div className="flex flex-col sm:flex-row justify-center gap-6">
+        <a
+          href="https://wa.me/6285156431675"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
+          style={{
+            backgroundColor: theme === 'light' ? 'rgb(240, 253, 244)' : 'rgb(6, 78, 59)'
+          }}
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+            alt="WhatsApp"
+            className="w-10 h-10"
+          />
+          <div>
+            <div className="font-semibold">WhatsApp</div>
+            <div className="text-sm opacity-75">+62 851-5643-1675</div>
+          </div>
+        </a>
+
+        <a
+          href="mailto:rndm942@yahoo.com"
+          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
+          style={{
+            backgroundColor: theme === 'light' ? 'rgb(254, 242, 242)' : 'rgb(127, 29, 29)'
+          }}
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
+            alt="Email"
+            className="w-10 h-10"
+          />
+          <div>
+            <div className="font-semibold">Email</div>
+            <div className="text-sm opacity-75">rndm942@yahoo.com</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div className="text-center mt-8">
+      <button
+        onClick={() => navigateToPage("home")}
+        className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+      >
+        ← Kembali ke Menu Utama
+      </button>
+    </div>
+
+    <style jsx>{`
+      @keyframes ripple {
+        0% {
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.15);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        }
+      }
+      .animate-ripple {
+        animation: ripple 0.4s linear;
+      }
+    `}</style>
+  </div>
+);
 
   const Footer = () => (
     <footer className={`mt-8 py-6 border-t relative z-10 backdrop-blur-sm transition-all duration-300 ${
