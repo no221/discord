@@ -580,6 +580,21 @@ export default function Admin() {
                             <td className="py-3 px-4 text-sm text-gray-500 font-mono">
                               {purchase.phone || 'N/A'}
                             </td>
+<th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Notes</th>
+<td className="py-3 px-4 text-sm text-gray-600 max-w-xs">
+  {purchase.notes ? (
+    <details className="cursor-pointer">
+      <summary className="text-blue-500 hover:text-blue-700 text-xs">
+        View Notes
+      </summary>
+      <div className="mt-2 p-2 bg-gray-100 rounded text-xs break-words">
+        {purchase.notes}
+      </div>
+    </details>
+  ) : (
+    <span className="text-gray-400 text-xs">-</span>
+  )}
+</td>
                           </tr>
                         )
                       })}

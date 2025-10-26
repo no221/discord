@@ -11,7 +11,6 @@ function getDiscount(qty) {
   return 0
 }
 
-// Utility functions untuk phone
 const formatPhoneDisplay = (phone) => {
   if (!phone) return '';
   
@@ -31,7 +30,6 @@ const validatePhone = (phone) => {
   return phoneRegex.test(phone);
 };
 
-// Component Phone Input dengan bendera Indonesia
 const PhoneInputWithFlag = ({ value, onChange, theme }) => {
   const handlePhoneChange = (e) => {
     const input = e.target.value;
@@ -426,7 +424,8 @@ export default function Home() {
     phone: '',
     address: '',
     code: '',
-    paymentMethod: ''
+    paymentMethod: '',
+    notes: ''
   })
   const [status, setStatus] = useState(null)
   const [showSuccessPopup, setShowSuccessPopup] = useState(false)
@@ -668,59 +667,60 @@ export default function Home() {
     setCartOpen(false)
   }, [navigateToPage])
 
-  const handleCheckout = useCallback(async () => {
-    if (!form.paymentMethod) {
-      alert('Pilih metode pembayaran terlebih dahulu!')
-      return
-    }
+const handleCheckout = useCallback(async () => {
+  if (!form.paymentMethod) {
+    alert('Pilih metode pembayaran terlebih dahulu!')
+    return
+  }
 
-    // Validasi phone number
-    if (!validatePhone(form.phone)) {
-      alert('Nomor telepon harus valid! Format: +6281234567890');
-      return;
-    }
 
-    setStatus('processing')
-    try {
-      for (const item of cart) {
-        const purchaseData = {
-          productId: item.product.id.toString(),
-          product_name: item.product.name,
-          size: item.variant.size.toString(),
-          price: item.variant.price,
-          qty: item.quantity,
-          name: form.name,
-          phone: form.phone,
-          address: form.address,
-          paymentMethod: form.paymentMethod,
-          voucher_code: form.code || null,
-          discount_rate: voucherApplied ? calculateDiscount(item.quantity, form.code) : 0,
-          final_price: voucherApplied ? Math.round(item.variant.price * item.quantity * (1 - calculateDiscount(item.quantity, form.code))) : item.variant.price * item.quantity
-        }
+  if (!validatePhone(form.phone)) {
+    alert('Nomor telepon harus valid! Format: +6281234567890');
+    return;
+  }
 
-        console.log('📦 Sending purchase:', purchaseData)
-
-        const response = await fetch('/api/purchase', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(purchaseData)
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
+  setStatus('processing')
+  try {
+    for (const item of cart) {
+      const purchaseData = {
+        productId: item.product.id.toString(),
+        product_name: item.product.name,
+        size: item.variant.size.toString(),
+        price: item.variant.price,
+        qty: item.quantity,
+        name: form.name,
+        phone: form.phone,
+        address: form.address,
+        paymentMethod: form.paymentMethod,
+        voucher_code: form.code || null,
+        discount_rate: voucherApplied ? calculateDiscount(item.quantity, form.code) : 0,
+        final_price: voucherApplied ? Math.round(item.variant.price * item.quantity * (1 - calculateDiscount(item.quantity, form.code))) : item.variant.price * item.quantity,
+        notes: form.notes || null
       }
-      
-      setStatus('success')
-      setShowSuccessPopup(true)
-      setCart([])
-      setCartOpen(false)
-    } catch (error) {
-      console.error('Checkout error:', error)
-      setStatus('error')
-      alert('Checkout gagal. Silakan coba lagi.')
+
+      console.log('📦 Sending purchase:', purchaseData)
+
+      const response = await fetch('/api/purchase', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(purchaseData)
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
     }
-  }, [cart, form, voucherApplied, calculateDiscount])
+    
+    setStatus('success')
+    setShowSuccessPopup(true)
+    setCart([])
+    setCartOpen(false)
+  } catch (error) {
+    console.error('Checkout error:', error)
+    setStatus('error')
+    alert('Checkout gagal. Silakan coba lagi.')
+  }
+}, [cart, form, voucherApplied, calculateDiscount])
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -1823,29 +1823,46 @@ export default function Home() {
                   </p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium mb-2">Kode Diskon (Opsional)</label>
-                  <input
-                    value={form.code}
-                    onChange={(e) => setForm({ ...form, code: e.target.value })}
-                    placeholder="Masukkan kode diskon"
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
-                      theme === 'dark' 
-                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                        : 'bg-white border-gray-300'
-                    }`}
-                  />
-                  {voucherApplied && (
-                    <div className="text-sm text-green-600 mt-1 animate-pulse">
-                      ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
-                    </div>
-                  )}
-                  {form.code && !voucherApplied && (
-                    <div className="text-sm text-red-600 mt-1">
-                      ❌ Kode voucher tidak valid
-                    </div>
-                  )}
-                </div>
+<div>
+  <label className="block text-sm font-medium mb-2">Kode Diskon (Opsional)</label>
+  <input
+    value={form.code}
+    onChange={(e) => setForm({ ...form, code: e.target.value })}
+    placeholder="Masukkan kode diskon"
+    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+      theme === 'dark' 
+        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+        : 'bg-white border-gray-300'
+    }`}
+  />
+  {voucherApplied && (
+    <div className="text-sm text-green-600 mt-1 animate-pulse">
+      ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+    </div>
+  )}
+  {form.code && !voucherApplied && (
+    <div className="text-sm text-red-600 mt-1">
+      ❌ Kode voucher tidak valid
+    </div>
+  )}
+</div>
+<div>
+  <label className="block text-sm font-medium mb-2">Catatan untuk Penjual (Opsional)</label>
+  <textarea
+    value={form.notes}
+    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+    placeholder="Contoh: Warna bola yang lebih terang, pengiriman cepat, dll."
+    rows={3}
+    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 resize-none ${
+      theme === 'dark' 
+        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+        : 'bg-white border-gray-300'
+    }`}
+  />
+  <p className="text-xs text-gray-500 mt-1">
+    Berikan catatan khusus untuk pesanan Anda (warna, pengiriman, dll)
+  </p>
+</div>
 
                 <div className="payment-container relative">
                   <label className="block text-sm font-medium mb-2">Metode Pembayaran *</label>
@@ -1969,16 +1986,16 @@ export default function Home() {
             Terima kasih telah berbelanja di Soccer Ball Shop. 
             {form.paymentMethod && ` Pembayaran dengan ${paymentMethods.find(p => p.id === form.paymentMethod)?.name} berhasil. Pesananmu akan kami siapkan!`}
           </p>
-          <button
-            className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-            onClick={() => {
-              setShowSuccessPopup(false)
-              navigateToPage('home')
-              setForm({ name: '', phone: '', address: '', code: '', paymentMethod: '' })
-            }}
-          >
-            Kembali ke Home
-          </button>
+<button
+  className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+  onClick={() => {
+    setShowSuccessPopup(false)
+    navigateToPage('home')
+    setForm({ name: '', phone: '', address: '', code: '', paymentMethod: '', notes: '' })
+  }}
+>
+  Kembali ke Home
+</button>
         </div>
       </div>
     )}
