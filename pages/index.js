@@ -75,9 +75,26 @@ const PhoneInputWithFlag = ({ value, onChange, theme }) => {
 };
 const [filterAnimating, setFilterAnimating] = useState(false)
 const [filteredProducts, setFilteredProducts] = useState(products)
+useEffect(() => {
+  setFilterAnimating(true)
+  const timer = setTimeout(() => {
+    const filtered = products.filter(product =>
+      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
+    )
+    setFilteredProducts(filtered)
+    setFilterAnimating(false)
+  }, 300)
+  
+  return () => clearTimeout(timer)
+}, [searchTerm, selectedTag])
+
 const handleTagChange = useCallback((tag) => {
   setFilterAnimating(true)
   setSelectedTag(tag)
+  }, [])
+  
 // Component Address Autocomplete
 const SimpleAddressAutocomplete = ({ value, onChange, theme }) => {
   const [suggestions, setSuggestions] = useState([]);
@@ -240,20 +257,6 @@ const SimpleAddressAutocomplete = ({ value, onChange, theme }) => {
     </div>
   );
 };
-useEffect(() => {
-  setFilterAnimating(true)
-  const timer = setTimeout(() => {
-    const filtered = products.filter(product =>
-      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
-    )
-    setFilteredProducts(filtered)
-    setFilterAnimating(false)
-  }, 300)
-  
-  return () => clearTimeout(timer)
-}, [searchTerm, selectedTag])
 
 const voucherDiscounts = {
   'kelompok4': 0.95,
