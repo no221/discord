@@ -73,7 +73,11 @@ const PhoneInputWithFlag = ({ value, onChange, theme }) => {
     </div>
   );
 };
-
+const [filterAnimating, setFilterAnimating] = useState(false)
+const [filteredProducts, setFilteredProducts] = useState(products)
+const handleTagChange = useCallback((tag) => {
+  setFilterAnimating(true)
+  setSelectedTag(tag)
 // Component Address Autocomplete
 const SimpleAddressAutocomplete = ({ value, onChange, theme }) => {
   const [suggestions, setSuggestions] = useState([]);
@@ -236,6 +240,20 @@ const SimpleAddressAutocomplete = ({ value, onChange, theme }) => {
     </div>
   );
 };
+useEffect(() => {
+  setFilterAnimating(true)
+  const timer = setTimeout(() => {
+    const filtered = products.filter(product =>
+      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
+    )
+    setFilteredProducts(filtered)
+    setFilterAnimating(false)
+  }, 300)
+  
+  return () => clearTimeout(timer)
+}, [searchTerm, selectedTag])
 
 const voucherDiscounts = {
   'kelompok4': 0.95,
@@ -530,11 +548,16 @@ export default function Home() {
     }, 300);
   }, []);
 
-  const filteredProducts = products.filter(product =>
-    (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
-  )
+  setTimeout(() => {
+    const filtered = products.filter(product =>
+      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (tag === 'all' || (product.tags && product.tags.includes(tag)))
+    )
+    setFilteredProducts(filtered)
+    setFilterAnimating(false)
+  }, 300)
+}, [searchTerm])
 
   const getRecommendedProducts = useCallback((currentProduct) => {
     if (!currentProduct) return [];
@@ -1499,81 +1522,87 @@ const AboutPage = () => (
               theme === 'dark' ? 'text-white' : ''
             }`}>Semua Produk Bola</h2>
             
-            <div className="flex flex-wrap gap-2">
-              {allTags.map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => setSelectedTag(tag)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
-                    selectedTag === tag
-                      ? 'bg-orange-500 text-white shadow-lg animate-tag-select'
-                      : theme === 'light'
-                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                  }`}
-                >
-                  {tag === 'all' ? 'Semua' : `#${tag}`}
-                </button>
-              ))}
-            </div>
+<div className="flex flex-wrap gap-2">
+  {allTags.map(tag => (
+    <button
+      key={tag}
+      onClick={() => handleTagChange(tag)}
+      className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+        selectedTag === tag
+          ? 'bg-orange-500 text-white shadow-lg animate-tag-select'
+          : theme === 'light'
+          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+      }`}
+    >
+      {tag === 'all' ? 'Semua' : `#${tag}`}
+    </button>
+  ))}
+</div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className={`p-4 rounded-lg shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-1 flex flex-col min-h-[380px] ${
-                  theme === 'light' 
-                    ? 'bg-white/90' 
-                    : 'bg-gray-800/90 text-white border border-gray-700'
-                }`}
-                onClick={() => openProductDetail(product)}
-              >
-                {renderProductImage(
-                  product.images[0],
-                  product.name,
-                  "w-full h-48 object-cover rounded mb-3 transition-transform duration-300 hover:scale-105"
-                )}
-                
-                <div className="flex flex-col flex-grow">
-                  <h3 className="font-semibold text-lg">{product.name}</h3>
-                  <p className={`text-sm mt-1 line-clamp-2 flex-grow ${
-                    theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-                  }`}>{product.description}</p>
-                  
-                  {product.tags && product.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {product.tags.slice(0, 3).map(tag => (
-                        <span key={tag} className={`px-2 py-1 text-xs rounded ${
-                          theme === 'light' 
-                            ? 'bg-orange-100 text-orange-700' 
-                            : 'bg-orange-900 text-orange-300'
-                        }`}>
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105">
-                    Rp {product.variants[1].price.toLocaleString()}
-                  </p>
-                  
-                  <div className="mt-auto pt-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        addToCart(product, product.variants[1], 1)
-                      }}
-                      className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-                    >
-                      + Add to Cart
-                    </button>
-                  </div>
-                </div>
-              </div>
+          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 transition-all duration-500 ${
+  filterAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
+}`}>
+  {filteredProducts.map((product, index) => (
+    <div
+      key={product.id}
+      className={`p-4 rounded-lg shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-500 cursor-pointer transform hover:-translate-y-1 flex flex-col min-h-[380px] animate-product-card ${
+        theme === 'light' 
+          ? 'bg-white/90' 
+          : 'bg-gray-800/90 text-white border border-gray-700'
+      }`}
+      style={{
+        animationDelay: `${index * 0.1}s`,
+        animationFillMode: 'both'
+      }}
+      onClick={() => openProductDetail(product)}
+    >
+      {renderProductImage(
+        product.images[0],
+        product.name,
+        "w-full h-48 object-cover rounded mb-3 transition-transform duration-300 hover:scale-105"
+      )}
+      
+      <div className="flex flex-col flex-grow">
+        <h3 className="font-semibold text-lg">{product.name}</h3>
+        <p className={`text-sm mt-1 line-clamp-2 flex-grow ${
+          theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+        }`}>{product.description}</p>
+        
+        {product.tags && product.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {product.tags.slice(0, 3).map(tag => (
+              <span key={tag} className={`px-2 py-1 text-xs rounded transition-all duration-300 hover:scale-105 ${
+                theme === 'light' 
+                  ? 'bg-orange-100 text-orange-700' 
+                  : 'bg-orange-900 text-orange-300'
+              }`}>
+                #{tag}
+              </span>
             ))}
           </div>
+        )}
+        
+        <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105">
+          Rp {product.variants[1].price.toLocaleString()}
+        </p>
+        
+        <div className="mt-auto pt-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              addToCart(product, product.variants[1], 1)
+            }}
+            className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+          >
+            + Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
         </div>
       )}
 
@@ -2266,6 +2295,60 @@ const AboutPage = () => (
       .mt-auto {
         margin-top: auto;
       }
+        .animate-product-card {
+    animation: productCardIn 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  @keyframes productCardIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .animate-tag-select {
+    animation: tagSelect 0.4s ease-out;
+  }
+  
+  @keyframes tagSelect {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+  
+  .animate-filter-transition {
+    animation: filterTransition 0.3s ease-out;
+  }
+  
+  @keyframes filterTransition {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
     `}</style>
     </div>
   )
