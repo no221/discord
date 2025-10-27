@@ -238,11 +238,17 @@ const SimpleAddressAutocomplete = ({ value, onChange, theme }) => {
 };
 
 const voucherDiscounts = {
-  'kelompok4': 0.8,
+  'kelompok4': 0.95,
   'soccer50': 0.5,
   'bola30': 0.3,
   'football20': 0.2,
-  'steven10': 0.1
+  'steven15': 0.9,
+  'Darren2': 0.9,
+  'Sultanto21': 0.9,
+  'Abel6': 0.01,
+  'Albert(L)': 0.98,
+  'SepakBola02': 0.3,
+  'Ball': 0.03,
 }
 
 function useAnimatedNumber(value, duration = 400) {
