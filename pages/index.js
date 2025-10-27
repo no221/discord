@@ -448,19 +448,11 @@ export default function Home() {
   const [pageTransition, setPageTransition] = useState(false)
   const [theme, setTheme] = useState('light')
   const [isThemeTransitioning, setIsThemeTransitioning] = useState(false)
-const [tooltip, setTooltip] = useState({ show: false, content: '', position: { x: 0, y: 0 } });
-const showTooltip = useCallback((content, event) => {
-  const rect = event.currentTarget.getBoundingClientRect();
-  setTooltip({
-    show: true,
-    content,
-    position: { x: rect.left + rect.width / 2, y: rect.top }
-  });
-}, []);
-
-const hideTooltip = useCallback(() => {
-  setTooltip(prev => ({ ...prev, show: false }));
-}, []);
+const [tooltip, setTooltip] = useState({
+  show: false,
+  content: '',
+  position: { x: 0, y: 0 }
+});
   const paymentMethods = [
     {
       id: 'shopeepay',
@@ -505,7 +497,21 @@ const hideTooltip = useCallback(() => {
       icon: 'https://cdn-icons-png.flaticon.com/512/633/633611.png'
     }
   ]
+const showTooltip = (content, event) => {
+  const rect = event.target.getBoundingClientRect();
+  setTooltip({
+    show: true,
+    content,
+    position: {
+      x: rect.left + rect.width / 2,
+      y: rect.top
+    }
+  });
+};
 
+const hideTooltip = () => {
+  setTooltip(prev => ({ ...prev, show: false }));
+};
   const allTags = ['all', ...new Set(products.flatMap(product => product.tags || []))]
 
   const toggleTheme = useCallback(() => {
@@ -926,7 +932,24 @@ const handleCheckout = useCallback(async () => {
       </div>
     )
   }
+const getMemberMessage = (name) => {
+  const messages = {
+    "Darren": "",
+    "Isabel": "",
+    "Steven": "Steven, desain UI-mu membuat website ini hidup!",
+    "Sultanto": "Sultanto, kerja kerasmu di UX dan Fullstack sangat dihargai!"
+  };
+  return messages[name] || `Terima kasih ${name} untuk kontribusinya!`;
+};
 
+const getSpecialThanksMessage = (name) => {
+  const messages = {
+    "Hans": "Hans, testing dan evaluasimu sangat membantu kami dalam perbaikan website!",
+    "Albert": "Albert, feedback produkmu memberikan perspektif yang berharga!",
+    "Anonymous": "Nama yang tidak ingin disebutkan, Terima kasih untuk feedback UX dan testingmu yang berharga!"
+  };
+  return messages[name] || `Terima kasih ${name} untuk dukungannya!`;
+};
 const AboutPage = () => (
   <div
     className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
@@ -948,72 +971,54 @@ const AboutPage = () => (
             { 
               name: "Darren", 
               role: "Project Manager",
-              image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg",
-              tooltip: "Beliau bertanggung jawab dalam mengatur timeline project dan memastikan semua tugas berjalan sesuai rencana."
+              image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg" 
             },
             { 
               name: "Isabel", 
-              role: "Project Manager", 
-              image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg",
-              tooltip: "Beliau mengkoordinasi tim dan memastikan komunikasi berjalan lancar antara semua anggota."
+              role: "Project Manager",
+              image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg"
             },
             { 
               name: "Steven", 
               role: "UI Designer",
-              image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-",
-              tooltip: "Beliau mendesain interface yang user-friendly dan visually appealing untuk website ini."
+              image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
             },
             { 
               name: "Sultanto", 
               role: "UX Designer & Fullstack Manager",
-              image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Sultanto.jpg",
-              tooltip: "Beliau mengatur arsitektur teknis dan memastikan pengalaman pengguna yang optimal."
+              image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Sultanto.jpg"
             },
-].map((member) => (
-  <div
-    key={member.name}
-    className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer group ${
-      theme === 'light' 
-        ? 'bg-orange-50 hover:bg-orange-100' 
-        : 'bg-gray-700 hover:bg-gray-600'
-    }`}
-    onClick={(e) => {
-      // Pertahankan animasi click yang sudah ada
-      e.currentTarget.style.transform = 'scale(1.05)';
-      setTimeout(() => {
-        e.currentTarget.style.transform = '';
-      }, 300);
-      // Tampilkan tooltip
-      showTooltip(member.tooltip, e);
-    }}
-    onMouseEnter={(e) => showTooltip(member.tooltip, e)}
-    onMouseLeave={() => {
-      hideTooltip();
-    }}
-  >
-    <img
-      src={member.image}
-      alt={member.name}
-      className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
-      onError={(e) => {
-        e.target.style.display = 'none';
-        e.target.nextSibling.style.display = 'flex';
-      }}
-    />
-    <div 
-      className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
-    >
-      {member.name.charAt(0)}
-    </div>
-    <div>
-      <div className="font-semibold">{member.name}</div>
-      <div className="text-sm opacity-75">{member.role}</div>
-    </div>
-    
-    {/* Tooltip indicator - hanya show on hover */}
-    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-  </div>
-))}
+          ].map((member) => (
+<div
+  key={member.name}
+  className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer ${
+    theme === 'light' 
+      ? 'bg-orange-50 hover:bg-orange-100' 
+      : 'bg-gray-700 hover:bg-gray-600'
+  }`}
+  onClick={(e) => showTooltip(getMemberMessage(member.name), e)}
+  onMouseLeave={hideTooltip}
+>
+              <img
+                src={member.image}
+                alt={member.name}
+                className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div 
+                className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
+              >
+                {member.name.charAt(0)}
+              </div>
+              <div>
+                <div className="font-semibold">{member.name}</div>
+                <div className="text-sm opacity-75">{member.role}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -1043,33 +1048,29 @@ const AboutPage = () => (
               { 
                 name: "Hans", 
                 role: "Web Tester & Web Evaluator",
-                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Hans.jpg",
-                tooltip: "Beliau melakukan testing menyeluruh dan memberikan evaluasi berharga untuk meningkatkan kualitas website."
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Hans.jpg" 
               },
               { 
                 name: "Albert", 
                 role: "Product Feedback", 
-                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Albert.jpg",
-                tooltip: "Beliau memberikan feedback konstruktif dari perspektif pengguna untuk penyempurnaan produk."
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Albert.jpg"
               },
               { 
                 name: "Anonymous", 
                 role: "UX Feedback & Web Tester",
-                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Anonymous.jpg",
-                tooltip: "Beliau Memberikan masukan berharga mengenai user experience dan melakukan testing functionality."
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Anonymous.jpg"
               },
             ].map((person, index) => (
-              <div
-                key={person.name}
-                className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 relative group ${
-                  theme === 'light' 
-                    ? 'bg-green-50 hover:bg-green-100' 
-                    : 'bg-gray-700 hover:bg-gray-600'
-                }`}
-                onMouseEnter={(e) => showTooltip(person.tooltip, e)}
-                onMouseLeave={hideTooltip}
-                onClick={(e) => showTooltip(person.tooltip, e)}
-              >
+<div
+  key={person.name}
+  className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer ${
+    theme === 'light' 
+      ? 'bg-green-50 hover:bg-green-100' 
+      : 'bg-gray-700 hover:bg-gray-600'
+  }`}
+  onClick={(e) => showTooltip(getSpecialThanksMessage(person.name), e)}
+  onMouseLeave={hideTooltip}
+>
                 <img
                   src={person.image}
                   alt={person.name}
@@ -1088,9 +1089,6 @@ const AboutPage = () => (
                   <div className="font-semibold">{person.name}</div>
                   <div className="text-sm opacity-75">{person.role}</div>
                 </div>
-                
-                {/* Tooltip indicator */}
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
               </div>
             ))}
           </div>
@@ -1102,7 +1100,7 @@ const AboutPage = () => (
       <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
       <div className="flex flex-col sm:flex-row justify-center gap-6">
         <a
-          href="https://wa.me/6285156431675?text=Halo,%20ini%20diskon%20spesial%20untuk%20kamu:%20soccer50%20-%50%20OFF"
+          href="https://wa.me/6285156431675"
           target="_blank"
           rel="noopener noreferrer"
           className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
@@ -1171,25 +1169,17 @@ const AboutPage = () => (
 {/* Tooltip Component */}
 {tooltip.show && (
   <div 
-    className="fixed z-50 px-4 py-2 text-sm rounded-lg shadow-lg max-w-xs transform -translate-x-1/2 -translate-y-full transition-all duration-200 animate-tooltip-pop"
+    className="fixed z-50 px-4 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg animate-tooltip-fade"
     style={{
       left: tooltip.position.x,
       top: tooltip.position.y - 10,
-      backgroundColor: theme === 'light' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(55, 65, 81, 0.95)',
-      border: theme === 'light' ? '1px solid #e5e7eb' : '1px solid #4b5563',
-      color: theme === 'light' ? '#374151' : '#f3f4f6',
+      transform: 'translate(-50%, -100%)'
     }}
   >
-    <div className="relative">
-      {tooltip.content}
-      {/* Tooltip arrow */}
-      <div 
-        className="absolute left-1/2 top-full transform -translate-x-1/2 border-8 border-transparent"
-        style={{
-          borderTopColor: theme === 'light' ? 'rgba(255, 253, 250, 0.95)' : 'rgba(55, 65, 81, 0.95)',
-        }}
-      ></div>
-    </div>
+    {tooltip.content}
+    <div 
+      className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"
+    />
   </div>
 )}
   const Footer = () => (
@@ -1232,7 +1222,7 @@ const AboutPage = () => (
             <div className="flex justify-center gap-8">
               
               <a
-                href="https://wa.me/6285156431675?text=Halo,%20ini%20diskon%20spesial%20untuk%20kamu:%20soccer50%20-%50%20OFF"
+                href="https://wa.me/6285156431675"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105"
@@ -2408,17 +2398,16 @@ const AboutPage = () => (
       transform: scale(1);
     }
   }
-.animate-tooltip-pop {
-  animation: tooltipPop 0.2s ease-out forwards;
-  transform-origin: bottom center;
+.animate-tooltip-fade {
+  animation: tooltipFade 0.3s ease-out forwards;
 }
 
-@keyframes tooltipPop {
-  0% {
+@keyframes tooltipFade {
+  from {
     opacity: 0;
-    transform: translate(-50%, -90%) scale(0.8);
+    transform: translate(-50%, -100%) scale(0.8);
   }
-  100% {
+  to {
     opacity: 1;
     transform: translate(-50%, -100%) scale(1);
   }
