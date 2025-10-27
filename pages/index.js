@@ -247,6 +247,7 @@ const voucherDiscounts = {
   'Sultanto21': 0.9,
   'Abel6': 0.01,
   'Albert(L)': 0.98,
+  'H473': 0.9,
   'SepakBola02': 0.3,
   'Ball': 0.03,
 }
@@ -991,7 +992,7 @@ const AboutPage = () => (
             {[
               { 
                 name: "Hans", 
-                role: "Web Tester",
+                role: "Web Tester & Web Evaluator",
                 image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Hans.jpg" 
               },
               { 
