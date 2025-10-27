@@ -1061,7 +1061,7 @@ const AboutPage = () => (
       <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
       <div className="flex flex-col sm:flex-row justify-center gap-6">
         <a
-          href="https://wa.me/6285156431675"
+          href="https://wa.me/6285156431675?text=Halo,%20ini%20diskon%20spesial%20untuk%20kamu:%20soccer50%20-%50%20OFF"
           target="_blank"
           rel="noopener noreferrer"
           className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
@@ -1168,7 +1168,7 @@ const AboutPage = () => (
             <div className="flex justify-center gap-8">
               
               <a
-                href="https://wa.me/6285156431675"
+                href="https://wa.me/6285156431675?text=Halo,%20ini%20diskon%20spesial%20untuk%20kamu:%20soccer50%20-%50%20OFF"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 transition-all duration-300 transform hover:scale-105"
