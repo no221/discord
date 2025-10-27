@@ -969,41 +969,51 @@ const AboutPage = () => (
               image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Sultanto.jpg",
               tooltip: "Beliau mengatur arsitektur teknis dan memastikan pengalaman pengguna yang optimal."
             },
-          ].map((member) => (
-            <div
-              key={member.name}
-              className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 relative group ${
-                theme === 'light' 
-                  ? 'bg-orange-50 hover:bg-orange-100' 
-                  : 'bg-gray-700 hover:bg-gray-600'
-              }`}
-              onMouseEnter={(e) => showTooltip(member.tooltip, e)}
-              onMouseLeave={hideTooltip}
-              onClick={(e) => showTooltip(member.tooltip, e)}
-            >
-              <img
-                src={member.image}
-                alt={member.name}
-                className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  e.target.nextSibling.style.display = 'flex';
-                }}
-              />
-              <div 
-                className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
-              >
-                {member.name.charAt(0)}
-              </div>
-              <div>
-                <div className="font-semibold">{member.name}</div>
-                <div className="text-sm opacity-75">{member.role}</div>
-              </div>
-              
-              {/* Tooltip indicator */}
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
-            </div>
-          ))}
+].map((member) => (
+  <div
+    key={member.name}
+    className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer group ${
+      theme === 'light' 
+        ? 'bg-orange-50 hover:bg-orange-100' 
+        : 'bg-gray-700 hover:bg-gray-600'
+    }`}
+    onClick={(e) => {
+      // Pertahankan animasi click yang sudah ada
+      e.currentTarget.style.transform = 'scale(1.05)';
+      setTimeout(() => {
+        e.currentTarget.style.transform = '';
+      }, 300);
+      // Tampilkan tooltip
+      showTooltip(member.tooltip, e);
+    }}
+    onMouseEnter={(e) => showTooltip(member.tooltip, e)}
+    onMouseLeave={() => {
+      hideTooltip();
+    }}
+  >
+    <img
+      src={member.image}
+      alt={member.name}
+      className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+      onError={(e) => {
+        e.target.style.display = 'none';
+        e.target.nextSibling.style.display = 'flex';
+      }}
+    />
+    <div 
+      className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
+    >
+      {member.name.charAt(0)}
+    </div>
+    <div>
+      <div className="font-semibold">{member.name}</div>
+      <div className="text-sm opacity-75">{member.role}</div>
+    </div>
+    
+    {/* Tooltip indicator - hanya show on hover */}
+    <div className="absolute -top-1 -right-1 w-3 h-3 bg-blue-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+  </div>
+))}
         </div>
       </div>
 
@@ -1161,7 +1171,7 @@ const AboutPage = () => (
 {/* Tooltip Component */}
 {tooltip.show && (
   <div 
-    className="fixed z-50 px-4 py-2 text-sm rounded-lg shadow-lg max-w-xs transform -translate-x-1/2 -translate-y-full transition-all duration-300 animate-tooltip-pop"
+    className="fixed z-50 px-4 py-2 text-sm rounded-lg shadow-lg max-w-xs transform -translate-x-1/2 -translate-y-full transition-all duration-200 animate-tooltip-pop"
     style={{
       left: tooltip.position.x,
       top: tooltip.position.y - 10,
@@ -1176,7 +1186,7 @@ const AboutPage = () => (
       <div 
         className="absolute left-1/2 top-full transform -translate-x-1/2 border-8 border-transparent"
         style={{
-          borderTopColor: theme === 'light' ? 'rgba(255, 255, 255, 0.95)' : 'rgba(55, 65, 81, 0.95)',
+          borderTopColor: theme === 'light' ? 'rgba(255, 253, 250, 0.95)' : 'rgba(55, 65, 81, 0.95)',
         }}
       ></div>
     </div>
@@ -2399,21 +2409,14 @@ const AboutPage = () => (
     }
   }
 .animate-tooltip-pop {
-  animation: tooltipPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  animation: tooltipPop 0.2s ease-out forwards;
   transform-origin: bottom center;
 }
 
 @keyframes tooltipPop {
   0% {
     opacity: 0;
-    transform: translate(-50%, -100%) scale(0.5);
-  }
-  60% {
-    opacity: 1;
-    transform: translate(-50%, -100%) scale(1.1);
-  }
-  80% {
-    transform: translate(-50%, -100%) scale(0.95);
+    transform: translate(-50%, -90%) scale(0.8);
   }
   100% {
     opacity: 1;
