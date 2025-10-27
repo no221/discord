@@ -549,21 +549,11 @@ useEffect(() => {
     setFilteredProducts(filtered);
     setFilterAnimating(false);
   }, 300);
-  
+
   return () => clearTimeout(timer);
 }, [searchTerm, selectedTag]);
 
-  setTimeout(() => {
-    const filtered = products.filter(product =>
-      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (tag === 'all' || (product.tags && product.tags.includes(tag)))
-    )
-    setFilteredProducts(filtered)
-    setFilterAnimating(false)
-  }, 300)
-}, [searchTerm])
-
+  
   const getRecommendedProducts = useCallback((currentProduct) => {
     if (!currentProduct) return [];
     
