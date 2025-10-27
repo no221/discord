@@ -448,11 +448,6 @@ export default function Home() {
   const [pageTransition, setPageTransition] = useState(false)
   const [theme, setTheme] = useState('light')
   const [isThemeTransitioning, setIsThemeTransitioning] = useState(false)
-  const [tooltip, setTooltip] = useState({
-    show: false,
-    content: '',
-    position: { x: 0, y: 0 }
-  });
 
   const paymentMethods = [
     {
@@ -499,32 +494,6 @@ export default function Home() {
     }
   ]
 
-  const showTooltip = (content, event) => {
-    // Pastikan ada konten yang akan ditampilkan
-    if (!content || content.trim() === '') return;
-    
-    const rect = event.currentTarget.getBoundingClientRect();
-    const scrollX = window.pageXOffset || document.documentElement.scrollLeft;
-    const scrollY = window.pageYOffset || document.documentElement.scrollTop;
-    
-    setTooltip({
-      show: true,
-      content,
-      position: {
-        x: rect.left + rect.width / 2 + scrollX,
-        y: rect.top + scrollY
-      }
-    });
-  };
-
-  const hideTooltip = () => {
-    setTooltip({
-      show: false,
-      content: '',
-      position: { x: 0, y: 0 }
-    });
-  };
-
   const allTags = ['all', ...new Set(products.flatMap(product => product.tags || []))]
 
   const toggleTheme = useCallback(() => {
@@ -554,34 +523,35 @@ export default function Home() {
   }, []);
 
   const navigateToPage = useCallback((page) => {
-    setPageTransition(true);
+  setPageTransition(true);
+  setTimeout(() => {
+    setCurrentPage(page);
     setTimeout(() => {
-      setCurrentPage(page);
-      setTimeout(() => {
-        setPageTransition(false);
-      }, 300);
+      setPageTransition(false);
     }, 300);
-  }, []);
+  }, 300);
+}, []);
 
-  const handleTagChange = useCallback((tag) => {
-    setFilterAnimating(true);
-    setSelectedTag(tag);
-  }, []);
 
-  useEffect(() => {
-    setFilterAnimating(true);
-    const timer = setTimeout(() => {
-      const filtered = products.filter(product =>
-        (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
-      );
-      setFilteredProducts(filtered);
-      setFilterAnimating(false);
-    }, 300);
+const handleTagChange = useCallback((tag) => {
+  setFilterAnimating(true);
+  setSelectedTag(tag);
+}, []);
 
-    return () => clearTimeout(timer);
-  }, [searchTerm, selectedTag]);
+useEffect(() => {
+  setFilterAnimating(true);
+  const timer = setTimeout(() => {
+    const filtered = products.filter(product =>
+      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
+    );
+    setFilteredProducts(filtered);
+    setFilterAnimating(false);
+  }, 300);
+  
+  return () => clearTimeout(timer);
+}, [searchTerm, selectedTag]);
 
   
   const getRecommendedProducts = useCallback((currentProduct) => {
@@ -600,15 +570,15 @@ export default function Home() {
   const calculateDiscount = useCallback((quantity, voucherCode = '') => {
     let discountRate = getDiscount(quantity)
     
-    if (voucherCode) {
-      const matchedKey = Object.keys(voucherDiscounts).find(
-        key => key.toLowerCase() === voucherCode.toLowerCase()
-      )
-      if (matchedKey) {
-        const voucherDiscount = voucherDiscounts[matchedKey]
-        discountRate = Math.max(discountRate, voucherDiscount)
-      }
-    }
+if (voucherCode) {
+  const matchedKey = Object.keys(voucherDiscounts).find(
+    key => key.toLowerCase() === voucherCode.toLowerCase()
+  )
+  if (matchedKey) {
+    const voucherDiscount = voucherDiscounts[matchedKey]
+    discountRate = Math.max(discountRate, voucherDiscount)
+  }
+}
     
     return discountRate
   }, [])
@@ -646,15 +616,15 @@ export default function Home() {
   const animatedTotalPrice = useAnimatedNumber(totalPrice, 500)
 
   useEffect(() => {
-    if (form.code) {
-      const matchedKey = Object.keys(voucherDiscounts).find(
-        key => key.toLowerCase() === form.code.toLowerCase()
-      )
-      setVoucherApplied(!!matchedKey)
-    } else {
-      setVoucherApplied(false)
-    }
-  }, [form.code])
+  if (form.code) {
+    const matchedKey = Object.keys(voucherDiscounts).find(
+      key => key.toLowerCase() === form.code.toLowerCase()
+    )
+    setVoucherApplied(!!matchedKey)
+  } else {
+    setVoucherApplied(false)
+  }
+}, [form.code])
 
   useEffect(() => {
     if (selectedProduct && currentPage === 'product') {
@@ -728,59 +698,60 @@ export default function Home() {
     setCartOpen(false)
   }, [navigateToPage])
 
-  const handleCheckout = useCallback(async () => {
-    if (!form.paymentMethod) {
-      alert('Pilih metode pembayaran terlebih dahulu!')
-      return
-    }
+const handleCheckout = useCallback(async () => {
+  if (!form.paymentMethod) {
+    alert('Pilih metode pembayaran terlebih dahulu!')
+    return
+  }
 
-    if (!validatePhone(form.phone)) {
-      alert('Nomor telepon harus valid! Format: +6281234567890');
-      return;
-    }
 
-    setStatus('processing')
-    try {
-      for (const item of cart) {
-        const purchaseData = {
-          productId: item.product.id.toString(),
-          product_name: item.product.name,
-          size: item.variant.size.toString(),
-          price: item.variant.price,
-          qty: item.quantity,
-          name: form.name,
-          phone: form.phone,
-          address: form.address,
-          paymentMethod: form.paymentMethod,
-          voucher_code: form.code || null,
-          discount_rate: voucherApplied ? calculateDiscount(item.quantity, form.code) : 0,
-          final_price: voucherApplied ? Math.round(item.variant.price * item.quantity * (1 - calculateDiscount(item.quantity, form.code))) : item.variant.price * item.quantity,
-          notes: form.notes || null
-        }
+  if (!validatePhone(form.phone)) {
+    alert('Nomor telepon harus valid! Format: +6281234567890');
+    return;
+  }
 
-        console.log('📦 Sending purchase:', purchaseData)
-
-        const response = await fetch('/api/purchase', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(purchaseData)
-        })
-
-        if (!response.ok) {
-          throw new Error(`HTTP ${response.status}`);
-        }
+  setStatus('processing')
+  try {
+    for (const item of cart) {
+      const purchaseData = {
+        productId: item.product.id.toString(),
+        product_name: item.product.name,
+        size: item.variant.size.toString(),
+        price: item.variant.price,
+        qty: item.quantity,
+        name: form.name,
+        phone: form.phone,
+        address: form.address,
+        paymentMethod: form.paymentMethod,
+        voucher_code: form.code || null,
+        discount_rate: voucherApplied ? calculateDiscount(item.quantity, form.code) : 0,
+        final_price: voucherApplied ? Math.round(item.variant.price * item.quantity * (1 - calculateDiscount(item.quantity, form.code))) : item.variant.price * item.quantity,
+        notes: form.notes || null
       }
-      
-      setStatus('success')
-      setShowSuccessPopup(true)
-      setCart([])
-      setCartOpen(false)
-    } catch (error) {
-      console.error('Checkout error:', error)
-      setStatus('error')
-      alert('Checkout gagal. Silakan coba lagi.')
+
+      console.log('📦 Sending purchase:', purchaseData)
+
+      const response = await fetch('/api/purchase', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(purchaseData)
+      })
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
     }
-  }, [cart, form, voucherApplied, calculateDiscount])
+    
+    setStatus('success')
+    setShowSuccessPopup(true)
+    setCart([])
+    setCartOpen(false)
+  } catch (error) {
+    console.error('Checkout error:', error)
+    setStatus('error')
+    alert('Checkout gagal. Silakan coba lagi.')
+  }
+}, [cart, form, voucherApplied, calculateDiscount])
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -944,253 +915,218 @@ export default function Home() {
     )
   }
 
-  const getMemberMessage = (name) => {
-    const messages = {
-      "Darren": "Darren, terima kasih atas kepemimpinanmu sebagai Project Manager!",
-      "Isabel": "Isabel, kontribusimu sebagai Project Manager sangat berarti!",
-      "Steven": "Steven, desain UI-mu membuat website ini hidup!",
-      "Sultanto": "Sultanto, kerja kerasmu di UX dan Fullstack sangat dihargai!"
-    };
-    return messages[name] || `Terima kasih ${name} untuk kontribusinya!`;
-  };
+const AboutPage = () => (
+  <div
+    className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
+      theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
+    } ${pageTransition ? "animate-page-exit" : "animate-page-enter"}`}
+  >
+    <div className="text-center mb-8">
+      <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
+        Tentang Kami
+      </h1>
+      <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
+    </div>
 
-  const getSpecialThanksMessage = (name) => {
-    const messages = {
-      "Hans": "Hans, testing dan evaluasimu sangat membantu kami dalam perbaikan website!",
-      "Albert": "Albert, feedback produkmu memberikan perspektif yang berharga!",
-      "Anonymous": "Nama yang tidak ingin disebutkan, Terima kasih untuk feedback UX dan testingmu yang berharga!"
-    };
-    return messages[name] || `Terima kasih ${name} untuk dukungannya!`;
-  };
-
-  const AboutPage = () => (
-    <div
-      className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
-        theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
-      } ${pageTransition ? "animate-page-exit" : "animate-page-enter"}`}
-    >
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
-          Tentang Kami
-        </h1>
-        <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+      <div className="animate-slide-in-left">
+        <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
+        <div className="space-y-3">
+          {[
+            { 
+              name: "Darren", 
+              role: "Project Manager",
+              image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg" 
+            },
+            { 
+              name: "Isabel", 
+              role: "Project Manager",
+              image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg"
+            },
+            { 
+              name: "Steven", 
+              role: "UI Designer",
+              image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+            },
+            { 
+              name: "Sultanto", 
+              role: "UX Designer & Fullstack Manager",
+              image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Sultanto.jpg"
+            },
+          ].map((member) => (
+            <div
+              key={member.name}
+              className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
+                theme === 'light' 
+                  ? 'bg-orange-50 hover:bg-orange-100' 
+                  : 'bg-gray-700 hover:bg-gray-600'
+              }`}
+            >
+              <img
+                src={member.image}
+                alt={member.name}
+                className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  e.target.nextSibling.style.display = 'flex';
+                }}
+              />
+              <div 
+                className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
+              >
+                {member.name.charAt(0)}
+              </div>
+              <div>
+                <div className="font-semibold">{member.name}</div>
+                <div className="text-sm opacity-75">{member.role}</div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-        <div className="animate-slide-in-left">
-          <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
+      <div className="animate-slide-in-right">
+        <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
+        <div className={`p-6 rounded-lg border transition-all duration-300 ${
+          theme === 'light' 
+            ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200' 
+            : 'bg-gradient-to-br from-gray-700 to-gray-600 border-gray-600'
+        }`}>
+          <p className="leading-relaxed mb-4">
+            <strong>Made By Kelompok 4</strong>
+          </p>
+          <p className="opacity-75 leading-relaxed mb-4">
+            Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi.
+            Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
+          </p>
+          <div className="flex items-center gap-2 text-sm opacity-75">
+            <span>⚡</span>
+            <span>Dibuat dengan React.js & Next.js</span>
+          </div>
+        </div>
+        <div className="mt-8 animate-slide-in-left">
+          <h2 className="text-2xl font-semibold mb-4">Special Thanks To</h2>
           <div className="space-y-3">
             {[
               { 
-                name: "Darren", 
-                role: "Project Manager",
-                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg" 
+                name: "Hans", 
+                role: "Web Tester & Web Evaluator",
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Hans.jpg" 
               },
               { 
-                name: "Isabel", 
-                role: "Project Manager",
-                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg"
+                name: "Albert", 
+                role: "Product Feedback", 
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Albert.jpg"
               },
               { 
-                name: "Steven", 
-                role: "UI Designer",
-                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+                name: "Anonymous", 
+                role: "UX Feedback & Web Tester",
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Anonymous.jpg"
               },
-              { 
-                name: "Sultanto", 
-                role: "UX Designer & Fullstack Manager",
-                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Sultanto.jpg"
-              },
-            ].map((member) => (
+            ].map((person, index) => (
               <div
-                key={member.name}
-                className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer ${
+                key={person.name}
+                className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
                   theme === 'light' 
-                    ? 'bg-orange-50 hover:bg-orange-100' 
+                    ? 'bg-green-50 hover:bg-green-100' 
                     : 'bg-gray-700 hover:bg-gray-600'
                 }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const message = getMemberMessage(member.name);
-                  if (message && message.trim() !== '') {
-                    showTooltip(message, e);
-                  }
-                }}
-                onMouseLeave={hideTooltip}
               >
                 <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+                  src={person.image}
+                  alt={person.name}
+                  className="w-10 h-10 rounded-full object-cover border-2 border-green-500"
                   onError={(e) => {
                     e.target.style.display = 'none';
                     e.target.nextSibling.style.display = 'flex';
                   }}
                 />
                 <div 
-                  className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
+                  className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold hidden"
                 >
-                  {member.name.charAt(0)}
+                  {person.name.charAt(0)}
                 </div>
                 <div>
-                  <div className="font-semibold">{member.name}</div>
-                  <div className="text-sm opacity-75">{member.role}</div>
+                  <div className="font-semibold">{person.name}</div>
+                  <div className="text-sm opacity-75">{person.role}</div>
                 </div>
               </div>
             ))}
           </div>
         </div>
-
-        <div className="animate-slide-in-right">
-          <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
-          <div className={`p-6 rounded-lg border transition-all duration-300 ${
-            theme === 'light' 
-              ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200' 
-              : 'bg-gradient-to-br from-gray-700 to-gray-600 border-gray-600'
-          }`}>
-            <p className="leading-relaxed mb-4">
-              <strong>Made By Kelompok 4</strong>
-            </p>
-            <p className="opacity-75 leading-relaxed mb-4">
-              Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi.
-              Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
-            </p>
-            <div className="flex items-center gap-2 text-sm opacity-75">
-              <span>⚡</span>
-              <span>Dibuat dengan React.js & Next.js</span>
-            </div>
-          </div>
-          <div className="mt-8 animate-slide-in-left">
-            <h2 className="text-2xl font-semibold mb-4">Special Thanks To</h2>
-            <div className="space-y-3">
-              {[
-                { 
-                  name: "Hans", 
-                  role: "Web Tester & Web Evaluator",
-                  image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Hans.jpg" 
-                },
-                { 
-                  name: "Albert", 
-                  role: "Product Feedback", 
-                  image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Albert.jpg"
-                },
-                { 
-                  name: "Anonymous", 
-                  role: "UX Feedback & Web Tester",
-                  image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Anonymous.jpg"
-                },
-              ].map((person, index) => (
-                <div
-                  key={person.name}
-                  className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 cursor-pointer ${
-                    theme === 'light' 
-                      ? 'bg-green-50 hover:bg-green-100' 
-                      : 'bg-gray-700 hover:bg-gray-600'
-                  }`}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const message = getSpecialThanksMessage(person.name);
-                    if (message && message.trim() !== '') {
-                      showTooltip(message, e);
-                    }
-                  }}
-                  onMouseLeave={hideTooltip}
-                >
-                  <img
-                    src={person.image}
-                    alt={person.name}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-green-500"
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.nextSibling.style.display = 'flex';
-                    }}
-                  />
-                  <div 
-                    className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold hidden"
-                  >
-                    {person.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="font-semibold">{person.name}</div>
-                    <div className="text-sm opacity-75">{person.role}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
-
-      <div className="border-t pt-8 animate-fade-in-up-delayed">
-        <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
-        <div className="flex flex-col sm:flex-row justify-center gap-6">
-          <a
-            href="https://wa.me/6285156431675"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
-            style={{
-              backgroundColor: theme === 'light' ? 'rgb(240, 253, 244)' : 'rgb(6, 78, 59)'
-            }}
-          >
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-              alt="WhatsApp"
-              className="w-10 h-10"
-            />
-            <div>
-              <div className="font-semibold">WhatsApp</div>
-              <div className="text-sm opacity-75">+62 851-5643-1675</div>
-            </div>
-          </a>
-
-          <a
-            href="mailto:rndm942@yahoo.com"
-            className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
-            style={{
-              backgroundColor: theme === 'light' ? 'rgb(254, 242, 242)' : 'rgb(127, 29, 29)'
-            }}
-          >
-            <img
-              src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
-              alt="Email"
-              className="w-10 h-10"
-            />
-            <div>
-              <div className="font-semibold">Email</div>
-              <div className="text-sm opacity-75">rndm942@yahoo.com</div>
-            </div>
-          </a>
-        </div>
-      </div>
-
-      <div className="text-center mt-8">
-        <button
-          onClick={() => navigateToPage("home")}
-          className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-        >
-          ← Kembali ke Menu Utama
-        </button>
-      </div>
-
-      <style jsx>{`
-        @keyframes ripple {
-          0% {
-            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.15);
-          }
-          70% {
-            box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-          }
-          100% {
-            box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-          }
-        }
-        .animate-ripple {
-          animation: ripple 0.4s linear;
-        }
-      `}</style>
     </div>
-  );
+
+    <div className="border-t pt-8 animate-fade-in-up-delayed">
+      <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
+      <div className="flex flex-col sm:flex-row justify-center gap-6">
+        <a
+          href="https://wa.me/6285156431675"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
+          style={{
+            backgroundColor: theme === 'light' ? 'rgb(240, 253, 244)' : 'rgb(6, 78, 59)'
+          }}
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+            alt="WhatsApp"
+            className="w-10 h-10"
+          />
+          <div>
+            <div className="font-semibold">WhatsApp</div>
+            <div className="text-sm opacity-75">+62 851-5643-1675</div>
+          </div>
+        </a>
+
+        <a
+          href="mailto:rndm942@yahoo.com"
+          className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
+          style={{
+            backgroundColor: theme === 'light' ? 'rgb(254, 242, 242)' : 'rgb(127, 29, 29)'
+          }}
+        >
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
+            alt="Email"
+            className="w-10 h-10"
+          />
+          <div>
+            <div className="font-semibold">Email</div>
+            <div className="text-sm opacity-75">rndm942@yahoo.com</div>
+          </div>
+        </a>
+      </div>
+    </div>
+
+    <div className="text-center mt-8">
+      <button
+        onClick={() => navigateToPage("home")}
+        className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+      >
+        ← Kembali ke Menu Utama
+      </button>
+    </div>
+
+    <style jsx>{`
+      @keyframes ripple {
+        0% {
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.15);
+        }
+        70% {
+          box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+        }
+      }
+      .animate-ripple {
+        animation: ripple 0.4s linear;
+      }
+    `}</style>
+  </div>
+);
 
   const Footer = () => (
     <footer className={`mt-8 py-6 border-t relative z-10 backdrop-blur-sm transition-all duration-300 ${
@@ -1339,25 +1275,6 @@ export default function Home() {
           </>
         )}
       </div>
-
-      {/* Tooltip Component */}
-      {tooltip.show && (
-        <div 
-          className="fixed z-[100] px-4 py-2 text-sm text-white bg-gray-800 rounded-lg shadow-lg animate-tooltip-fade"
-          style={{
-            left: `${tooltip.position.x}px`,
-            top: `${tooltip.position.y - 10}px`,
-            transform: 'translate(-50%, -100%)',
-            maxWidth: '300px',
-            wordWrap: 'break-word'
-          }}
-        >
-          {tooltip.content}
-          <div 
-            className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-800"
-          />
-        </div>
-      )}
 
       {currentPage !== 'about' && (
         <header className={`flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0 transition-all duration-300 ${
@@ -1530,130 +1447,365 @@ export default function Home() {
           </div>
         </div>
       </header>
-      )}
+    )}
 
-      {cartOpen && currentPage !== 'about' && (
-        <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
-          <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
-            theme === 'light' ? 'bg-white' : 'bg-gray-800'
-          }`}>
-            <div className="p-4">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className={`font-semibold text-lg ${
-                  theme === 'dark' ? 'text-white' : ''
-                }`}>🛒 Keranjang Belanja</h3>
-                <button onClick={() => setCartOpen(false)} className={`text-2xl transition-transform duration-200 hover:scale-110 ${
-                  theme === 'dark' ? 'text-white' : ''
-                }`}>×</button>
-              </div>
-              
-              {cart.length === 0 ? (
-                <p className={`text-center py-8 ${
-                  theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-                }`}>Keranjang kosong</p>
-              ) : (
-                <>
-                  <div className="max-h-96 overflow-y-auto">
-                    {cart.map((item, index) => (
-                      <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
-                    ))}
-                  </div>
-                  
-                  <div className="mt-4 pt-4 border-t" style={{
-                    borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
-                  }}>
-                    <div className={`flex justify-between font-semibold text-lg ${
-                      theme === 'dark' ? 'text-white' : ''
-                    }`}>
-                      <span>Total:</span>
-                      <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
-                    </div>
-                    {voucherApplied && (
-                      <div className="text-sm text-green-600 mt-1 animate-pulse">
-                        ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
-                      </div>
-                    )}
-                    <button
-                      onClick={() => {
-                        setCartOpen(false)
-                        navigateToPage('cart')
-                      }}
-                      className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
-                    >
-                      Checkout ({cart.length} items)
-                    </button>
-                  </div>
-                </>
-              )}
+    {cartOpen && currentPage !== 'about' && (
+      <div className="md:hidden fixed inset-0 bg-black/50 z-40 flex items-end">
+        <div className={`cart-container w-full max-h-3/4 overflow-y-auto animate-slide-up rounded-t-2xl transition-all duration-300 ${
+          theme === 'light' ? 'bg-white' : 'bg-gray-800'
+        }`}>
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className={`font-semibold text-lg ${
+                theme === 'dark' ? 'text-white' : ''
+              }`}>🛒 Keranjang Belanja</h3>
+              <button onClick={() => setCartOpen(false)} className={`text-2xl transition-transform duration-200 hover:scale-110 ${
+                theme === 'dark' ? 'text-white' : ''
+              }`}>×</button>
             </div>
+            
+            {cart.length === 0 ? (
+              <p className={`text-center py-8 ${
+                theme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+              }`}>Keranjang kosong</p>
+            ) : (
+              <>
+                <div className="max-h-96 overflow-y-auto">
+                  {cart.map((item, index) => (
+                    <CartItemWithAnimation key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+                  ))}
+                </div>
+                
+                <div className="mt-4 pt-4 border-t" style={{
+                  borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
+                }}>
+                  <div className={`flex justify-between font-semibold text-lg ${
+                    theme === 'dark' ? 'text-white' : ''
+                  }`}>
+                    <span>Total:</span>
+                    <span className="text-orange-600 animate-price-spring">Rp {animatedTotalPrice.toLocaleString()}</span>
+                  </div>
+                  {voucherApplied && (
+                    <div className="text-sm text-green-600 mt-1 animate-pulse">
+                      ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+                    </div>
+                  )}
+                  <button
+                    onClick={() => {
+                      setCartOpen(false)
+                      navigateToPage('cart')
+                    }}
+                    className="w-full mt-3 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
+                  >
+                    Checkout ({cart.length} items)
+                  </button>
+                </div>
+              </>
+            )}
           </div>
+        </div>
+      </div>
+    )}
+
+    <main className="relative z-10">
+      {currentPage === 'about' && <AboutPage />}
+
+      {currentPage === 'home' && (
+        <div className={pageTransition ? 'animate-page-exit' : 'animate-page-enter'}>
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
+            <h2 className={`text-xl font-semibold mb-4 md:mb-0 ${
+              theme === 'dark' ? 'text-white' : ''
+            }`}>Semua Produk Bola</h2>
+            
+<div className="flex flex-wrap gap-2">
+  {allTags.map(tag => (
+    <button
+      key={tag}
+      onClick={() => handleTagChange(tag)}
+      className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
+        selectedTag === tag
+          ? 'bg-orange-500 text-white shadow-lg animate-tag-select'
+          : theme === 'light'
+          ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+          : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+      }`}
+    >
+      {tag === 'all' ? 'Semua' : `#${tag}`}
+    </button>
+  ))}
+</div>
+          </div>
+
+          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 transition-all duration-500 ${
+  filterAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
+}`}>
+  {filteredProducts.map((product, index) => (
+    <div
+      key={product.id}
+      className={`p-4 rounded-lg shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-500 cursor-pointer transform hover:-translate-y-1 flex flex-col min-h-[380px] animate-product-card ${
+        theme === 'light' 
+          ? 'bg-white/90' 
+          : 'bg-gray-800/90 text-white border border-gray-700'
+      }`}
+      style={{
+        animationDelay: `${index * 0.1}s`,
+        animationFillMode: 'both'
+      }}
+      onClick={() => openProductDetail(product)}
+    >
+      {renderProductImage(
+        product.images[0],
+        product.name,
+        "w-full h-48 object-cover rounded mb-3 transition-transform duration-300 hover:scale-105"
+      )}
+      
+      <div className="flex flex-col flex-grow">
+        <h3 className="font-semibold text-lg">{product.name}</h3>
+        <p className={`text-sm mt-1 line-clamp-2 flex-grow ${
+          theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+        }`}>{product.description}</p>
+        
+        {product.tags && product.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {product.tags.slice(0, 3).map(tag => (
+              <span key={tag} className={`px-2 py-1 text-xs rounded transition-all duration-300 hover:scale-105 ${
+                theme === 'light' 
+                  ? 'bg-orange-100 text-orange-700' 
+                  : 'bg-orange-900 text-orange-300'
+              }`}>
+                #{tag}
+              </span>
+            ))}
+          </div>
+        )}
+        
+        <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105">
+          Rp {product.variants[1].price.toLocaleString()}
+        </p>
+        
+        <div className="mt-auto pt-3">
+          <button
+            onClick={(e) => {
+              e.stopPropagation()
+              addToCart(product, product.variants[1], 1)
+            }}
+            className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+          >
+            + Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
         </div>
       )}
 
-      <main className="relative z-10">
-        {currentPage === 'about' && <AboutPage />}
-
-        {currentPage === 'home' && (
-          <div className={pageTransition ? 'animate-page-exit' : 'animate-page-enter'}>
-            <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-              <h2 className={`text-xl font-semibold mb-4 md:mb-0 ${
-                theme === 'dark' ? 'text-white' : ''
-              }`}>Semua Produk Bola</h2>
+      {currentPage === 'product' && selectedProduct && (
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 ${
+          pageTransition ? 'animate-page-exit' : 'animate-page-enter'
+        }`}>
+          <section className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-300 ${
+            theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
+          }`}>
+            <div className="relative mb-4">
+              {renderProductImage(
+                selectedProduct.images[currentImageIndex],
+                selectedProduct.name,
+                `w-full h-64 md:h-80 object-contain rounded transition-all duration-500 ${
+                  imageAnim ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
+                }`
+              )}
               
-              <div className="flex flex-wrap gap-2">
-                {allTags.map(tag => (
+              {selectedProduct.images.length > 1 && (
+                <>
                   <button
-                    key={tag}
-                    onClick={() => handleTagChange(tag)}
-                    className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
-                      selectedTag === tag
-                        ? 'bg-orange-500 text-white shadow-lg animate-tag-select'
+                    onClick={() => handleImageChange((currentImageIndex - 1 + selectedProduct.images.length) % selectedProduct.images.length)}
+                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
+                  >
+                    ←
+                  </button>
+                  <button
+                    onClick={() => handleImageChange((currentImageIndex + 1) % selectedProduct.images.length)}
+                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
+                  >
+                    →
+                  </button>
+                </>
+              )}
+              
+              {selectedProduct.images.length > 1 && (
+                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
+                  {selectedProduct.images.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handleImageChange(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
+                        index === currentImageIndex 
+                          ? 'bg-orange-500 scale-125' 
+                          : theme === 'light' ? 'bg-white/70 hover:bg-white' : 'bg-gray-500 hover:bg-gray-400'
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <h2 className="text-xl md:text-2xl font-semibold">{selectedProduct.name}</h2>
+            <p className={`mt-2 text-sm md:text-base ${
+              theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+            }`}>{selectedProduct.description}</p>
+            
+            {selectedProduct.tags && selectedProduct.tags.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-3">
+                {selectedProduct.tags.map(tag => (
+                  <span key={tag} className={`px-3 py-1 text-sm rounded-full ${
+                    theme === 'light' 
+                      ? 'bg-orange-100 text-orange-700' 
+                      : 'bg-orange-900 text-orange-300'
+                  }`}>
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            <div className="mt-4 md:mt-6">
+              <h4 className="font-semibold mb-3">Pilih Size:</h4>
+              <div className="flex flex-wrap gap-2 md:gap-3">
+                {selectedProduct.variants.map((variant) => (
+                  <button
+                    key={variant.size}
+                    onClick={() => setSelectedVariant(variant)}
+                    className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base transform hover:scale-105 ${
+                      selectedVariant.size === variant.size
+                        ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
                         : theme === 'light'
-                        ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                        ? 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
+                        : 'bg-gray-700 text-gray-300 border-gray-600 hover:border-orange-500 hover:shadow-md'
                     }`}
                   >
-                    {tag === 'all' ? 'Semua' : `#${tag}`}
+                    {variant.size}<br/>
+                    <span className="text-xs md:text-sm font-normal">
+                      Rp {variant.price.toLocaleString()}
+                    </span>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 transition-all duration-500 ${
-              filterAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
-            }`}>
-              {filteredProducts.map((product, index) => (
-                <div
-                  key={product.id}
-                  className={`p-4 rounded-lg shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-500 cursor-pointer transform hover:-translate-y-1 flex flex-col min-h-[380px] animate-product-card ${
-                    theme === 'light' 
-                      ? 'bg-white/90' 
-                      : 'bg-gray-800/90 text-white border border-gray-700'
+            <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
+              <div className={`flex items-center gap-3 rounded-lg p-2 w-full sm:w-auto justify-center transition-all duration-300 ${
+                theme === 'light' ? 'bg-orange-50' : 'bg-gray-700'
+              }`}>
+                <button
+                  onClick={() => setQty(Math.max(1, qty - 1))}
+                  className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
+                    theme === 'light' ? 'bg-white' : 'bg-gray-600 border-gray-500'
                   }`}
-                  style={{
-                    animationDelay: `${index * 0.1}s`,
-                    animationFillMode: 'both'
-                  }}
-                  onClick={() => openProductDetail(product)}
+                >
+                  -
+                </button>
+                <AnimatedQuantity quantity={qty} />
+                <button
+                  onClick={() => setQty(qty + 1)}
+                  className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
+                    theme === 'light' ? 'bg-white' : 'bg-gray-600 border-gray-500'
+                  }`}
+                >
+                  +
+                </button>
+              </div>
+              
+              <button
+                onClick={() => {
+                  addToCart(selectedProduct, selectedVariant, qty)
+                  setQty(1)
+                }}
+                className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg"
+              >
+                + Add to Cart
+              </button>
+            </div>
+
+            {selectedVariant && (
+              <div className={`mt-4 p-4 rounded-lg animate-price-change transition-all duration-300 ${
+                theme === 'light' ? 'bg-orange-50' : 'bg-gray-700'
+              }`}>
+                <div className="flex items-center justify-between">
+                  <div className={`text-sm ${
+                    theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+                  }`}>Harga Total:</div>
+                  <div className="text-right">
+                    {discountRate > 0 && (
+                      <div className="text-sm text-gray-400 line-through animate-strike">
+                        Rp {priceBeforeDiscount.toLocaleString()}
+                      </div>
+                    )}
+                    <div className="text-lg font-bold text-orange-600 animate-price-spring">
+                      Rp {animatedPrice.toLocaleString()}
+                    </div>
+                    {discountRate > 0 && (
+                      <div className="text-xs text-green-600 animate-fade-in">
+                        🎉 Diskon {Math.round(discountRate * 100)}%
+                        {voucherApplied && ` (Voucher: ${form.code.toUpperCase()})`}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {voucherApplied && (
+                  <div className="mt-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded animate-pulse">
+                    ✅ Voucher berhasil diterapkan!
+                  </div>
+                )}
+              </div>
+            )}
+
+            <button
+              onClick={() => navigateToPage('home')}
+              className={`w-full mt-4 py-2 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold ${
+                theme === 'light'
+                  ? 'border-orange-500 text-orange-500 hover:bg-orange-50'
+                  : 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white'
+              }`}
+            >
+              ← Kembali ke Home
+            </button>
+          </section>
+
+          <aside className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-300 ${
+            theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
+          }`}>
+            <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
+            <div className="grid grid-cols-1 gap-3 md:gap-4">
+              {getRecommendedProducts(selectedProduct).map((p) => (
+                <div
+                  key={p.id}
+                  className={`flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border transform hover:-translate-y-1 ${
+                    theme === 'light'
+                      ? 'border-transparent hover:border-orange-200 bg-orange-50/50'
+                      : 'border-gray-600 hover:border-orange-500 bg-gray-700/50'
+                  }`}
+                  onClick={() => openProductDetail(p)}
                 >
                   {renderProductImage(
-                    product.images[0],
-                    product.name,
-                    "w-full h-48 object-cover rounded mb-3 transition-transform duration-300 hover:scale-105"
+                    p.images[0],
+                    p.name,
+                    "w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg transition-transform duration-300 hover:scale-110"
                   )}
-                  
-                  <div className="flex flex-col flex-grow">
-                    <h3 className="font-semibold text-lg">{product.name}</h3>
-                    <p className={`text-sm mt-1 line-clamp-2 flex-grow ${
+                  <div className="flex-1">
+                    <div className="font-semibold text-sm md:text-base">{p.name}</div>
+                    <div className={`text-xs md:text-sm transition-all duration-300 hover:scale-105 ${
                       theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-                    }`}>{product.description}</p>
-                    
-                    {product.tags && product.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {product.tags.slice(0, 3).map(tag => (
-                          <span key={tag} className={`px-2 py-1 text-xs rounded transition-all duration-300 hover:scale-105 ${
-                            theme === 'light' 
-                              ? 'bg-orange-100 text-orange-700' 
+                    }`}>
+                      Rp {p.variants[1].price.toLocaleString()}
+                    </div>
+                    {p.tags && p.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {p.tags.slice(0, 2).map(tag => (
+                          <span key={tag} className={`px-1 py-0.5 text-xs rounded ${
+                            theme === 'light'
+                              ? 'bg-orange-200 text-orange-800'
                               : 'bg-orange-900 text-orange-300'
                           }`}>
                             #{tag}
@@ -1661,788 +1813,538 @@ export default function Home() {
                         ))}
                       </div>
                     )}
-                    
-                    <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105">
-                      Rp {product.variants[1].price.toLocaleString()}
-                    </p>
-                    
-                    <div className="mt-auto pt-3">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          addToCart(product, product.variants[1], 1)
-                        }}
-                        className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-                      >
-                        + Add to Cart
-                      </button>
-                    </div>
                   </div>
+                  <button
+                    className={`text-xs md:text-sm px-2 py-1 md:px-3 md:py-2 border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95 ${
+                      theme === 'light'
+                        ? 'border-orange-500 text-orange-500'
+                        : 'border-orange-500 text-orange-400'
+                    }`}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      addToCart(p, p.variants[1], 1)
+                    }}
+                  >
+                    + Tambah
+                  </button>
                 </div>
               ))}
             </div>
-          </div>
-        )}
-
-        {currentPage === 'product' && selectedProduct && (
-          <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 ${
-            pageTransition ? 'animate-page-exit' : 'animate-page-enter'
-          }`}>
-            <section className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-300 ${
-              theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
-            }`}>
-              <div className="relative mb-4">
-                {renderProductImage(
-                  selectedProduct.images[currentImageIndex],
-                  selectedProduct.name,
-                  `w-full h-64 md:h-80 object-contain rounded transition-all duration-500 ${
-                    imageAnim ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
-                  }`
-                )}
-                
-                {selectedProduct.images.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => handleImageChange((currentImageIndex - 1 + selectedProduct.images.length) % selectedProduct.images.length)}
-                      className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
-                    >
-                      ←
-                    </button>
-                    <button
-                      onClick={() => handleImageChange((currentImageIndex + 1) % selectedProduct.images.length)}
-                      className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
-                    >
-                      →
-                    </button>
-                  </>
-                )}
-                
-                {selectedProduct.images.length > 1 && (
-                  <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
-                    {selectedProduct.images.map((_, index) => (
-                      <button
-                        key={index}
-                        onClick={() => handleImageChange(index)}
-                        className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
-                          index === currentImageIndex 
-                            ? 'bg-orange-500 scale-125' 
-                            : theme === 'light' ? 'bg-white/70 hover:bg-white' : 'bg-gray-500 hover:bg-gray-400'
-                        }`}
-                      />
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <h2 className="text-xl md:text-2xl font-semibold">{selectedProduct.name}</h2>
-              <p className={`mt-2 text-sm md:text-base ${
-                theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-              }`}>{selectedProduct.description}</p>
-              
-              {selectedProduct.tags && selectedProduct.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {selectedProduct.tags.map(tag => (
-                    <span key={tag} className={`px-3 py-1 text-sm rounded-full ${
-                      theme === 'light' 
-                        ? 'bg-orange-100 text-orange-700' 
-                        : 'bg-orange-900 text-orange-300'
-                    }`}>
-                      #{tag}
-                    </span>
-                  ))}
-                </div>
-              )}
-              
-              <div className="mt-4 md:mt-6">
-                <h4 className="font-semibold mb-3">Pilih Size:</h4>
-                <div className="flex flex-wrap gap-2 md:gap-3">
-                  {selectedProduct.variants.map((variant) => (
-                    <button
-                      key={variant.size}
-                      onClick={() => setSelectedVariant(variant)}
-                      className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base transform hover:scale-105 ${
-                        selectedVariant.size === variant.size
-                          ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
-                          : theme === 'light'
-                          ? 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
-                          : 'bg-gray-700 text-gray-300 border-gray-600 hover:border-orange-500 hover:shadow-md'
-                      }`}
-                    >
-                      {variant.size}<br/>
-                      <span className="text-xs md:text-sm font-normal">
-                        Rp {variant.price.toLocaleString()}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
-                <div className={`flex items-center gap-3 rounded-lg p-2 w-full sm:w-auto justify-center transition-all duration-300 ${
-                  theme === 'light' ? 'bg-orange-50' : 'bg-gray-700'
-                }`}>
-                  <button
-                    onClick={() => setQty(Math.max(1, qty - 1))}
-                    className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
-                      theme === 'light' ? 'bg-white' : 'bg-gray-600 border-gray-500'
-                    }`}
-                  >
-                    -
-                  </button>
-                  <AnimatedQuantity quantity={qty} />
-                  <button
-                    onClick={() => setQty(qty + 1)}
-                    className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
-                      theme === 'light' ? 'bg-white' : 'bg-gray-600 border-gray-500'
-                    }`}
-                  >
-                    +
-                  </button>
-                </div>
-                
-                <button
-                  onClick={() => {
-                    addToCart(selectedProduct, selectedVariant, qty)
-                    setQty(1)
-                  }}
-                  className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg"
-                >
-                  + Add to Cart
-                </button>
-              </div>
-
-              {selectedVariant && (
-                <div className={`mt-4 p-4 rounded-lg animate-price-change transition-all duration-300 ${
-                  theme === 'light' ? 'bg-orange-50' : 'bg-gray-700'
-                }`}>
-                  <div className="flex items-center justify-between">
-                    <div className={`text-sm ${
-                      theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-                    }`}>Harga Total:</div>
-                    <div className="text-right">
-                      {discountRate > 0 && (
-                        <div className="text-sm text-gray-400 line-through animate-strike">
-                          Rp {priceBeforeDiscount.toLocaleString()}
-                        </div>
-                      )}
-                      <div className="text-lg font-bold text-orange-600 animate-price-spring">
-                        Rp {animatedPrice.toLocaleString()}
-                      </div>
-                      {discountRate > 0 && (
-                        <div className="text-xs text-green-600 animate-fade-in">
-                          🎉 Diskon {Math.round(discountRate * 100)}%
-                          {voucherApplied && ` (Voucher: ${form.code.toUpperCase()})`}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                  {voucherApplied && (
-                    <div className="mt-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded animate-pulse">
-                      ✅ Voucher berhasil diterapkan!
-                    </div>
-                  )}
-                </div>
-              )}
-
-              <button
-                onClick={() => navigateToPage('home')}
-                className={`w-full mt-4 py-2 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold ${
-                  theme === 'light'
-                    ? 'border-orange-500 text-orange-500 hover:bg-orange-50'
-                    : 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white'
-                }`}
-              >
-                ← Kembali ke Home
-              </button>
-            </section>
-
-            <aside className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-300 ${
-              theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
-            }`}>
-              <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
-              <div className="grid grid-cols-1 gap-3 md:gap-4">
-                {getRecommendedProducts(selectedProduct).map((p) => (
-                  <div
-                    key={p.id}
-                    className={`flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border transform hover:-translate-y-1 ${
-                      theme === 'light'
-                        ? 'border-transparent hover:border-orange-200 bg-orange-50/50'
-                        : 'border-gray-600 hover:border-orange-500 bg-gray-700/50'
-                    }`}
-                    onClick={() => openProductDetail(p)}
-                  >
-                    {renderProductImage(
-                      p.images[0],
-                      p.name,
-                      "w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg transition-transform duration-300 hover:scale-110"
-                    )}
-                    <div className="flex-1">
-                      <div className="font-semibold text-sm md:text-base">{p.name}</div>
-                      <div className={`text-xs md:text-sm transition-all duration-300 hover:scale-105 ${
-                        theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-                      }`}>
-                        Rp {p.variants[1].price.toLocaleString()}
-                      </div>
-                      {p.tags && p.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1 mt-1">
-                          {p.tags.slice(0, 2).map(tag => (
-                            <span key={tag} className={`px-1 py-0.5 text-xs rounded ${
-                              theme === 'light'
-                                ? 'bg-orange-200 text-orange-800'
-                                : 'bg-orange-900 text-orange-300'
-                            }`}>
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    <button
-                      className={`text-xs md:text-sm px-2 py-1 md:px-3 md:py-2 border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95 ${
-                        theme === 'light'
-                          ? 'border-orange-500 text-orange-500'
-                          : 'border-orange-500 text-orange-400'
-                      }`}
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        addToCart(p, p.variants[1], 1)
-                      }}
-                    >
-                      + Tambah
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </aside>
-          </div>
-        )}
-
-        {currentPage === 'cart' && (
-          <div className={`max-w-4xl mx-auto rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm transition-all duration-300 ${
-            theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
-          } ${pageTransition ? 'animate-page-exit' : 'animate-page-enter'}`}>
-            <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 flex items-center gap-2">
-              🛒 Checkout
-            </h2>
-            
-            {cart.length === 0 ? (
-              <div className="text-center py-8 md:py-12">
-                <div className="text-6xl mb-4 animate-bounce">🛒</div>
-                <p className={`text-lg mb-6 ${
-                  theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-                }`}>Keranjang Anda kosong</p>
-                <button
-                  onClick={() => navigateToPage('home')}
-                  className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold transform hover:scale-105 active:scale-95"
-                >
-                  Belanja Sekarang
-                </button>
-              </div>
-            ) : (
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-                <div className="lg:col-span-2">
-                  <h3 className="font-semibold text-lg mb-4">Items dalam Keranjang</h3>
-                  <div className="space-y-3 md:space-y-4">
-                    {cart.map((item, index) => (
-                      <CheckoutCartItem key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4 md:space-y-6">
-                  <h3 className="font-semibold text-lg">Informasi Pelanggan</h3>
-                  
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Nama Lengkap *</label>
-                    <input
-                      value={form.name}
-                      onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      placeholder="Masukkan nama lengkap"
-                      className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
-                        theme === 'dark' 
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                          : 'bg-white border-gray-300'
-                      }`}
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Nomor Telepon *</label>
-                    <PhoneInputWithFlag 
-                      value={form.phone}
-                      onChange={(value) => setForm({ ...form, phone: value })}
-                      theme={theme}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Alamat Lengkap *</label>
-                    <SimpleAddressAutocomplete 
-                      value={form.address}
-                      onChange={(value) => setForm({ ...form, address: value })}
-                      theme={theme}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Mulai ketik nama jalan, contoh: "Jl. Kalideres" atau "Daan Mogot"
-                    </p>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Kode Diskon (Opsional)</label>
-                    <input
-                      value={form.code}
-                      onChange={(e) => setForm({ ...form, code: e.target.value })}
-                      placeholder="Masukkan kode diskon"
-                      className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
-                        theme === 'dark' 
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                          : 'bg-white border-gray-300'
-                      }`}
-                    />
-                    {voucherApplied && (
-                      <div className="text-sm text-green-600 mt-1 animate-pulse">
-                        ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
-                      </div>
-                    )}
-                    {form.code && !voucherApplied && (
-                      <div className="text-sm text-red-600 mt-1">
-                        ❌ Kode voucher tidak valid
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Catatan untuk Penjual (Opsional)</label>
-                    <textarea
-                      value={form.notes}
-                      onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                      placeholder="Contoh: Warna bola yang lebih terang, pengiriman cepat, dll."
-                      rows={3}
-                      className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 resize-none ${
-                        theme === 'dark' 
-                          ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
-                          : 'bg-white border-gray-300'
-                      }`}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Berikan catatan khusus untuk pesanan Anda (warna, pengiriman, dll)
-                    </p>
-                  </div>
-
-                  <div className="payment-container relative">
-                    <label className="block text-sm font-medium mb-2">Metode Pembayaran *</label>
-                    <button
-                      onClick={() => setPaymentOpen(!paymentOpen)}
-                      className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-left flex justify-between items-center transition-all duration-300 transform hover:scale-105 ${
-                        theme === 'dark' 
-                          ? 'bg-gray-700 border-gray-600 text-white' 
-                          : 'bg-white border-gray-300'
-                      }`}
-                    >
-                      <span>
-                        {form.paymentMethod ? 
-                          paymentMethods.find(p => p.id === form.paymentMethod)?.name : 
-                          'Pilih metode pembayaran'
-                        }
-                      </span>
-                      <span className={`transition-transform duration-300 ${paymentOpen ? 'rotate-180' : ''}`}>▼</span>
-                    </button>
-                    
-                    {paymentOpen && (
-                      <div className={`absolute top-full left-0 right-0 border rounded-lg shadow-2xl z-50 max-h-60 overflow-y-auto mt-1 animate-dropdown transition-all duration-300 ${
-                        theme === 'light' 
-                          ? 'bg-white border-gray-200' 
-                          : 'bg-gray-800 border-gray-600'
-                      }`}>
-                        {paymentMethods.map((method) => (
-                          <div
-                            key={method.id}
-                            onClick={() => {
-                              setForm({ ...form, paymentMethod: method.id })
-                              setPaymentOpen(false)
-                            }}
-                            className={`p-3 border-b cursor-pointer transition-all duration-200 transform hover:scale-105 ${
-                              form.paymentMethod === method.id 
-                                ? theme === 'light'
-                                  ? 'bg-orange-100 border-orange-500'
-                                  : 'bg-orange-900 border-orange-500'
-                                : theme === 'light'
-                                ? 'hover:bg-orange-50 border-gray-200'
-                                : 'hover:bg-gray-700 border-gray-600'
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <img
-                                src={method.icon}
-                                alt={method.name}
-                                className="w-6 h-6 object-contain"
-                              />
-                              <div>
-                                <div className="font-semibold">{method.name}</div>
-                                <div className={`text-xs ${
-                                  theme === 'light' ? 'text-gray-600' : 'text-gray-400'
-                                }`}>{method.description}</div>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="border-t pt-4 animate-total-update" style={{
-                    borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
-                  }}>
-                    <div className="flex justify-between text-lg font-semibold">
-                      <span>Total Items:</span>
-                      <span className="animate-quantity-bounce">{totalItems} items</span>
-                    </div>
-                    <div className="flex justify-between text-xl font-bold mt-2">
-                      <span>Total Pembayaran:</span>
-                      <span className="text-orange-600 animate-price-spring">
-                        Rp {animatedTotalPrice.toLocaleString()}
-                      </span>
-                    </div>
-                    {voucherApplied && (
-                      <div className="text-sm text-green-600 mt-2 bg-green-50 p-2 rounded animate-pulse">
-                        🎉 Hemat {Math.round((calculateDiscount(1, form.code) - getDiscount(1)) * 100)}% dengan voucher!
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
-                    <button
-                      onClick={() => navigateToPage('home')}
-                      className={`flex-1 py-3 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold ${
-                        theme === 'light'
-                          ? 'border-orange-500 text-orange-500 hover:bg-orange-50'
-                          : 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white'
-                      }`}
-                    >
-                      ← Kembali
-                    </button>
-                    <button
-                      onClick={handleCheckout}
-                      disabled={!form.name || !form.phone || !form.address || !form.paymentMethod}
-                      className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
-                    >
-                      💳 Bayar Sekarang
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-      </main>
-
-      {showSuccessPopup && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 backdrop-blur-sm p-4">
-          <div className={`p-6 md:p-8 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border max-w-md w-full text-center transition-all duration-300 ${
-            theme === 'light' 
-              ? 'bg-white border-orange-200' 
-              : 'bg-gray-800 border-gray-700 text-white'
-          }`}>
-            <div className="text-6xl text-green-500 animate-bounce">✓</div>
-            <h3 className="text-xl md:text-2xl font-semibold">Pesanan Berhasil!</h3>
-            <p className={`text-sm md:text-base ${
-              theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-            }`}>
-              Terima kasih telah berbelanja di Soccer Ball Shop. 
-              {form.paymentMethod && ` Pembayaran dengan ${paymentMethods.find(p => p.id === form.paymentMethod)?.name} berhasil. Pesananmu akan kami siapkan!`}
-            </p>
-            <button
-              className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-              onClick={() => {
-                setShowSuccessPopup(false)
-                navigateToPage('home')
-                setForm({ name: '', phone: '', address: '', code: '', paymentMethod: '', notes: '' })
-              }}
-            >
-              Kembali ke Home
-            </button>
-          </div>
+          </aside>
         </div>
       )}
 
-      {currentPage !== 'about' && <Footer />}
+      {currentPage === 'cart' && (
+        <div className={`max-w-4xl mx-auto rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm transition-all duration-300 ${
+          theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
+        } ${pageTransition ? 'animate-page-exit' : 'animate-page-enter'}`}>
+          <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 flex items-center gap-2">
+            🛒 Checkout
+          </h2>
+          
+          {cart.length === 0 ? (
+            <div className="text-center py-8 md:py-12">
+              <div className="text-6xl mb-4 animate-bounce">🛒</div>
+              <p className={`text-lg mb-6 ${
+                theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+              }`}>Keranjang Anda kosong</p>
+              <button
+                onClick={() => navigateToPage('home')}
+                className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold transform hover:scale-105 active:scale-95"
+              >
+                Belanja Sekarang
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+              <div className="lg:col-span-2">
+                <h3 className="font-semibold text-lg mb-4">Items dalam Keranjang</h3>
+                <div className="space-y-3 md:space-y-4">
+                  {cart.map((item, index) => (
+                    <CheckoutCartItem key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
+                  ))}
+                </div>
+              </div>
 
-      <style jsx>{`
-        .theme-transition * {
-          transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+              <div className="space-y-4 md:space-y-6">
+                <h3 className="font-semibold text-lg">Informasi Pelanggan</h3>
+                
+                <div>
+                  <label className="block text-sm font-medium mb-2">Nama Lengkap *</label>
+                  <input
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    placeholder="Masukkan nama lengkap"
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+                        : 'bg-white border-gray-300'
+                    }`}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Nomor Telepon *</label>
+                  <PhoneInputWithFlag 
+                    value={form.phone}
+                    onChange={(value) => setForm({ ...form, phone: value })}
+                    theme={theme}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2">Alamat Lengkap *</label>
+                  <SimpleAddressAutocomplete 
+                    value={form.address}
+                    onChange={(value) => setForm({ ...form, address: value })}
+                    theme={theme}
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Mulai ketik nama jalan, contoh: "Jl. Kalideres" atau "Daan Mogot"
+                  </p>
+                </div>
+
+<div>
+  <label className="block text-sm font-medium mb-2">Kode Diskon (Opsional)</label>
+  <input
+    value={form.code}
+    onChange={(e) => setForm({ ...form, code: e.target.value })}
+    placeholder="Masukkan kode diskon"
+    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+      theme === 'dark' 
+        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+        : 'bg-white border-gray-300'
+    }`}
+  />
+  {voucherApplied && (
+    <div className="text-sm text-green-600 mt-1 animate-pulse">
+      ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
+    </div>
+  )}
+  {form.code && !voucherApplied && (
+    <div className="text-sm text-red-600 mt-1">
+      ❌ Kode voucher tidak valid
+    </div>
+  )}
+</div>
+<div>
+  <label className="block text-sm font-medium mb-2">Catatan untuk Penjual (Opsional)</label>
+  <textarea
+    value={form.notes}
+    onChange={(e) => setForm({ ...form, notes: e.target.value })}
+    placeholder="Contoh: Warna bola yang lebih terang, pengiriman cepat, dll."
+    rows={3}
+    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 resize-none ${
+      theme === 'dark' 
+        ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
+        : 'bg-white border-gray-300'
+    }`}
+  />
+  <p className="text-xs text-gray-500 mt-1">
+    Berikan catatan khusus untuk pesanan Anda (warna, pengiriman, dll)
+  </p>
+</div>
+
+                <div className="payment-container relative">
+                  <label className="block text-sm font-medium mb-2">Metode Pembayaran *</label>
+                  <button
+                    onClick={() => setPaymentOpen(!paymentOpen)}
+                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-left flex justify-between items-center transition-all duration-300 transform hover:scale-105 ${
+                      theme === 'dark' 
+                        ? 'bg-gray-700 border-gray-600 text-white' 
+                        : 'bg-white border-gray-300'
+                    }`}
+                  >
+                    <span>
+                      {form.paymentMethod ? 
+                        paymentMethods.find(p => p.id === form.paymentMethod)?.name : 
+                        'Pilih metode pembayaran'
+                      }
+                    </span>
+                    <span className={`transition-transform duration-300 ${paymentOpen ? 'rotate-180' : ''}`}>▼</span>
+                  </button>
+                  
+                  {paymentOpen && (
+                    <div className={`absolute top-full left-0 right-0 border rounded-lg shadow-2xl z-50 max-h-60 overflow-y-auto mt-1 animate-dropdown transition-all duration-300 ${
+                      theme === 'light' 
+                        ? 'bg-white border-gray-200' 
+                        : 'bg-gray-800 border-gray-600'
+                    }`}>
+                      {paymentMethods.map((method) => (
+                        <div
+                          key={method.id}
+                          onClick={() => {
+                            setForm({ ...form, paymentMethod: method.id })
+                            setPaymentOpen(false)
+                          }}
+                          className={`p-3 border-b cursor-pointer transition-all duration-200 transform hover:scale-105 ${
+                            form.paymentMethod === method.id 
+                              ? theme === 'light'
+                                ? 'bg-orange-100 border-orange-500'
+                                : 'bg-orange-900 border-orange-500'
+                              : theme === 'light'
+                              ? 'hover:bg-orange-50 border-gray-200'
+                              : 'hover:bg-gray-700 border-gray-600'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3">
+                            <img
+                              src={method.icon}
+                              alt={method.name}
+                              className="w-6 h-6 object-contain"
+                            />
+                            <div>
+                              <div className="font-semibold">{method.name}</div>
+                              <div className={`text-xs ${
+                                theme === 'light' ? 'text-gray-600' : 'text-gray-400'
+                              }`}>{method.description}</div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="border-t pt-4 animate-total-update" style={{
+                  borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
+                }}>
+                  <div className="flex justify-between text-lg font-semibold">
+                    <span>Total Items:</span>
+                    <span className="animate-quantity-bounce">{totalItems} items</span>
+                  </div>
+                  <div className="flex justify-between text-xl font-bold mt-2">
+                    <span>Total Pembayaran:</span>
+                    <span className="text-orange-600 animate-price-spring">
+                      Rp {animatedTotalPrice.toLocaleString()}
+                    </span>
+                  </div>
+                  {voucherApplied && (
+                    <div className="text-sm text-green-600 mt-2 bg-green-50 p-2 rounded animate-pulse">
+                      🎉 Hemat {Math.round((calculateDiscount(1, form.code) - getDiscount(1)) * 100)}% dengan voucher!
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
+                  <button
+                    onClick={() => navigateToPage('home')}
+                    className={`flex-1 py-3 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold ${
+                      theme === 'light'
+                        ? 'border-orange-500 text-orange-500 hover:bg-orange-50'
+                        : 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white'
+                    }`}
+                  >
+                    ← Kembali
+                  </button>
+                  <button
+                    onClick={handleCheckout}
+                    disabled={!form.name || !form.phone || !form.address || !form.paymentMethod}
+                    className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
+                  >
+                    💳 Bayar Sekarang
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </main>
+
+    {showSuccessPopup && (
+      <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 backdrop-blur-sm p-4">
+        <div className={`p-6 md:p-8 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border max-w-md w-full text-center transition-all duration-300 ${
+          theme === 'light' 
+            ? 'bg-white border-orange-200' 
+            : 'bg-gray-800 border-gray-700 text-white'
+        }`}>
+          <div className="text-6xl text-green-500 animate-bounce">✓</div>
+          <h3 className="text-xl md:text-2xl font-semibold">Pesanan Berhasil!</h3>
+          <p className={`text-sm md:text-base ${
+            theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+          }`}>
+            Terima kasih telah berbelanja di Soccer Ball Shop. 
+            {form.paymentMethod && ` Pembayaran dengan ${paymentMethods.find(p => p.id === form.paymentMethod)?.name} berhasil. Pesananmu akan kami siapkan!`}
+          </p>
+<button
+  className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+  onClick={() => {
+    setShowSuccessPopup(false)
+    navigateToPage('home')
+    setForm({ name: '', phone: '', address: '', code: '', paymentMethod: '', notes: '' })
+  }}
+>
+  Kembali ke Home
+</button>
+        </div>
+      </div>
+    )}
+
+    {currentPage !== 'about' && <Footer />}
+
+    <style jsx>{`
+      .theme-transition * {
+        transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease !important;
+      }
+      
+      .animate-fadeIn {
+        animation: fadeIn 0.3s ease-out forwards;
+      }
+      @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.9); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      .animate-bounce {
+        animation: bounce 0.6s ease infinite alternate;
+      }
+      @keyframes bounce {
+        from { transform: translateY(0); }
+        to { transform: translateY(-10px); }
+      }
+      .animate-cart-bounce {
+        animation: cartBounce 0.5s ease-out;
+      }
+      @keyframes cartBounce {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+      }
+      .animate-float1 {
+        animation: float1 6s ease-in-out infinite;
+      }
+      .animate-float2 {
+        animation: float2 8s ease-in-out infinite;
+      }
+      .animate-float3 {
+        animation: float3 7s ease-in-out infinite;
+      }
+      .animate-float4 {
+        animation: float4 10s ease-in-out infinite;
+      }
+      .animate-float5 {
+        animation: float5 9s ease-in-out infinite;
+      }
+      @keyframes float1 {
+        0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+        33% { transform: translateY(-30px) translateX(20px) rotate(120deg); }
+        66% { transform: translateY(15px) translateX(-15px) rotate(240deg); }
+      }
+      @keyframes float2 {
+        0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
+        50% { transform: translateY(25px) translateX(-25px) scale(1.1); }
+      }
+      @keyframes float3 {
+        0%, 100% { transform: translateY(0px) translateX(0px); }
+        25% { transform: translateY(-20px) translateX(-10px); }
+        75% { transform: translateY(10px) translateX(15px); }
+      }
+      @keyframes float4 {
+        0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
+        50% { transform: translateY(35px) translateX(20px) rotate(180deg); }
+      }
+      @keyframes float5 {
+        0%, 100% { transform: translateY(0px) translateX(0px); }
+        33% { transform: translateY(-15px) translateX(25px); }
+        66% { transform: translateY(20px) translateX(-10px); }
+      }
+      .animate-slide-up {
+        animation: slideUp 0.3s ease-out forwards;
+      }
+      @keyframes slideUp {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+      }
+      .animate-pulse-gentle {
+        animation: pulseGentle 3s ease-in-out infinite;
+      }
+      @keyframes pulseGentle {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.8; }
+      }
+      .animate-pulse-slow {
+        animation: pulseSlow 2s ease-in-out infinite;
+      }
+      @keyframes pulseSlow {
+        0%, 100% { opacity: 1; transform: scale(1); }
+        50% { opacity: 0.9; transform: scale(1.05); }
+      }
+      .animate-spin-slow {
+        animation: spin 20s linear infinite;
+      }
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .animate-price-change {
+        animation: priceChange 0.5s ease-out;
+      }
+      @keyframes priceChange {
+        0% { transform: scale(0.95); opacity: 0.7; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .animate-price-spring {
+        animation: priceSpring 0.4s ease-out;
+      }
+      @keyframes priceSpring {
+        0% { transform: scale(1); color: #ea580c; }
+        50% { transform: scale(1.1); color: #dc2626; }
+        100% { transform: scale(1); color: #ea580c; }
+      }
+      .animate-strike {
+        animation: strike 0.3s ease-out;
+      }
+      @keyframes strike {
+        0% { transform: scaleX(0); }
+        100% { transform: scaleX(1); }
+      }
+      .animate-fade-in {
+        animation: fadeIn 0.5s ease-out;
+      }
+      .animate-fade-in-delayed {
+        animation: fadeIn 1s ease-out 0.5s both;
+      }
+      .animate-dropdown {
+        animation: dropdown 0.2s ease-out;
+      }
+      @keyframes dropdown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+      .animate-total-update {
+        animation: totalUpdate 0.3s ease-out;
+      }
+      @keyframes totalUpdate {
+        0% { 
+          background-color: ${theme === 'light' ? 'rgba(255, 247, 237, 0.5)' : 'rgba(55, 65, 81, 0.5)'}; 
         }
-        
-        .animate-fadeIn {
-          animation: fadeIn 0.3s ease-out forwards;
+        100% { background-color: transparent; }
+      }
+      .animate-quantity-bounce {
+        animation: quantityBounce 0.3s ease-out;
+      }
+      @keyframes quantityBounce {
+        0% { transform: scale(1); color: inherit; }
+        50% { transform: scale(1.3); color: #ea580c; }
+        100% { transform: scale(1); color: inherit; }
+      }
+      .animate-item-slide-in {
+        animation: itemSlideIn 0.3s ease-out;
+      }
+      @keyframes itemSlideIn {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      .animate-variant-bounce {
+        animation: variantBounce 0.3s ease-out;
+      }
+      @keyframes variantBounce {
+        0% { transform: scale(0.95); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+      .animate-tag-select {
+        animation: tagSelect 0.3s ease-out;
+      }
+      @keyframes tagSelect {
+        0% { transform: scale(0.95); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+      }
+      .animate-page-enter {
+        animation: pageEnter 0.6s ease-out forwards;
+      }
+      @keyframes pageEnter {
+        from { 
+          opacity: 0; 
+          transform: scale(0.8) translateY(20px); 
         }
-        @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.9); }
-          to { opacity: 1; transform: scale(1); }
+        to { 
+          opacity: 1; 
+          transform: scale(1) translateY(0); 
         }
-        .animate-bounce {
-          animation: bounce 0.6s ease infinite alternate;
+      }
+      .animate-page-exit {
+        animation: pageExit 0.3s ease-in forwards;
+      }
+      @keyframes pageExit {
+        from { 
+          opacity: 1; 
+          transform: scale(1) translateY(0); 
         }
-        @keyframes bounce {
-          from { transform: translateY(0); }
-          to { transform: translateY(-10px); }
+        to { 
+          opacity: 0; 
+          transform: scale(0.9) translateY(-10px); 
         }
-        .animate-cart-bounce {
-          animation: cartBounce 0.5s ease-out;
-        }
-        @keyframes cartBounce {
-          0% { transform: scale(1); }
-          50% { transform: scale(1.3); }
-          100% { transform: scale(1); }
-        }
-        .animate-float1 {
-          animation: float1 6s ease-in-out infinite;
-        }
-        .animate-float2 {
-          animation: float2 8s ease-in-out infinite;
-        }
-        .animate-float3 {
-          animation: float3 7s ease-in-out infinite;
-        }
-        .animate-float4 {
-          animation: float4 10s ease-in-out infinite;
-        }
-        .animate-float5 {
-          animation: float5 9s ease-in-out infinite;
-        }
-        @keyframes float1 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          33% { transform: translateY(-30px) translateX(20px) rotate(120deg); }
-          66% { transform: translateY(15px) translateX(-15px) rotate(240deg); }
-        }
-        @keyframes float2 {
-          0%, 100% { transform: translateY(0px) translateX(0px) scale(1); }
-          50% { transform: translateY(25px) translateX(-25px) scale(1.1); }
-        }
-        @keyframes float3 {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          25% { transform: translateY(-20px) translateX(-10px); }
-          75% { transform: translateY(10px) translateX(15px); }
-        }
-        @keyframes float4 {
-          0%, 100% { transform: translateY(0px) translateX(0px) rotate(0deg); }
-          50% { transform: translateY(35px) translateX(20px) rotate(180deg); }
-        }
-        @keyframes float5 {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          33% { transform: translateY(-15px) translateX(25px); }
-          66% { transform: translateY(20px) translateX(-10px); }
-        }
-        .animate-slide-up {
-          animation: slideUp 0.3s ease-out forwards;
-        }
-        @keyframes slideUp {
-          from { transform: translateY(100%); }
-          to { transform: translateY(0); }
-        }
-        .animate-pulse-gentle {
-          animation: pulseGentle 3s ease-in-out infinite;
-        }
-        @keyframes pulseGentle {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.8; }
-        }
-        .animate-pulse-slow {
-          animation: pulseSlow 2s ease-in-out infinite;
-        }
-        @keyframes pulseSlow {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.9; transform: scale(1.05); }
-        }
-        .animate-spin-slow {
-          animation: spin 20s linear infinite;
-        }
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        .animate-price-change {
-          animation: priceChange 0.5s ease-out;
-        }
-        @keyframes priceChange {
-          0% { transform: scale(0.95); opacity: 0.7; }
-          100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-price-spring {
-          animation: priceSpring 0.4s ease-out;
-        }
-        @keyframes priceSpring {
-          0% { transform: scale(1); color: #ea580c; }
-          50% { transform: scale(1.1); color: #dc2626; }
-          100% { transform: scale(1); color: #ea580c; }
-        }
-        .animate-strike {
-          animation: strike 0.3s ease-out;
-        }
-        @keyframes strike {
-          0% { transform: scaleX(0); }
-          100% { transform: scaleX(1); }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out;
-        }
-        .animate-fade-in-delayed {
-          animation: fadeIn 1s ease-out 0.5s both;
-        }
-        .animate-dropdown {
-          animation: dropdown 0.2s ease-out;
-        }
-        @keyframes dropdown {
-          from { opacity: 0; transform: translateY(-10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-total-update {
-          animation: totalUpdate 0.3s ease-out;
-        }
-        @keyframes totalUpdate {
-          0% { 
-            background-color: ${theme === 'light' ? 'rgba(255, 247, 237, 0.5)' : 'rgba(55, 65, 81, 0.5)'}; 
-          }
-          100% { background-color: transparent; }
-        }
-        .animate-quantity-bounce {
-          animation: quantityBounce 0.3s ease-out;
-        }
-        @keyframes quantityBounce {
-          0% { transform: scale(1); color: inherit; }
-          50% { transform: scale(1.3); color: #ea580c; }
-          100% { transform: scale(1); color: inherit; }
-        }
-        .animate-item-slide-in {
-          animation: itemSlideIn 0.3s ease-out;
-        }
-        @keyframes itemSlideIn {
-          from { opacity: 0; transform: translateX(-10px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .animate-variant-bounce {
-          animation: variantBounce 0.3s ease-out;
-        }
-        @keyframes variantBounce {
-          0% { transform: scale(0.95); }
-          50% { transform: scale(1.05); }
-          100% { transform: scale(1); }
-        }
-        .animate-tag-select {
-          animation: tagSelect 0.3s ease-out;
-        }
-        @keyframes tagSelect {
-          0% { transform: scale(0.95); }
-          50% { transform: scale(1.05); }
-          100% { transform: scale(1); }
-        }
-        .animate-page-enter {
-          animation: pageEnter 0.6s ease-out forwards;
-        }
-        @keyframes pageEnter {
-          from { 
-            opacity: 0; 
-            transform: scale(0.8) translateY(20px); 
-          }
-          to { 
-            opacity: 1; 
-            transform: scale(1) translateY(0); 
-          }
-        }
-        .animate-page-exit {
-          animation: pageExit 0.3s ease-in forwards;
-        }
-        @keyframes pageExit {
-          from { 
-            opacity: 1; 
-            transform: scale(1) translateY(0); 
-          }
-          to { 
-            opacity: 0; 
-            transform: scale(0.9) translateY(-10px); 
-          }
-        }
-        .line-clamp-2 {
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        .min-h-\[380px\] {
-          min-height: 380px;
-        }
-        .mt-auto {
-          margin-top: auto;
-        }
+      }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .min-h-\[380px\] {
+        min-height: 380px;
+      }
+      .mt-auto {
+        margin-top: auto;
+      }
         .animate-product-card {
-          animation: productCardIn 0.6s ease-out forwards;
-          opacity: 0;
-          transform: translateY(20px);
-        }
-        
-        @keyframes productCardIn {
-          from {
-            opacity: 0;
-            transform: translateY(20px) scale(0.95);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-          }
-        }
-        
-        .animate-tag-select {
-          animation: tagSelect 0.4s ease-out;
-        }
-        
-        @keyframes tagSelect {
-          0% {
-            transform: scale(0.95);
-            box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
-          }
-          50% {
-            transform: scale(1.05);
-            box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
-          }
-          100% {
-            transform: scale(1);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-          }
-        }
-        
-        .animate-filter-transition {
-          animation: filterTransition 0.3s ease-out;
-        }
-        
-        @keyframes filterTransition {
-          0% {
-            opacity: 1;
-            transform: scale(1);
-          }
-          50% {
-            opacity: 0.5;
-            transform: scale(0.98);
-          }
-          100% {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-        .animate-tooltip-fade {
-          animation: tooltipFade 0.3s ease-out forwards;
-        }
-
-        @keyframes tooltipFade {
-          from {
-            opacity: 0;
-            transform: translate(-50%, -100%) scale(0.8);
-          }
-          to {
-            opacity: 1;
-            transform: translate(-50%, -100%) scale(1);
-          }
-        }
-      `}</style>
+    animation: productCardIn 0.6s ease-out forwards;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  
+  @keyframes productCardIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  .animate-tag-select {
+    animation: tagSelect 0.4s ease-out;
+  }
+  
+  @keyframes tagSelect {
+    0% {
+      transform: scale(0.95);
+      box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
+    }
+    100% {
+      transform: scale(1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+  
+  .animate-filter-transition {
+    animation: filterTransition 0.3s ease-out;
+  }
+  
+  @keyframes filterTransition {
+    0% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.5;
+      transform: scale(0.98);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+    `}</style>
     </div>
   )
 }
