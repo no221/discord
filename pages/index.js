@@ -597,12 +597,15 @@ if (voucherCode) {
   const animatedTotalPrice = useAnimatedNumber(totalPrice, 500)
 
   useEffect(() => {
-    if (form.code && voucherDiscounts[form.code.toLowerCase()]) {
-      setVoucherApplied(true)
-    } else {
-      setVoucherApplied(false)
-    }
-  }, [form.code])
+  if (form.code) {
+    const matchedKey = Object.keys(voucherDiscounts).find(
+      key => key.toLowerCase() === form.code.toLowerCase()
+    )
+    setVoucherApplied(!!matchedKey)
+  } else {
+    setVoucherApplied(false)
+  }
+}, [form.code])
 
   useEffect(() => {
     if (selectedProduct && currentPage === 'product') {
