@@ -551,12 +551,15 @@ export default function Home() {
   const calculateDiscount = useCallback((quantity, voucherCode = '') => {
     let discountRate = getDiscount(quantity)
     
-    if (voucherCode) {
-      const voucherDiscount = voucherDiscounts[voucherCode.toLowerCase()]
-      if (voucherDiscount) {
-        discountRate = Math.max(discountRate, voucherDiscount)
-      }
-    }
+if (voucherCode) {
+  const matchedKey = Object.keys(voucherDiscounts).find(
+    key => key.toLowerCase() === voucherCode.toLowerCase()
+  )
+  if (matchedKey) {
+    const voucherDiscount = voucherDiscounts[matchedKey]
+    discountRate = Math.max(discountRate, voucherDiscount)
+  }
+}
     
     return discountRate
   }, [])
