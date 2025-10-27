@@ -73,27 +73,6 @@ const PhoneInputWithFlag = ({ value, onChange, theme }) => {
     </div>
   );
 };
-const [filterAnimating, setFilterAnimating] = useState(false)
-const [filteredProducts, setFilteredProducts] = useState(products)
-useEffect(() => {
-  setFilterAnimating(true)
-  const timer = setTimeout(() => {
-    const filtered = products.filter(product =>
-      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
-    )
-    setFilteredProducts(filtered)
-    setFilterAnimating(false)
-  }, 300)
-  
-  return () => clearTimeout(timer)
-}, [searchTerm, selectedTag])
-
-const handleTagChange = useCallback((tag) => {
-  setFilterAnimating(true)
-  setSelectedTag(tag)
-  }, [])
   
 // Component Address Autocomplete
 const SimpleAddressAutocomplete = ({ value, onChange, theme }) => {
@@ -447,6 +426,8 @@ export default function Home() {
   const [qty, setQty] = useState(1)
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedTag, setSelectedTag] = useState('all')
+  const [filterAnimating, setFilterAnimating] = useState(false)
+  const [filteredProducts, setFilteredProducts] = useState(products)
   const [form, setForm] = useState({
     name: '',
     phone: '',
@@ -542,14 +523,35 @@ export default function Home() {
   }, []);
 
   const navigateToPage = useCallback((page) => {
-    setPageTransition(true);
+  setPageTransition(true);
+  setTimeout(() => {
+    setCurrentPage(page);
     setTimeout(() => {
-      setCurrentPage(page);
-      setTimeout(() => {
-        setPageTransition(false);
-      }, 300);
+      setPageTransition(false);
     }, 300);
-  }, []);
+  }, 300);
+}, []);
+
+
+const handleTagChange = useCallback((tag) => {
+  setFilterAnimating(true);
+  setSelectedTag(tag);
+}, []);
+
+useEffect(() => {
+  setFilterAnimating(true);
+  const timer = setTimeout(() => {
+    const filtered = products.filter(product =>
+      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
+    );
+    setFilteredProducts(filtered);
+    setFilterAnimating(false);
+  }, 300);
+  
+  return () => clearTimeout(timer);
+}, [searchTerm, selectedTag]);
 
   setTimeout(() => {
     const filtered = products.filter(product =>
