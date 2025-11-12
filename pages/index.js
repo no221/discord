@@ -553,17 +553,29 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [searchTerm, selectedTag]);
 
+  // FIXED: Improved getRecommendedProducts function
   const getRecommendedProducts = useCallback((currentProduct) => {
-    if (!currentProduct) return [];
+    if (!currentProduct || !currentProduct.tags) return [];
     
-    return products
-      .filter(p => 
-        p.id !== currentProduct.id && 
-        p.tags && 
-        currentProduct.tags && 
-        p.tags.some(tag => currentProduct.tags.includes(tag))
-      )
-      .slice(0, 3);
+    // Get all products that share at least one tag with current product
+    const recommended = products.filter(p => 
+      p.id !== currentProduct.id && 
+      p.tags && 
+      p.tags.some(tag => currentProduct.tags.includes(tag))
+    );
+    
+    // Remove duplicates by id and shuffle for variety
+    const uniqueRecommended = recommended.reduce((acc, product) => {
+      if (!acc.find(p => p.id === product.id)) {
+        acc.push(product);
+      }
+      return acc;
+    }, []);
+    
+    // Shuffle array for variety
+    const shuffled = [...uniqueRecommended].sort(() => Math.random() - 0.5);
+    
+    return shuffled.slice(0, 3);
   }, []);
 
   const calculateDiscount = useCallback((quantity, voucherCode = '') => {
@@ -634,12 +646,15 @@ export default function Home() {
     }
   }, [selectedProduct, currentImageIndex, currentPage])
 
+  // FIXED: Improved image change animation
   const handleImageChange = useCallback((newIndex) => {
     setImageAnim(true)
     setTimeout(() => {
       setCurrentImageIndex(newIndex)
-      setImageAnim(false)
-    }, 300)
+      setTimeout(() => {
+        setImageAnim(false)
+      }, 50)
+    }, 200)
   }, [])
 
   const addToCart = useCallback((product, variant, quantity) => {
@@ -688,11 +703,13 @@ export default function Home() {
     setQuantityUpdateKey(prev => prev + 1)
   }, [cart])
 
+  // FIXED: Improved product detail opening
   const openProductDetail = useCallback((product) => {
     setSelectedProduct(product)
     setSelectedVariant(product.variants[1])
     setCurrentImageIndex(0)
     setQty(1)
+    setImageAnim(false) // Reset animation state
     navigateToPage('product')
     setCartOpen(false)
   }, [navigateToPage])
