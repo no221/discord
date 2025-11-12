@@ -18,7 +18,7 @@ Ukuran dan Spesifikasi:
 - Size 4: Diameter 20 cm, Berat 420 g
 - Size 5: Diameter 22 cm, Berat 430 g
 - Size 6: Diameter 23 cm, Berat 450 g`,
-tags: ['futsal', 'professional', 'match', 'outdoor']
+    tags: ['futsal', 'professional', 'match', 'outdoor', 'sepakbola']
   },
   {
     id: 2,
@@ -39,7 +39,7 @@ Ukuran dan Spesifikasi:
 - Size 4: Diameter 20.5 cm, Berat 423 g
 - Size 5: Diameter 22.3 cm, Berat 430 g
 - Size 6: Diameter 23.6 cm, Berat 440 g`,
-tags: ['soccer', 'match', 'outdoor']
+    tags: ['soccer', 'match', 'outdoor', 'sepakbola']
   },
   {
     id: 3,
@@ -60,7 +60,7 @@ Ukuran dan Spesifikasi:
 - Size 4: Diameter 22 cm, Berat 410 g
 - Size 5: Diameter 23 cm, Berat 430 g
 - Size 6: Diameter 24 cm, Berat 450 g`,
-    tags: ['soccer', 'training', 'outdoor']
+    tags: ['soccer', 'training', 'outdoor', 'sepakbola']
   },
   {
     id: 4,
@@ -81,7 +81,7 @@ Ukuran dan Spesifikasi:
 Size 4: Diameter 21 cm, Berat 425 g
 Size 5: Diameter 23 cm, Berat 435 g
 Size 6: Diameter 25 cm, Berat 455 g`,
-    tags: ['futsal', 'match', 'professional']
+    tags: ['futsal', 'match', 'professional', 'sepakbola']
   },
   {
     id: 5,
@@ -102,7 +102,7 @@ Ukuran dan Spesifikasi:
 Size 4: Diameter 22 cm, Berat 415 g
 Size 5: Diameter 23 cm, Berat 430 g
 Size 6: Diameter 24 cm, Berat 445 g`,
-    tags: ['soccer', 'premium']
+    tags: ['soccer', 'premium', 'sepakbola']
   },
   {
     id: 6,
@@ -123,7 +123,7 @@ Ukuran dan Spesifikasi:
 Size 4: Diameter 21 cm, Berat 420 g
 Size 5: Diameter 22 cm, Berat 430 g
 Size 6: Diameter 23 cm, Berat 440 g`,
-    tags: ['futsal', 'training']
+    tags: ['futsal', 'training', 'sepakbola']
   },
   {
     id: 7,
@@ -207,7 +207,7 @@ Dirancang dengan kompartemen terpisah untuk menjaga kebersihan dan kenyamanan, c
 Material tahan air dan mudah dibersihkan, dilengkapi dengan ventilasi agar barang tetap kering dan bebas bau. 
 Kapasitas cukup untuk sepatu ukuran besar, bola standar, botol minum, handuk, dan aksesoris lainnya. 
 Cocok digunakan saat latihan, pertandingan, atau perjalanan singkat ke lapangan.`,
-    tags: ['accessory']
+    tags: ['aksesoris']
   },
   {
     id: 11,
@@ -224,7 +224,7 @@ Terbuat dari bahan microfiber berkualitas tinggi yang menyerap keringat dengan e
 Tekstur lembut dan tidak mengiritasi kulit, ideal untuk penggunaan intensif di gym, lapangan, atau outdoor. 
 Ukuran 30 cm x 76 cm pas untuk dibawa dalam tas olahraga tanpa memakan banyak ruang. 
 Mudah dicuci dan cepat kering, cocok untuk atlet, pelajar, atau siapa pun yang aktif bergerak.`,
-    tags: ['accessory']
+    tags: ['aksesoris']
   },
   {
   id: 12,
