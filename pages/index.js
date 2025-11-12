@@ -1293,48 +1293,58 @@ export default function Home() {
 
       {currentPage !== 'about' && (
         <header className={`flex flex-col md:flex-row md:items-center justify-between mb-6 relative z-30 gap-4 md:gap-0 transition-all duration-300 ${
-          theme === 'dark' ? 'text-white' : ''
+          theme === 'dark' ? 'text-white' : 'text-gray-900' // Pastikan text-color default untuk light theme
         } ${pageTransition ? 'animate-page-exit' : 'animate-page-enter'}`}>
-          <div className="flex items-center justify-between w-full md:w-auto gap-4">
-            <h1 
-              className="text-xl md:text-2xl font-bold flex items-center gap-2 animate-pulse-gentle cursor-pointer transition-all duration-300"
-              style={{
-                color: theme === 'light' ? '#c2410c' : '#fdba74'
-              }}
-              onClick={() => navigateToPage('home')}
-            >
-              ⚽ Kickbyte - Steven
-            </h1>
-            <p className="text-xs text-gray-500 md:text-sm" 
-     style={{ 
-       color: theme === 'light' ? '#9ca3af' : '#d1d5db' 
-     }}
+          
+  {/* Bagian Logo dan Slogan */}
+  <div 
+    className="flex flex-col cursor-pointer" // Mengubah tata letak untuk Logo dan Slogan
+    onClick={() => navigateToPage('home')}
   >
-    Play Hard. Gear Smart
-  </p>
-</div>  
-            <div className="flex items-center gap-2">
-              <div 
-                className={`relative w-14 h-8 rounded-full p-1 cursor-pointer transition-all duration-500 ${
-                  theme === 'light' 
-                    ? 'bg-gradient-to-r from-orange-400 to-amber-400' 
-                    : 'bg-gradient-to-r from-gray-600 to-gray-700'
-                }`}
-                onClick={toggleTheme}
-              >
-                <div 
-                  className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-lg transform transition-all duration-500 ${
-                    theme === 'light' 
-                      ? 'left-1 translate-x-0' 
-                      : 'left-7 translate-x-0'
-                  }`}
-                >
-                  <div className="flex items-center justify-center w-full h-full">
-                    {theme === 'light' ? '☀️' : '🌙'}
-                  </div>
-                </div>
-              </div>
-            </div>
+    <h1 
+      className="text-xl md:text-2xl font-bold flex items-center gap-2 animate-pulse-gentle transition-colors duration-300"
+      style={{
+        color: theme === 'light' ? '#c2410c' : '#fdba74' // Warna Brand utama
+      }}
+    >
+      ⚽ Kickbyte - Steven
+    </h1>
+    <p 
+      className="text-xs text-left md:text-sm transition-colors duration-300" 
+      style={{ 
+        color: theme === 'light' ? '#9ca3af' : '#d1d5db' // Warna Slogan
+      }}
+    >
+      Play Hard. Gear Smart
+    </p>
+  </div>
+  
+  {/* Bagian Navigasi/Aksi (Di sini hanya ada Theme Toggle) */}
+  <div className="flex items-center gap-2">
+    {/* Theme Toggle Button */}
+    <div 
+      className={`relative w-14 h-8 rounded-full p-1 cursor-pointer transition-colors duration-500 flex items-center ${
+        theme === 'light' 
+          ? 'bg-gradient-to-r from-orange-400 to-amber-400' 
+          : 'bg-gradient-to-r from-gray-600 to-gray-700'
+      }`}
+      onClick={toggleTheme}
+    >
+      <div 
+        className={`absolute w-6 h-6 rounded-full bg-white shadow-lg transform transition-all duration-500 flex items-center justify-center ${
+          theme === 'light' 
+            ? 'left-1' // Posisi untuk Light Theme
+            : 'right-1' // Posisi untuk Dark Theme (Disesuaikan dari left-7)
+        }`}
+      >
+        <span role="img" aria-label={theme === 'light' ? 'Sun' : 'Moon'}>
+          {theme === 'light' ? '☀️' : '🌙'}
+        </span>
+      </div>
+    </div>
+  </div>
+</header>
+
             
             <div className="md:hidden relative">
               <button
