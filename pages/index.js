@@ -936,16 +936,6 @@ export default function Home() {
         theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
       } ${pageTransition ? "animate-page-exit" : "animate-page-enter"}`}
     >
-<div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-  <span
-    className={`font-bold text-4xl md:text-6xl tracking-widest select-none transform -rotate-12 opacity-10 ${
-      theme === 'light' ? 'text-gray-900' : 'text-white'
-    }`}
-    style={{ mixBlendMode: 'soft-light' }}
-  >
-    GAMINGTIME24/7
-  </span>
-</div>
       <div className="text-center mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
           Tentang Kami
@@ -1661,8 +1651,6 @@ export default function Home() {
               {selectedProduct.images.length > 1 && (
                 <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
                   {selectedProduct.images.map((_, index) => (
-// --- CHANGES ---
-// ganti className pada dot button:
 <button
   key={index}
   onClick={() => handleImageChange(index)}
@@ -1671,6 +1659,7 @@ export default function Home() {
       ? 'bg-orange-500 scale-125' 
       : theme === 'light'
         ? 'bg-gray-400 hover:bg-gray-500'
+
         : 'bg-white/90 hover:bg-white'
   }`}
 />
@@ -1701,32 +1690,24 @@ export default function Home() {
             <div className="mt-4 md:mt-6">
               <h4 className="font-semibold mb-3">Pilih Size:</h4>
               <div className="flex flex-wrap gap-2 md:gap-3">
-{selectedProduct.variants.map((variant) => {
-  const longSize = String(variant.size || '');
-  // pilih class berdasarkan panjang teks
-  const sizeTextClass = longSize.length > 14 ? 'text-xs md:text-sm' : 'text-sm md:text-base';
-  return (
-    <button
-      key={variant.size}
-      onClick={() => setSelectedVariant(variant)}
-      className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold transform hover:scale-105
-        ${selectedVariant.size === variant.size
-          ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
-          : theme === 'light'
-            ? 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
-            : 'bg-gray-700 text-gray-300 border-gray-600 hover:border-orange-500 hover:shadow-md'
-        }`}
-      style={{ minWidth: 72 }}
-    >
-      <div className={`leading-tight ${sizeTextClass} whitespace-normal break-words text-center`}>
-        {longSize.split(' ').length > 1 ? longSize.split(' ').slice(0,2).join('\n') : longSize}
-      </div>
-      <div className="mt-1 text-xs md:text-sm font-normal opacity-90">
-        Rp {variant.price.toLocaleString()}
-      </div>
-    </button>
-  )
-})}
+                {selectedProduct.variants.map((variant) => (
+                  <button
+                    key={variant.size}
+                    onClick={() => setSelectedVariant(variant)}
+                    className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base transform hover:scale-105 ${
+                      selectedVariant.size === variant.size
+                        ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
+                        : theme === 'light'
+                        ? 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
+                        : 'bg-gray-700 text-gray-300 border-gray-600 hover:border-orange-500 hover:shadow-md'
+                    }`}
+                  >
+                    {variant.size}<br/>
+                    <span className="text-xs md:text-sm font-normal">
+                      Rp {variant.price.toLocaleString()}
+                    </span>
+                  </button>
+                ))}
               </div>
             </div>
 
