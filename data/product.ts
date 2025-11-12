@@ -235,12 +235,12 @@ Mudah dicuci dan cepat kering, cocok untuk atlet, pelajar, atau siapa pun yang a
     { size: '27 inch', price: 16900000 }
   ],
   images: [
-    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop1.png',
-    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop2.png',
-    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop3.png',
-    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop4.png',
-    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop5.png',
-    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop6.png'
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/laptop1.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/laptop2.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/laptop3.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/laptop4.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/laptop5.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/laptop6.png'
   ],
   description: `Monitor Lenovo 4K OLED menghadirkan pengalaman visual premium dengan resolusi ultra-tajam dan warna akurat untuk gaming maupun desain profesional. 
 
