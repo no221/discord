@@ -1536,7 +1536,7 @@ export default function Home() {
           <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
             <h2 className={`text-xl font-semibold mb-4 md:mb-0 ${
               theme === 'dark' ? 'text-white' : ''
-            }`}>Semua Produk Bola</h2>
+            }`}>Semua Produk Kami</h2>
             
             <div className="flex flex-wrap gap-2">
               {allTags.map(tag => (
