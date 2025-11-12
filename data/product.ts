@@ -461,7 +461,7 @@ Varian:
   images: [
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder1.webp',
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder2.webp',
-        'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder3.webp,
+        'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder3.webp',
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder4.webp',
         'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder5.webp',
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder6.webp',
