@@ -417,6 +417,35 @@ const LoadingScreen = () => (
   </div>
 );
 
+// FIXED: Improved Variant Button Component untuk handle teks panjang
+const VariantButton = ({ variant, isSelected, onClick, theme }) => {
+  const truncateText = (text, maxLength = 20) => {
+    if (text.length <= maxLength) return text;
+    return text.substring(0, maxLength) + '...';
+  };
+
+  return (
+    <button
+      onClick={onClick}
+      className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base transform hover:scale-105 min-h-[60px] flex flex-col items-center justify-center text-center w-full ${
+        isSelected
+          ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
+          : theme === 'light'
+          ? 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
+          : 'bg-gray-700 text-gray-300 border-gray-600 hover:border-orange-500 hover:shadow-md'
+      }`}
+      title={variant.size} // Tooltip untuk teks lengkap
+    >
+      <span className="font-semibold leading-tight">
+        {truncateText(variant.size)}
+      </span>
+      <span className="text-xs md:text-sm font-normal mt-1">
+        Rp {variant.price.toLocaleString()}
+      </span>
+    </button>
+  );
+};
+
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home')
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -706,7 +735,13 @@ export default function Home() {
   // FIXED: Improved product detail opening
   const openProductDetail = useCallback((product) => {
     setSelectedProduct(product)
-    setSelectedVariant(product.variants[1])
+    // FIXED: Handle jika variants tidak ada atau kosong
+    if (product.variants && product.variants.length > 0) {
+      setSelectedVariant(product.variants[0]) // Default ke variant pertama
+    } else {
+      // Fallback jika tidak ada variants
+      setSelectedVariant({ size: 'Default', price: 0 })
+    }
     setCurrentImageIndex(0)
     setQty(1)
     setImageAnim(false) // Reset animation state
@@ -1594,14 +1629,17 @@ export default function Home() {
                   )}
                   
                   <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105">
-                    Rp {product.variants[1].price.toLocaleString()}
+                    {/* FIXED: Handle jika variants tidak ada */}
+                    Rp {product.variants && product.variants.length > 0 ? product.variants[0].price.toLocaleString() : '0'}
                   </p>
                   
                   <div className="mt-auto pt-3">
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
-                        addToCart(product, product.variants[1], 1)
+                        // FIXED: Handle jika variants tidak ada
+                        const variantToAdd = product.variants && product.variants.length > 0 ? product.variants[0] : { size: 'Default', price: 0 }
+                        addToCart(product, variantToAdd, 1)
                       }}
                       className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
                     >
@@ -1685,26 +1723,24 @@ export default function Home() {
             )}
             
             <div className="mt-4 md:mt-6">
-              <h4 className="font-semibold mb-3">Pilih Size:</h4>
-              <div className="flex flex-wrap gap-2 md:gap-3">
-                {selectedProduct.variants.map((variant) => (
-                  <button
-                    key={variant.size}
-                    onClick={() => setSelectedVariant(variant)}
-                    className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base transform hover:scale-105 ${
-                      selectedVariant.size === variant.size
-                        ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
-                        : theme === 'light'
-                        ? 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
-                        : 'bg-gray-700 text-gray-300 border-gray-600 hover:border-orange-500 hover:shadow-md'
-                    }`}
-                  >
-                    {variant.size}<br/>
-                    <span className="text-xs md:text-sm font-normal">
-                      Rp {variant.price.toLocaleString()}
-                    </span>
-                  </button>
-                ))}
+              <h4 className="font-semibold mb-3">Pilih Varian:</h4>
+              {/* FIXED: Improved variant selection dengan grid yang lebih baik */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-3">
+                {selectedProduct.variants && selectedProduct.variants.length > 0 ? (
+                  selectedProduct.variants.map((variant) => (
+                    <VariantButton
+                      key={variant.size}
+                      variant={variant}
+                      isSelected={selectedVariant && selectedVariant.size === variant.size}
+                      onClick={() => setSelectedVariant(variant)}
+                      theme={theme}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center py-4 text-gray-500">
+                    Tidak ada varian tersedia
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1733,10 +1769,15 @@ export default function Home() {
               
               <button
                 onClick={() => {
-                  addToCart(selectedProduct, selectedVariant, qty)
-                  setQty(1)
+                  if (selectedVariant) {
+                    addToCart(selectedProduct, selectedVariant, qty)
+                    setQty(1)
+                  } else {
+                    alert('Pilih varian terlebih dahulu!')
+                  }
                 }}
-                className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg"
+                disabled={!selectedVariant}
+                className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg"
               >
                 + Add to Cart
               </button>
@@ -1812,7 +1853,8 @@ export default function Home() {
                     <div className={`text-xs md:text-sm transition-all duration-300 hover:scale-105 ${
                       theme === 'light' ? 'text-gray-600' : 'text-gray-300'
                     }`}>
-                      Rp {p.variants[1].price.toLocaleString()}
+                      {/* FIXED: Handle jika variants tidak ada */}
+                      Rp {p.variants && p.variants.length > 0 ? p.variants[0].price.toLocaleString() : '0'}
                     </div>
                     {p.tags && p.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1">
@@ -1836,7 +1878,9 @@ export default function Home() {
                     }`}
                     onClick={(e) => {
                       e.stopPropagation()
-                      addToCart(p, p.variants[1], 1)
+                      // FIXED: Handle jika variants tidak ada
+                      const variantToAdd = p.variants && p.variants.length > 0 ? p.variants[0] : { size: 'Default', price: 0 }
+                      addToCart(p, variantToAdd, 1)
                     }}
                   >
                     + Tambah
