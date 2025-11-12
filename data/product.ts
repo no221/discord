@@ -482,5 +482,45 @@ Varian:
 • Dual Hook – 2 controller + headset  
 • Premium Alloy – bahan aluminium, tampilan elegan & lebih kokoh.`,
   tags: ['holder', 'gaming setup', 'aksesoris', 'controller']
+},
+{
+  id: 19,
+  name: 'Lenovo ThinkPad P16 Gen 3 – Mobile Workstation Premium 2025',
+  variants: [
+    { size: 'Intel i7 + RTX A1000 + 16GB RAM + 512GB SSD', price: 32500000 },
+    { size: 'Intel i9 + RTX A2000 + 32GB RAM + 1TB SSD', price: 41500000 },
+    { size: 'Intel i9 + RTX 3000 Ada + 64GB RAM + 2TB SSD', price: 58900000 }
+  ],
+  images: [
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/LaptopP1.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/LaptopP2.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/LaptopP3.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/LaptopP4.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/LaptopP5.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/LaptopP6.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/LaptopP7.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/LaptopP8.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/LaptopP9.png'
+  ],
+  description: `Lenovo ThinkPad P16 Gen 3 adalah mobile workstation kelas profesional yang dirancang untuk beban kerja berat seperti CAD, 3D rendering, data engineering, hingga AI development.  
+Menggunakan GPU NVIDIA RTX seri profesional dan prosesor Intel Core terbaru, laptop ini memberikan performa tinggi di mana saja.
+
+Spesifikasi Utama:
+• Prosesor: Intel Core i7/i9 14th Gen  
+• GPU: NVIDIA RTX A-Series (A1000/A2000/3000 Ada)  
+• RAM: Hingga 64GB DDR5  
+• Storage: Hingga 2TB PCIe Gen4 NVMe SSD  
+• Layar: 16" WQXGA (2560×1600) IPS / OLED, 100% DCI-P3  
+• Sistem Keamanan: ThinkShield, fTPM, Fingerprint Reader  
+• Port: USB-C Thunderbolt 4, HDMI 2.1, USB-A, Audio Jack  
+• Sertifikasi: ISV Certified untuk software profesional (Autodesk, SolidWorks, Siemens NX)  
+• Baterai: Hingga 90Wh  
+• OS: Windows 11 Pro  
+
+Varian:
+• i7 + RTX A1000 – cocok untuk arsitek & engineer tingkat menengah  
+• i9 + RTX A2000 – performa tinggi untuk rendering dan CAD berat  
+• i9 + RTX 3000 Ada – konfigurasi tertinggi untuk AI, simulation, dan produksi profesional`,
+  tags: ['laptop', 'workstation', 'lenovo', 'gaming', 'professional']
 }
 ];
