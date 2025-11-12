@@ -448,6 +448,39 @@ Varian:
 • Medium – cocok untuk meja kerja minimalis  
 • Large – ruang gerak lebih luas untuk gaming FPS  
 • XXL – ukuran penuh untuk seluruh setup keyboard & mouse.`,
-  tags: ['mousepad', 'gaming', 'steelseries', 'aksesori']
+  tags: ['mousepad', 'gaming', 'steelseries', 'aksesoris']
+},
+{
+  id: 18,
+  name: 'Under Desk Controller Holder – Gantungan Stik & Headset Serbaguna',
+  variants: [
+    { size: 'Single Hook', price: 306000 },
+    { size: 'Dual Hook (2 Stik + Headset)', price: 359000 },
+    { size: 'Premium Alloy (Aluminium Matte)', price: 419000 }
+  ],
+  images: [
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder1.webp',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder2.webp',
+        'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder3.webp,
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder4.webp',
+        'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder5.webp',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Holder6.webp',
+  ],
+  description: `Under Desk Controller Holder adalah gantungan serbaguna yang dipasang di bawah meja untuk menyimpan stik game, headset, atau aksesori gaming lainnya.  
+Desainnya minimalis dan kuat, cocok untuk menjaga setup tetap rapi tanpa kabel berantakan.
+
+Spesifikasi Utama:
+• Material: ABS premium / Aluminium (varian Premium)  
+• Kapasitas: 1–2 controller + 1 headset  
+• Instalasi: 3M Adhesive atau sekrup (termasuk paket)  
+• Kompatibilitas: PS5, PS4, Xbox, Nintendo Switch Pro, dan semua model headset  
+• Warna: Hitam matte / Silver  
+• Dimensi: ±12 × 6 × 4 cm  
+
+Varian:
+• Single Hook – cukup untuk 1 controller  
+• Dual Hook – 2 controller + headset  
+• Premium Alloy – bahan aluminium, tampilan elegan & lebih kokoh.`,
+  tags: ['holder', 'gaming setup', 'aksesoris', 'controller']
 }
 ];
