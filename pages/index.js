@@ -554,27 +554,29 @@ export default function Home() {
   }, [searchTerm, selectedTag]);
 
   // FIXED: Improved getRecommendedProducts function
-  // --- CHANGES ---
-// replace existing getRecommendedProducts implementation with:
-const getRecommendedProducts = useCallback((currentProduct) => {
-  if (!currentProduct || !currentProduct.tags) return [];
-
-  // deterministic filter: produk dengan minimal 1 tag sama, urut berdasarkan jumlah tag yang sama (desc)
-  const recommended = products
-    .filter(p => p.id !== currentProduct.id && p.tags && p.tags.some(tag => currentProduct.tags.includes(tag)))
-    .map(p => ({
-      product: p,
-      score: p.tags.filter(t => currentProduct.tags.includes(t)).length
-    }))
-    .sort((a,b) => b.score - a.score) // sort by score desc -> deterministic
-    .map(x => x.product);
-
-  // kembalikan 3 pertama (atau kurang jika tidak ada)
-const recommendedProducts = useMemo(() => {
-  return getRecommendedProducts(selectedProduct);
-}, [selectedProduct?.id, getRecommendedProducts]);
-  return recommended.slice(0, 3);
-}, []);
+  const getRecommendedProducts = useCallback((currentProduct) => {
+    if (!currentProduct || !currentProduct.tags) return [];
+    
+    // Get all products that share at least one tag with current product
+    const recommended = products.filter(p => 
+      p.id !== currentProduct.id && 
+      p.tags && 
+      p.tags.some(tag => currentProduct.tags.includes(tag))
+    );
+    
+    // Remove duplicates by id and shuffle for variety
+    const uniqueRecommended = recommended.reduce((acc, product) => {
+      if (!acc.find(p => p.id === product.id)) {
+        acc.push(product);
+      }
+      return acc;
+    }, []);
+    
+    // Shuffle array for variety
+    const shuffled = [...uniqueRecommended].sort(() => Math.random() - 0.5);
+    
+    return shuffled.slice(0, 3);
+  }, []);
 
   const calculateDiscount = useCallback((quantity, voucherCode = '') => {
     let discountRate = getDiscount(quantity)
@@ -1659,15 +1661,19 @@ const recommendedProducts = useMemo(() => {
               {selectedProduct.images.length > 1 && (
                 <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
                   {selectedProduct.images.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => handleImageChange(index)}
-                      className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
-                        index === currentImageIndex 
-                          ? 'bg-orange-500 scale-125' 
-                          : theme === 'light' ? 'bg-white/70 hover:bg-white' : 'bg-gray-500 hover:bg-gray-400'
-                      }`}
-                    />
+// --- CHANGES ---
+// ganti className pada dot button:
+<button
+  key={index}
+  onClick={() => handleImageChange(index)}
+  className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
+    index === currentImageIndex 
+      ? 'bg-orange-500 scale-125' 
+      : theme === 'light'
+        ? 'bg-gray-400 hover:bg-gray-500'
+        : 'bg-white/90 hover:bg-white'
+  }`}
+/>
                   ))}
                 </div>
               )}
@@ -1810,7 +1816,7 @@ const recommendedProducts = useMemo(() => {
           }`}>
             <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
             <div className="grid grid-cols-1 gap-3 md:gap-4">
-{recommendedProducts.map((p) => (
+              {getRecommendedProducts(selectedProduct).map((p) => (
                 <div
                   key={p.id}
                   className={`flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border transform hover:-translate-y-1 ${
