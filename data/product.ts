@@ -322,4 +322,71 @@ Spesifikasi Utama:
 Keyboard ini menggabungkan keindahan desain, ketahanan, dan kecepatan luar biasa untuk pengalaman gaming tanpa kompromi.`,
   tags: ['gaming']
 },
+{
+  id: 14,
+  name: 'JBL Quantum 910 Wireless – Headset Gaming Nirkabel',
+  variants: [
+    { type: 'Wireless (2.4 GHz + Bluetooth)', price: 4299000 },
+    { type: 'Wireless + USB-C Dongle (PC/Console)', price: 4599000 }
+  ],
+  images: [
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset1.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset2.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset3.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset4.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset5.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset6.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset7.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset8.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset9.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset10.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset11.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset12.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset13.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset14.png'
+  ],
+  description: `JBL Quantum 910 Wireless adalah headset gaming over-ear nirkabel premium dengan audio Hi-Res, pelacakan kepala untuk spatial audio, dan Active Noise Cancelling (ANC) yang dirancang untuk menghadirkan posisi suara yang akurat dan imersif pada game kompetitif.
+
+Spesifikasi Utama:
+• Driver: 50 mm neodymium (Hi-Res certified)
+• Teknologi Spatial: JBL QuantumSPHERE/QuantumSPATIAL 360™ dengan head-tracking (melalui dongle/JBL QuantumENGINE pada PC)
+• Koneksi: Low-latency 2.4 GHz wireless + Bluetooth (multi-platform) + kabel USB
+• Fitur: Active Noise Cancelling (ANC) yang dioptimalkan untuk gaming
+• Mikrofon: Boom mic yang dapat disesuaikan (dengan pengaturan mic via software)
+• Baterai: Hingga ±39 jam penggunaan (dapat dimainkan sambil di-charge)
+• Bobot: sekitar 420 g (per spesifikasi resmi)
+• Kompatibilitas: PC (fitur lengkap via QuantumENGINE), konsol, mobile
+• Keterangan: Beberapa fitur (JBL QuantumENGINE, penyesuaian EQ, dan fitur spatial) tersedia penuh pada PC melalui dongle/driver.`,
+  tags: ['gaming', 'headset', 'wireless']
+},
+{
+  id: 15,
+  name: 'Logitech B100 – Mouse Optik Kabel',
+  variants: [
+    { type: 'Standard', price: 89000 },
+    { type: 'Silent Click', price: 119000 },
+    { type: 'Pro Edition (dengan Side Button)', price: 1099000 }
+  ],
+  images: [
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Mouse1.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Mouse2.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Mouse3.png'
+  ],
+  description: `Logitech B100 adalah mouse optik berkabel yang sederhana, andal, dan nyaman digunakan untuk pekerjaan sehari-hari.  
+Didesain dengan bentuk ambidextrous (bisa untuk tangan kanan maupun kiri) dan kompatibel dengan berbagai sistem operasi.
+
+Spesifikasi Utama:
+• Sensor: Optik 800 DPI (akurasi tinggi untuk penggunaan kantor & umum)
+• Koneksi: Kabel USB Plug-and-Play
+• Desain: Simetris, nyaman di tangan
+• Kompatibilitas: Windows®, macOS®, Linux®, ChromeOS
+• Panjang Kabel: ±1.8 meter
+• Berat: ±90 g
+
+Varian:
+• Standard – versi klasik untuk kebutuhan umum
+• Silent Click – tombol klik senyap untuk lingkungan kerja tenang
+• Pro Edition – versi eksklusif dengan side button tambahan untuk navigasi cepat & desain ergonomis premium.`,
+  tags: ['mouse', 'office', 'wireless']
+},
 ];
