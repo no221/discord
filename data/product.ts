@@ -389,4 +389,65 @@ Varian:
 • Pro Edition – versi eksklusif dengan side button tambahan untuk navigasi cepat & desain ergonomis premium.`,
   tags: ['mouse', 'office', 'wireless']
 },
+{
+  id: 16,
+  name: 'Rexus Gaming Chair GCX2 – Kursi Gaming Ergonomis Premium',
+  variants: [
+    { size: 'Standard', price: 3899000 },
+    { size: 'Deluxe (dengan Footrest)', price: 4299000 },
+    { size: 'Pro Edition (4D Armrest & Bantal Magnetik)', price: 4799000 }
+  ],
+  images: [
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Kursi1.webp',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Kursi2.webp',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Kursi3.webp',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Kursi4.webp',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Kursi5.webp'
+  ],
+  description: `Rexus GCX2 adalah kursi gaming ergonomis kelas premium dengan desain sporty dan kenyamanan maksimal. 
+Dibuat menggunakan bahan kulit sintetis PU berkualitas tinggi dan busa tebal bertekanan tinggi untuk menopang tubuh dalam sesi gaming panjang.
+
+Spesifikasi Utama:
+• Material: PU Leather + High Density Foam  
+• Rangka: Baja solid (Steel Frame Construction)  
+• Sandaran: Reclining hingga 155°  
+• Armrest: 4D Adjustable (Pro Edition)  
+• Mekanisme: Tilt & Lock dengan gas lift Class 4  
+• Kapasitas beban: hingga 150 kg  
+• Tersedia warna: Hitam Merah, Hitam Biru, Hitam Putih  
+
+Varian:
+• Standard – versi dasar dengan fitur reclining dan headrest bantal  
+• Deluxe – tambahan footrest untuk kenyamanan ekstra  
+• Pro Edition – armrest 4D, bantal magnetik, dan bahan kulit premium untuk pengalaman terbaik.`,
+  tags: ['kursi gaming', 'ergonomis', 'rexus', 'furniture', 'setup']
+},
+{
+  id: 17,
+  name: 'SteelSeries QcK Heavy – Mousepad Gaming XXL',
+  variants: [
+    { size: 'Medium (320×270mm)', price: 249000 },
+    { size: 'Large (450×400mm)', price: 349000 },
+    { size: 'XXL (900×400mm)', price: 489000 }
+  ],
+  images: [
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/MousePad1.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/MousePad2.png'
+  ],
+  description: `SteelSeries QcK Heavy adalah mousepad gaming legendaris yang digunakan oleh gamer profesional di seluruh dunia.  
+Dibuat dari kain mikrotenunan berkualitas tinggi yang memberikan presisi luar biasa untuk semua jenis sensor mouse.
+
+Spesifikasi Utama:
+• Permukaan: Micro-Woven Cloth – presisi tinggi & halus  
+• Ketebalan: 6 mm (Heavy Edition, nyaman di pergelangan tangan)  
+• Dasar: Non-slip Rubber Base anti geser  
+• Kompatibilitas: Semua tipe mouse (Optik & Laser)  
+• Warna: Hitam matte dengan logo SteelSeries  
+
+Varian:
+• Medium – cocok untuk meja kerja minimalis  
+• Large – ruang gerak lebih luas untuk gaming FPS  
+• XXL – ukuran penuh untuk seluruh setup keyboard & mouse.`,
+  tags: ['mousepad', 'gaming', 'steelseries', 'aksesori']
+}
 ];
