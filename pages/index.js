@@ -1239,7 +1239,7 @@ export default function Home() {
           <p className={`text-xs ${
             theme === 'light' ? 'text-gray-500' : 'text-gray-400'
           }`}>
-            © 2025 Soccer Ball Shop. All rights reserved.
+            © 2025 Kickbyte. All rights reserved.
           </p>
         </div>
       </div>
@@ -1303,9 +1303,16 @@ export default function Home() {
               }}
               onClick={() => navigateToPage('home')}
             >
-              ⚽ Soccer Ball Shop - Steven
+              ⚽ Kickbyte - Steven
             </h1>
-            
+            <p className="text-xs text-gray-500 md:text-sm" 
+     style={{ 
+       color: theme === 'light' ? '#9ca3af' : '#d1d5db' 
+     }}
+  >
+    Play Hard. Gear Smart
+  </p>
+</div>  
             <div className="flex items-center gap-2">
               <div 
                 className={`relative w-14 h-8 rounded-full p-1 cursor-pointer transition-all duration-500 ${
