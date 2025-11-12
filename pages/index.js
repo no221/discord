@@ -250,6 +250,7 @@ const voucherDiscounts = {
   'H473': 0.9,
   'SepakBola02': 0.3,
   'Ball': 0.03,
+  'GAMINGTIME24/7': 0.05,
 }
 
 function useAnimatedNumber(value, duration = 400) {
