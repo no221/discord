@@ -226,4 +226,99 @@ Ukuran 30 cm x 76 cm pas untuk dibawa dalam tas olahraga tanpa memakan banyak ru
 Mudah dicuci dan cepat kering, cocok untuk atlet, pelajar, atau siapa pun yang aktif bergerak.`,
     tags: ['accessory']
   },
+  {
+  id: 12,
+  name: 'Monitor Gaming Lenovo OLED Display 4K',
+  variants: [
+    { size: '19 inch', price: 14900000 },
+    { size: '24 inch', price: 15900000 },
+    { size: '27 inch', price: 16900000 }
+  ],
+  images: [
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop1.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop2.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop3.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop4.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop5.png',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Laptop6.png'
+  ],
+  description: `Monitor Lenovo 4K OLED menghadirkan pengalaman visual premium dengan resolusi ultra-tajam dan warna akurat untuk gaming maupun desain profesional. 
+
+Spesifikasi Utama:
+• Resolusi: 3840 x 2160 (4K UHD)
+• Panel: OLED dengan 1.07 miliar warna
+• Refresh Rate: hingga 240Hz
+• Waktu Respon: 0.03ms (GTG)
+• HDR: DisplayHDR True Black 400
+• Konektivitas: HDMI 2.1 x2, DisplayPort 1.4, USB-C (Power Delivery 65W)
+• Rasio Kontras: 1,500,000:1
+• Fitur: AMD FreeSync Premium & NVIDIA G-SYNC Compatible
+• Desain: Bezel tipis, dudukan ergonomis dengan tilt/swivel/height adjustment
+
+Tersedia dalam ukuran 19", 24", dan 27". Cocok untuk gamer yang mencari kualitas gambar terbaik dan warna sempurna.`,
+  tags: ['gaming']
+},
+{
+  id: 13,
+  name: 'ROG NUC Mini PC (2025)',
+  variants: [
+    { model: 'Intel Core Ultra 7 / RTX 4060', price: 25000000 },
+    { model: 'Intel Core Ultra 9 / RTX 4070', price: 30000000 },
+    { model: 'Intel Core Ultra 9 275HX / RTX 5080', price: 53000000 }
+  ],
+  images: [
+    '//raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Rog1.webp',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Rog2.jpg'
+  ],
+  description: `ROG NUC (2025) menghadirkan kekuatan PC gaming kelas atas dalam bentuk mini. Ideal untuk gamer dan kreator konten yang membutuhkan performa tinggi tanpa memakan ruang besar. 
+
+Spesifikasi Utama:
+• Sistem Operasi: Windows 11 Home
+• Prosesor: Intel® Core™ Ultra 9 275HX (Seri Meteor Lake-H)
+• GPU: NVIDIA® GeForce RTX™ 5080 Mobile (16GB GDDR6)
+• RAM: Hingga 96GB DDR5-6400 MHz
+• Penyimpanan: SSD M.2 PCIe 5.0 NVMe
+• Konektivitas: WiFi 7, Bluetooth 5.4, Ethernet 2.5GbE
+• Port: Thunderbolt 4 x2, HDMI 2.1 x2, DisplayPort 1.4a, USB-A 3.2 x4
+• Pendingin: Triple-Fan Cooling System
+• Dukungan Tampilan: Hingga 5 monitor 4K sekaligus
+• Dimensi: 180 x 180 x 60 mm
+• Berat: 1.45 kg
+
+Mini PC ini memberikan performa luar biasa untuk gaming berat, rendering, dan multitasking ekstrem.`,
+  tags: ['gaming']
+},
+{
+  id: 13,
+  name: 'Logitech G915 X LIGHTSPEED – Keyboard Gaming Nirkabel Profil Rendah',
+  variants: [
+    { type: 'GL Tactile', price: 3299000 },
+    { type: 'GL Linear', price: 3299000 },
+    { type: 'GL Clicky', price: 3299000 }
+  ],
+  images: [
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard1.webp',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard2.webp'    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard3.webp',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard4.webp'
+  ],
+  description: `Logitech G915 X LIGHTSPEED adalah keyboard gaming nirkabel premium dengan desain ultra-tipis dan performa profesional. Dirancang untuk kecepatan, akurasi, dan kenyamanan maksimal. 
+
+Spesifikasi Utama:
+• Jenis Switch: GL Mechanical (Linear / Tactile / Clicky)
+• Koneksi: LIGHTSPEED Wireless, Bluetooth, dan USB Cable (Tri-Mode)
+• Material: Rangka aluminium-alloy
+• Pencahayaan: LIGHTSYNC RGB per tombol (16.8 juta warna)
+• Waktu Respons: 1ms (LIGHTSPEED)
+• Daya Tahan Baterai:
+  - RGB 100%: hingga 36 jam
+  - RGB 50%: hingga 90 jam
+  - Tanpa RGB: hingga 800 jam
+• Ukuran: 475 x 150 x 22.6 mm
+• Berat: 1.08 kg
+• Panjang Kabel: 1.8 m
+• Kompatibilitas: Windows®, macOS®, dan perangkat Bluetooth lainnya
+
+Keyboard ini menggabungkan keindahan desain, ketahanan, dan kecepatan luar biasa untuk pengalaman gaming tanpa kompromi.`,
+  tags: ['gaming']
+},
 ];
