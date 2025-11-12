@@ -298,7 +298,8 @@ Mini PC ini memberikan performa luar biasa untuk gaming berat, rendering, dan mu
   ],
   images: [
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard1.webp',
-    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard2.webp'    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard3.webp',
+    'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard2.webp',  
+      'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard3.webp',
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard4.webp'
   ],
   description: `Logitech G915 X LIGHTSPEED adalah keyboard gaming nirkabel premium dengan desain ultra-tipis dan performa profesional. Dirancang untuk kecepatan, akurasi, dan kenyamanan maksimal. 
