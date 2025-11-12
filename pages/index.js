@@ -1701,8 +1701,6 @@ export default function Home() {
             <div className="mt-4 md:mt-6">
               <h4 className="font-semibold mb-3">Pilih Size:</h4>
               <div className="flex flex-wrap gap-2 md:gap-3">
-// --- CHANGES ---
-// di tempat rendering variant buttons (ganti block existing)
 {selectedProduct.variants.map((variant) => {
   const longSize = String(variant.size || '');
   // pilih class berdasarkan panjang teks
