@@ -262,9 +262,9 @@ Tersedia dalam ukuran 19", 24", dan 27". Cocok untuk gamer yang mencari kualitas
   id: 13,
   name: 'ROG NUC Mini PC (2025)',
   variants: [
-    { model: 'Intel Core Ultra 7 / RTX 4060', price: 25000000 },
-    { model: 'Intel Core Ultra 9 / RTX 4070', price: 30000000 },
-    { model: 'Intel Core Ultra 9 275HX / RTX 5080', price: 53000000 }
+    { size: 'Intel Core Ultra 7 / RTX 4060', price: 25000000 },
+    { size: 'Intel Core Ultra 9 / RTX 4070', price: 30000000 },
+    { size: 'Intel Core Ultra 9 275HX / RTX 5080', price: 53000000 }
   ],
   images: [
     '//raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Rog1.webp',
@@ -292,9 +292,9 @@ Mini PC ini memberikan performa luar biasa untuk gaming berat, rendering, dan mu
   id: 13,
   name: 'Logitech G915 X LIGHTSPEED – Keyboard Gaming Nirkabel Profil Rendah',
   variants: [
-    { type: 'GL Tactile', price: 3299000 },
-    { type: 'GL Linear', price: 3299000 },
-    { type: 'GL Clicky', price: 3299000 }
+    { size: 'GL Tactile', price: 3299000 },
+    { size: 'GL Linear', price: 3299000 },
+    { size: 'GL Clicky', price: 3299000 }
   ],
   images: [
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Keyboard1.webp',
@@ -326,8 +326,8 @@ Keyboard ini menggabungkan keindahan desain, ketahanan, dan kecepatan luar biasa
   id: 14,
   name: 'JBL Quantum 910 Wireless – Headset Gaming Nirkabel',
   variants: [
-    { type: 'Wireless (2.4 GHz + Bluetooth)', price: 4299000 },
-    { type: 'Wireless + USB-C Dongle (PC/Console)', price: 4599000 }
+    { size: 'Wireless (2.4 GHz + Bluetooth)', price: 4299000 },
+    { size: 'Wireless + USB-C Dongle (PC/Console)', price: 4599000 }
   ],
   images: [
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Headset1.png',
@@ -363,9 +363,9 @@ Spesifikasi Utama:
   id: 15,
   name: 'Logitech B100 – Mouse Optik Kabel',
   variants: [
-    { type: 'Standard', price: 89000 },
-    { type: 'Silent Click', price: 119000 },
-    { type: 'Pro Edition (dengan Side Button)', price: 1099000 }
+    { size: 'Standard', price: 89000 },
+    { size: 'Silent Click', price: 119000 },
+    { size: 'Pro Edition (dengan Side Button)', price: 1099000 }
   ],
   images: [
     'https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Product/Mouse1.png',
