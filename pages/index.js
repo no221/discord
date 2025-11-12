@@ -554,29 +554,27 @@ export default function Home() {
   }, [searchTerm, selectedTag]);
 
   // FIXED: Improved getRecommendedProducts function
-  const getRecommendedProducts = useCallback((currentProduct) => {
-    if (!currentProduct || !currentProduct.tags) return [];
-    
-    // Get all products that share at least one tag with current product
-    const recommended = products.filter(p => 
-      p.id !== currentProduct.id && 
-      p.tags && 
-      p.tags.some(tag => currentProduct.tags.includes(tag))
-    );
-    
-    // Remove duplicates by id and shuffle for variety
-    const uniqueRecommended = recommended.reduce((acc, product) => {
-      if (!acc.find(p => p.id === product.id)) {
-        acc.push(product);
-      }
-      return acc;
-    }, []);
-    
-    // Shuffle array for variety
-    const shuffled = [...uniqueRecommended].sort(() => Math.random() - 0.5);
-    
-    return shuffled.slice(0, 3);
-  }, []);
+  // --- CHANGES ---
+// replace existing getRecommendedProducts implementation with:
+const getRecommendedProducts = useCallback((currentProduct) => {
+  if (!currentProduct || !currentProduct.tags) return [];
+
+  // deterministic filter: produk dengan minimal 1 tag sama, urut berdasarkan jumlah tag yang sama (desc)
+  const recommended = products
+    .filter(p => p.id !== currentProduct.id && p.tags && p.tags.some(tag => currentProduct.tags.includes(tag)))
+    .map(p => ({
+      product: p,
+      score: p.tags.filter(t => currentProduct.tags.includes(t)).length
+    }))
+    .sort((a,b) => b.score - a.score) // sort by score desc -> deterministic
+    .map(x => x.product);
+
+  // kembalikan 3 pertama (atau kurang jika tidak ada)
+const recommendedProducts = useMemo(() => {
+  return getRecommendedProducts(selectedProduct);
+}, [selectedProduct?.id, getRecommendedProducts]);
+  return recommended.slice(0, 3);
+}, []);
 
   const calculateDiscount = useCallback((quantity, voucherCode = '') => {
     let discountRate = getDiscount(quantity)
@@ -637,16 +635,14 @@ export default function Home() {
     }
   }, [form.code])
 
-  // FIXED: Reset currentImageIndex when product changes
   useEffect(() => {
     if (selectedProduct && currentPage === 'product') {
-      setCurrentImageIndex(0); // Reset to first image when product changes
       const interval = setInterval(() => {
         setCurrentImageIndex(prev => (prev + 1) % selectedProduct.images.length)
       }, 4000)
       return () => clearInterval(interval)
     }
-  }, [selectedProduct, currentPage]) // Removed currentImageIndex dependency
+  }, [selectedProduct, currentImageIndex, currentPage])
 
   // FIXED: Improved image change animation
   const handleImageChange = useCallback((newIndex) => {
@@ -709,7 +705,7 @@ export default function Home() {
   const openProductDetail = useCallback((product) => {
     setSelectedProduct(product)
     setSelectedVariant(product.variants[1])
-    setCurrentImageIndex(0) // Reset image index when opening new product
+    setCurrentImageIndex(0)
     setQty(1)
     setImageAnim(false) // Reset animation state
     navigateToPage('product')
@@ -934,209 +930,206 @@ export default function Home() {
 
   const AboutPage = () => (
     <div
-      className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 relative overflow-hidden ${
+      className={`max-w-4xl mx-auto rounded-lg shadow-xl p-6 md:p-8 backdrop-blur-sm transition-all duration-300 ${
         theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
       } ${pageTransition ? "animate-page-exit" : "animate-page-enter"}`}
     >
-      {/* GAMINGTIME24/7 Watermark */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-6xl md:text-8xl font-black tracking-widest text-center ${
-          theme === 'light' 
-            ? 'text-gray-200/30' 
-            : 'text-gray-700/30'
-        } rotate-12 select-none`}>
-          GAMINGTIME24/7
-        </div>
+<div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+  <span
+    className={`font-bold text-4xl md:text-6xl tracking-widest select-none transform -rotate-12 opacity-10 ${
+      theme === 'light' ? 'text-gray-900' : 'text-white'
+    }`}
+    style={{ mixBlendMode: 'soft-light' }}
+  >
+    GAMINGTIME24/7
+  </span>
+</div>
+      <div className="text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
+          Tentang Kami
+        </h1>
+        <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
       </div>
 
-      <div className="relative z-10">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-orange-700 dark:text-orange-400 mb-4 animate-fade-in-up">
-            Tentang Kami
-          </h1>
-          <div className="w-24 h-1 bg-orange-500 mx-auto mb-6 animate-scale-in"></div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div className="animate-slide-in-left">
+          <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
+          <div className="space-y-3">
+            {[
+              { 
+                name: "Darren", 
+                role: "Project Manager",
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg" 
+              },
+              { 
+                name: "Isabel", 
+                role: "Project Manager",
+                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg"
+              },
+              { 
+                name: "Steven", 
+                role: "UI Designer",
+                image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+              },
+              { 
+                name: "Sultanto", 
+                role: "UX Designer & Fullstack Manager",
+                image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Sultanto.jpg"
+              },
+            ].map((member) => (
+              <div
+                key={member.name}
+                className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
+                  theme === 'light' 
+                    ? 'bg-orange-50 hover:bg-orange-100' 
+                    : 'bg-gray-700 hover:bg-gray-600'
+                }`}
+              >
+                <img
+                  src={member.image}
+                  alt={member.name}
+                  className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.nextSibling.style.display = 'flex';
+                  }}
+                />
+                <div 
+                  className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
+                >
+                  {member.name.charAt(0)}
+                </div>
+                <div>
+                  <div className="font-semibold">{member.name}</div>
+                  <div className="text-sm opacity-75">{member.role}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-          <div className="animate-slide-in-left">
-            <h2 className="text-2xl font-semibold mb-4">Tim Kami</h2>
+        <div className="animate-slide-in-right">
+          <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
+          <div className={`p-6 rounded-lg border transition-all duration-300 ${
+            theme === 'light' 
+              ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200' 
+              : 'bg-gradient-to-br from-gray-700 to-gray-600 border-gray-600'
+          }`}>
+            <p className="leading-relaxed mb-4">
+              <strong>Made By Kelompok 4</strong>
+            </p>
+            <p className="opacity-75 leading-relaxed mb-4">
+              Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi.
+              Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
+            </p>
+            <div className="flex items-center gap-2 text-sm opacity-75">
+              <span>⚡</span>
+              <span>Dibuat dengan React.js & Next.js</span>
+            </div>
+          </div>
+          <div className="mt-8 animate-slide-in-left">
+            <h2 className="text-2xl font-semibold mb-4">Special Thanks To</h2>
             <div className="space-y-3">
               {[
                 { 
-                  name: "Darren", 
-                  role: "Project Manager",
-                  image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Darren.jpg" 
+                  name: "Hans", 
+                  role: "Web Tester & Web Evaluator",
+                  image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Hans.jpg" 
                 },
                 { 
-                  name: "Isabel", 
-                  role: "Project Manager",
-                  image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/Isabel.jpg"
+                  name: "Albert", 
+                  role: "Product Feedback", 
+                  image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Albert.jpg"
                 },
                 { 
-                  name: "Steven", 
-                  role: "UI Designer",
-                  image: "https://raw.githubusercontent.com/rndmq/discord/main/Team/-"
+                  name: "Anonymous", 
+                  role: "UX Feedback & Web Tester",
+                  image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Anonymous.jpg"
                 },
-                { 
-                  name: "Sultanto", 
-                  role: "UX Designer & Fullstack Manager",
-                  image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Sultanto.jpg"
-                },
-              ].map((member) => (
+              ].map((person, index) => (
                 <div
-                  key={member.name}
+                  key={person.name}
                   className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
                     theme === 'light' 
-                      ? 'bg-orange-50 hover:bg-orange-100' 
+                      ? 'bg-green-50 hover:bg-green-100' 
                       : 'bg-gray-700 hover:bg-gray-600'
                   }`}
                 >
                   <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-10 h-10 rounded-full object-cover border-2 border-orange-500"
+                    src={person.image}
+                    alt={person.name}
+                    className="w-10 h-10 rounded-full object-cover border-2 border-green-500"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
                     }}
                   />
                   <div 
-                    className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center text-white font-bold hidden"
+                    className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold hidden"
                   >
-                    {member.name.charAt(0)}
+                    {person.name.charAt(0)}
                   </div>
                   <div>
-                    <div className="font-semibold">{member.name}</div>
-                    <div className="text-sm opacity-75">{member.role}</div>
+                    <div className="font-semibold">{person.name}</div>
+                    <div className="text-sm opacity-75">{person.role}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-
-          <div className="animate-slide-in-right">
-            <h2 className="text-2xl font-semibold mb-4">Tentang Proyek</h2>
-            <div className={`p-6 rounded-lg border transition-all duration-300 ${
-              theme === 'light' 
-                ? 'bg-gradient-to-br from-orange-50 to-amber-50 border-orange-200' 
-                : 'bg-gradient-to-br from-gray-700 to-gray-600 border-gray-600'
-            }`}>
-              <p className="leading-relaxed mb-4">
-                <strong>Made By Kelompok 4</strong>
-              </p>
-              <p className="opacity-75 leading-relaxed mb-4">
-                Website ini dibuat untuk melengkapi presentasi kelompok kami tentang E-commerce bertema Hobi.
-                Melalui situs ini, kami menunjukkan contoh implementasi nyata dari konsep promosi digital.
-              </p>
-              <div className="flex items-center gap-2 text-sm opacity-75">
-                <span>⚡</span>
-                <span>Dibuat dengan React.js & Next.js</span>
-              </div>
-            </div>
-            <div className="mt-8 animate-slide-in-left">
-              <h2 className="text-2xl font-semibold mb-4">Special Thanks To</h2>
-              <div className="space-y-3">
-                {[
-                  { 
-                    name: "Hans", 
-                    role: "Web Tester & Web Evaluator",
-                    image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Hans.jpg" 
-                  },
-                  { 
-                    name: "Albert", 
-                    role: "Product Feedback", 
-                    image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Albert.jpg"
-                  },
-                  { 
-                    name: "Anonymous", 
-                    role: "UX Feedback & Web Tester",
-                    image: "https://raw.githubusercontent.com/rndmq/discord/refs/heads/main/Team/Anonymous.jpg"
-                  },
-                ].map((person, index) => (
-                  <div
-                    key={person.name}
-                    className={`flex items-center gap-3 p-3 rounded-lg hover:scale-105 transition-all duration-300 ${
-                      theme === 'light' 
-                        ? 'bg-green-50 hover:bg-green-100' 
-                        : 'bg-gray-700 hover:bg-gray-600'
-                    }`}
-                  >
-                    <img
-                      src={person.image}
-                      alt={person.name}
-                      className="w-10 h-10 rounded-full object-cover border-2 border-green-500"
-                      onError={(e) => {
-                        e.target.style.display = 'none';
-                        e.target.nextSibling.style.display = 'flex';
-                      }}
-                    />
-                    <div 
-                      className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center text-white font-bold hidden"
-                    >
-                      {person.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div className="font-semibold">{person.name}</div>
-                      <div className="text-sm opacity-75">{person.role}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
+      </div>
 
-        <div className="border-t pt-8 animate-fade-in-up-delayed">
-          <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
-          <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <a
-              href="https://wa.me/6285156431675?text=Halo,%20ini%20diskon%20spesial%20untuk%20kamu:%20soccer50%20-%50%20OFF"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
-              style={{
-                backgroundColor: theme === 'light' ? 'rgb(240, 253, 244)' : 'rgb(6, 78, 59)'
-              }}
-            >
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
-                alt="WhatsApp"
-                className="w-10 h-10"
-              />
-              <div>
-                <div className="font-semibold">WhatsApp</div>
-                <div className="text-sm opacity-75">+62 851-5643-1675</div>
-              </div>
-            </a>
-
-            <a
-              href="mailto:rndm942@yahoo.com"
-              className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
-              style={{
-                backgroundColor: theme === 'light' ? 'rgb(254, 242, 242)' : 'rgb(127, 29, 29)'
-              }}
-            >
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
-                alt="Email"
-                className="w-10 h-10"
-              />
-              <div>
-                <div className="font-semibold">Email</div>
-                <div className="text-sm opacity-75">rndm942@yahoo.com</div>
-              </div>
-            </a>
-          </div>
-        </div>
-
-        <div className="text-center mt-8">
-          <button
-            onClick={() => navigateToPage("home")}
-            className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+      <div className="border-t pt-8 animate-fade-in-up-delayed">
+        <h3 className="text-xl font-semibold text-center mb-6">Hubungi Kami</h3>
+        <div className="flex flex-col sm:flex-row justify-center gap-6">
+          <a
+            href="https://wa.me/6285156431675?text=Halo,%20ini%20diskon%20spesial%20untuk%20kamu:%20soccer50%20-%50%20OFF"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
+            style={{
+              backgroundColor: theme === 'light' ? 'rgb(240, 253, 244)' : 'rgb(6, 78, 59)'
+            }}
           >
-            ← Kembali ke Menu Utama
-          </button>
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+              alt="WhatsApp"
+              className="w-10 h-10"
+            />
+            <div>
+              <div className="font-semibold">WhatsApp</div>
+              <div className="text-sm opacity-75">+62 851-5643-1675</div>
+            </div>
+          </a>
+
+          <a
+            href="mailto:rndm942@yahoo.com"
+            className="relative overflow-hidden flex items-center gap-3 p-4 rounded-lg hover:scale-105 transition-all duration-300 active:animate-ripple"
+            style={{
+              backgroundColor: theme === 'light' ? 'rgb(254, 242, 242)' : 'rgb(127, 29, 29)'
+            }}
+          >
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Gmail_Icon_%282013-2020%29.svg/512px-Gmail_Icon_%282013-2020%29.svg.png"
+              alt="Email"
+              className="w-10 h-10"
+            />
+            <div>
+              <div className="font-semibold">Email</div>
+              <div className="text-sm opacity-75">rndm942@yahoo.com</div>
+            </div>
+          </a>
         </div>
+      </div>
+
+      <div className="text-center mt-8">
+        <button
+          onClick={() => navigateToPage("home")}
+          className="px-8 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+        >
+          ← Kembali ke Menu Utama
+        </button>
       </div>
 
       <style jsx>{`
@@ -1672,10 +1665,7 @@ export default function Home() {
                       className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
                         index === currentImageIndex 
                           ? 'bg-orange-500 scale-125' 
-                          // FIXED: Better dot colors for both themes
-                          : theme === 'light' 
-                            ? 'bg-gray-400 hover:bg-gray-500' 
-                            : 'bg-gray-500 hover:bg-gray-400'
+                          : theme === 'light' ? 'bg-white/70 hover:bg-white' : 'bg-gray-500 hover:bg-gray-400'
                       }`}
                     />
                   ))}
@@ -1705,29 +1695,34 @@ export default function Home() {
             <div className="mt-4 md:mt-6">
               <h4 className="font-semibold mb-3">Pilih Size:</h4>
               <div className="flex flex-wrap gap-2 md:gap-3">
-                {selectedProduct.variants.map((variant) => (
-                  <button
-                    key={variant.size}
-                    onClick={() => setSelectedVariant(variant)}
-                    className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base transform hover:scale-105 ${
-                      selectedVariant.size === variant.size
-                        ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
-                        : theme === 'light'
-                        ? 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
-                        : 'bg-gray-700 text-gray-300 border-gray-600 hover:border-orange-500 hover:shadow-md'
-                    }`}
-                  >
-                    {/* FIXED: Improved variant display with better text wrapping */}
-                    <div className="flex flex-col items-center justify-center">
-                      <span className="text-xs md:text-sm font-medium leading-tight">
-                        {variant.size}
-                      </span>
-                      <span className="text-xs font-normal mt-1">
-                        Rp {variant.price.toLocaleString()}
-                      </span>
-                    </div>
-                  </button>
-                ))}
+// --- CHANGES ---
+// di tempat rendering variant buttons (ganti block existing)
+{selectedProduct.variants.map((variant) => {
+  const longSize = String(variant.size || '');
+  // pilih class berdasarkan panjang teks
+  const sizeTextClass = longSize.length > 14 ? 'text-xs md:text-sm' : 'text-sm md:text-base';
+  return (
+    <button
+      key={variant.size}
+      onClick={() => setSelectedVariant(variant)}
+      className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold transform hover:scale-105
+        ${selectedVariant.size === variant.size
+          ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
+          : theme === 'light'
+            ? 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
+            : 'bg-gray-700 text-gray-300 border-gray-600 hover:border-orange-500 hover:shadow-md'
+        }`}
+      style={{ minWidth: 72 }}
+    >
+      <div className={`leading-tight ${sizeTextClass} whitespace-normal break-words text-center`}>
+        {longSize.split(' ').length > 1 ? longSize.split(' ').slice(0,2).join('\n') : longSize}
+      </div>
+      <div className="mt-1 text-xs md:text-sm font-normal opacity-90">
+        Rp {variant.price.toLocaleString()}
+      </div>
+    </button>
+  )
+})}
               </div>
             </div>
 
@@ -1815,8 +1810,7 @@ export default function Home() {
           }`}>
             <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
             <div className="grid grid-cols-1 gap-3 md:gap-4">
-              {/* FIXED: Use stable recommended products that don't change when images change */}
-              {getRecommendedProducts(selectedProduct).map((p) => (
+{recommendedProducts.map((p) => (
                 <div
                   key={p.id}
                   className={`flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border transform hover:-translate-y-1 ${
