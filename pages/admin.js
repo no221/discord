@@ -1,9 +1,9 @@
 // pages/admin.js
 import { useEffect, useState } from 'react'
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'
-import { Pie } from 'react-chartjs-2'
+import { Chart as ChartJS, ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title } from 'chart.js'
+import { Pie, Bar } from 'react-chartjs-2'
 
-ChartJS.register(ArcElement, Tooltip, Legend)
+ChartJS.register(ArcElement, Tooltip, Legend, CategoryScale, LinearScale, BarElement, Title)
 
 export default function Admin() {
   const [authorized, setAuthorized] = useState(false)
@@ -11,6 +11,7 @@ export default function Admin() {
   const [data, setData] = useState({ purchases: [] })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [activeTab, setActiveTab] = useState('overview')
 
   const purchases = Array.isArray(data?.purchases) ? data.purchases : []
 
@@ -89,14 +90,14 @@ export default function Admin() {
 
   if (!authorized) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-        <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md border border-gray-200">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-black p-4">
+        <div className="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-700">
           <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
               <span className="text-2xl text-white font-bold">⚙️</span>
             </div>
-            <h2 className="text-3xl font-bold text-gray-800">Admin Access</h2>
-            <p className="text-gray-600 mt-2">Enter password to continue</p>
+            <h2 className="text-3xl font-bold text-white">Admin Access</h2>
+            <p className="text-gray-400 mt-2">Enter password to continue</p>
           </div>
 
           <div className="space-y-4">
@@ -106,12 +107,12 @@ export default function Admin() {
               value={pwd}
               onChange={(e) => setPwd(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="w-full border border-gray-300 rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full bg-gray-700 border border-gray-600 text-white rounded-lg p-4 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all placeholder-gray-400"
               disabled={loading}
             />
 
             <button
-              className="w-full px-4 py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-400 transition-all duration-200 font-medium text-lg shadow-md hover:shadow-lg"
+              className="w-full px-4 py-4 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 disabled:bg-gray-600 transition-all duration-200 font-medium text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
               onClick={handleLogin}
               disabled={!pwd.trim() || loading}
             >
@@ -127,7 +128,7 @@ export default function Admin() {
           </div>
 
           {error && (
-            <div className="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+            <div className="mt-4 p-3 bg-red-900/50 border border-red-700 text-red-200 rounded-lg text-sm">
               {error}
             </div>
           )}
@@ -135,7 +136,7 @@ export default function Admin() {
           <div className="mt-6 text-center">
             <a
               href="/"
-              className="text-blue-500 hover:text-blue-700 text-sm font-medium"
+              className="text-orange-400 hover:text-orange-300 text-sm font-medium transition-colors"
             >
               ← Back to Main Store
             </a>
@@ -147,25 +148,25 @@ export default function Admin() {
 
   if (purchases.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4 md:p-6">
         <div className="max-w-4xl mx-auto">
-          <header className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-            <h1 className="text-3xl font-bold text-gray-800">🎯 Admin Dashboard</h1>
+          <header className="bg-gray-800 rounded-2xl shadow-2xl p-6 mb-6 border border-gray-700">
+            <h1 className="text-3xl font-bold text-white">🎯 Admin Dashboard</h1>
           </header>
 
-          <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
-            <div className="w-20 h-20 bg-yellow-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <div className="bg-gray-800 rounded-2xl shadow-2xl p-8 text-center border border-gray-700">
+            <div className="w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-3xl">📝</span>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">No Purchase Data Yet</h2>
-            <p className="text-gray-600 mb-6">
+            <h2 className="text-2xl font-bold text-white mb-4">No Purchase Data Yet</h2>
+            <p className="text-gray-400 mb-6">
               The purchases table is empty. Make a test purchase from the store or add data manually in Supabase.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl mx-auto">
               <a
                 href="/"
-                className="bg-blue-500 text-white py-3 px-6 rounded-lg hover:bg-blue-600 transition-colors font-medium"
+                className="bg-gradient-to-r from-orange-500 to-red-500 text-white py-3 px-6 rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 🏪 Go to Store
               </a>
@@ -173,7 +174,7 @@ export default function Admin() {
                 href={`https://app.supabase.com/project/${process.env.NEXT_PUBLIC_SUPABASE_URL?.split('//')[1]?.split('.')[0]}/editor`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="bg-green-500 text-white py-3 px-6 rounded-lg hover:bg-green-600 transition-colors font-medium"
+                className="bg-gradient-to-r from-green-500 to-teal-500 text-white py-3 px-6 rounded-lg hover:from-green-600 hover:to-teal-600 transition-all duration-200 font-medium shadow-lg hover:shadow-xl transform hover:scale-105"
               >
                 📊 Open Supabase
               </a>
@@ -241,13 +242,34 @@ export default function Admin() {
 
   const uniqueCustomers = [...new Set(purchases.map(p => p?.phone).filter(Boolean))].length
 
+  // Monthly revenue data for chart
+  const monthlyRevenue = {}
+  purchases.forEach(purchase => {
+    if (!purchase?.created_at) return
+    const date = new Date(purchase.created_at)
+    const monthYear = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+    const revenue = Number(purchase.final_price) || (Number(purchase.price) || 0) * (Number(purchase.qty) || 0)
+    monthlyRevenue[monthYear] = (monthlyRevenue[monthYear] || 0) + revenue
+  })
+
+  const monthlyRevenueData = {
+    labels: Object.keys(monthlyRevenue).sort(),
+    datasets: [{
+      label: 'Monthly Revenue (Rp)',
+      data: Object.keys(monthlyRevenue).sort().map(key => monthlyRevenue[key]),
+      backgroundColor: 'rgba(255, 99, 132, 0.8)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      borderWidth: 2,
+    }],
+  }
+
   const pieData = {
     labels: Object.keys(countByProduct).length > 0 ? Object.keys(countByProduct) : ['No Data'],
     datasets: [{
       data: Object.values(countByProduct).length > 0 ? Object.values(countByProduct) : [1],
       backgroundColor: [
         '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', 
-        '#9966FF', '#FF9F40', '#FF6384', '#C9CBCF'
+        '#9966FF', '#FF9F40', '#8C9EFF', '#80CBC4'
       ],
       borderWidth: 1,
     }],
@@ -268,38 +290,112 @@ export default function Admin() {
   const chartOptions = {
     responsive: true,
     plugins: {
-      legend: { position: 'bottom' },
+      legend: { 
+        position: 'bottom',
+        labels: {
+          color: '#e5e7eb',
+          font: {
+            size: 12
+          }
+        }
+      },
     },
+  }
+
+  const barChartOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          color: '#e5e7eb'
+        }
+      },
+      title: {
+        display: true,
+        color: '#e5e7eb'
+      },
+    },
+    scales: {
+      y: {
+        ticks: {
+          color: '#9ca3af',
+          callback: function(value) {
+            return 'Rp ' + value.toLocaleString();
+          }
+        },
+        grid: {
+          color: '#374151'
+        }
+      },
+      x: {
+        ticks: {
+          color: '#9ca3af'
+        },
+        grid: {
+          color: '#374151'
+        }
+      }
+    }
   }
 
   // ==================== Render Dashboard ====================
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black p-4 md:p-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <header className="bg-white rounded-2xl shadow-lg p-6 mb-6 border border-gray-200">
+        <header className="bg-gray-800 rounded-2xl shadow-2xl p-6 mb-6 border border-gray-700">
           <div className="flex flex-col lg:flex-row lg:items-center justify-between">
             <div className="mb-4 lg:mb-0">
-              <h1 className="text-3xl font-bold text-gray-800 flex items-center">🎯 Admin Dashboard</h1>
-              <p className="text-gray-600 mt-1">Manage your store analytics and purchases</p>
+              <h1 className="text-3xl font-bold text-white flex items-center">🎯 Admin Dashboard</h1>
+              <p className="text-gray-400 mt-1">Manage your store analytics and purchases</p>
             </div>
             <div className="flex flex-wrap gap-3">
-              <button onClick={fetchData} disabled={loading} className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 disabled:bg-gray-400 transition-all duration-200 font-medium flex items-center shadow-md hover:shadow-lg">
+              <button 
+                onClick={fetchData} 
+                disabled={loading} 
+                className="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-500 text-white rounded-lg hover:from-green-600 hover:to-teal-600 disabled:bg-gray-600 transition-all duration-200 font-medium flex items-center shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
                 {loading ? '🔄 Loading...' : '📊 Refresh Data'}
               </button>
-              <button onClick={() => { setAuthorized(false); setPwd(''); setError('') }} className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-all duration-200 font-medium flex items-center shadow-md hover:shadow-lg">
+              <button 
+                onClick={() => { setAuthorized(false); setPwd(''); setError('') }} 
+                className="px-4 py-2 bg-gradient-to-r from-red-500 to-pink-500 text-white rounded-lg hover:from-red-600 hover:to-pink-600 transition-all duration-200 font-medium flex items-center shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
                 🚪 Logout
               </button>
-              <a href="/" className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-200 font-medium flex items-center shadow-md hover:shadow-lg">
+              <a 
+                href="/" 
+                className="px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg hover:from-blue-600 hover:to-purple-600 transition-all duration-200 font-medium flex items-center shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
                 🏪 Store Front
               </a>
             </div>
+          </div>
+
+          {/* Navigation Tabs */}
+          <div className="mt-6 flex space-x-1 bg-gray-700/50 rounded-lg p-1">
+            {['overview', 'analytics', 'customers', 'products'].map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all duration-200 ${
+                  activeTab === tab
+                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg'
+                    : 'text-gray-400 hover:text-white hover:bg-gray-600/50'
+                }`}
+              >
+                {tab === 'overview' && '📊 Overview'}
+                {tab === 'analytics' && '📈 Analytics'}
+                {tab === 'customers' && '👥 Customers'}
+                {tab === 'products' && '🎯 Products'}
+              </button>
+            ))}
           </div>
         </header>
 
         {/* Error Alert */}
         {error && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-6 py-4 rounded-2xl mb-6 shadow-md">
+          <div className="bg-red-900/50 border border-red-700 text-red-200 px-6 py-4 rounded-2xl mb-6 shadow-lg">
             <div className="flex items-center">
               <span className="text-lg mr-2">⚠️</span>
               <div>
@@ -310,189 +406,206 @@ export default function Admin() {
         )}
 
         {loading ? (
-          <div className="text-center py-16 bg-white rounded-2xl shadow-lg">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-gray-600 text-lg">Loading purchase data...</p>
+          <div className="text-center py-16 bg-gray-800 rounded-2xl shadow-2xl border border-gray-700">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto mb-4"></div>
+            <p className="text-gray-400 text-lg">Loading purchase data...</p>
           </div>
         ) : (
           <>
-            {/* Statistics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-blue-500 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Monthly Sales</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-2">{monthlyBuy}</p>
-                    <p className="text-xs text-gray-500 mt-1">items this month</p>
+            {/* Overview Tab */}
+            {activeTab === 'overview' && (
+              <>
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+                  <div className="bg-gradient-to-br from-blue-500 to-blue-600 p-6 rounded-2xl shadow-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-blue-100 text-sm font-medium">Monthly Sales</p>
+                        <p className="text-3xl font-bold text-white mt-2">{monthlyBuy}</p>
+                        <p className="text-xs text-blue-200 mt-1">items this month</p>
+                      </div>
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-2xl text-white">📈</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-blue-500">📈</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-green-500 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Total Items Sold</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-2">{totalBought}</p>
-                    <p className="text-xs text-gray-500 mt-1">all time</p>
+                  <div className="bg-gradient-to-br from-green-500 to-green-600 p-6 rounded-2xl shadow-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-green-100 text-sm font-medium">Total Items Sold</p>
+                        <p className="text-3xl font-bold text-white mt-2">{totalBought}</p>
+                        <p className="text-xs text-green-200 mt-1">all time</p>
+                      </div>
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-2xl text-white">🛒</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-green-500">🛒</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-purple-500 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Total Revenue</p>
-                    <p className="text-2xl font-bold text-gray-800 mt-2">
-                      Rp {totalFinalRevenue.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">after discounts</p>
+                  <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-6 rounded-2xl shadow-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-purple-100 text-sm font-medium">Total Revenue</p>
+                        <p className="text-2xl font-bold text-white mt-2">
+                          Rp {totalFinalRevenue.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-purple-200 mt-1">after discounts</p>
+                      </div>
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-2xl text-white">💰</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-purple-500">💰</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-orange-500 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Voucher Usage</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-2">{purchasesWithVoucher.length}</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      {mostUsedVoucher[0]} ({mostUsedVoucher[1]}x)
-                    </p>
+                  <div className="bg-gradient-to-br from-orange-500 to-orange-600 p-6 rounded-2xl shadow-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-orange-100 text-sm font-medium">Voucher Usage</p>
+                        <p className="text-3xl font-bold text-white mt-2">{purchasesWithVoucher.length}</p>
+                        <p className="text-xs text-orange-200 mt-1">
+                          {mostUsedVoucher[0]} ({mostUsedVoucher[1]}x)
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-2xl text-white">🎫</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-orange-500">🎫</span>
-                  </div>
-                </div>
-              </div>
 
-              {/* Latest Order Card */}
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-cyan-500 hover:shadow-xl transition-all duration-300">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Latest Order</p>
-                    <p className="text-lg font-bold text-gray-800 mt-2">
-                      {purchases.length > 0 ? (
-                        <>
-                          {formatDateTime(purchases[0].created_at).date}
-                          <br />
-                          <span className="text-sm text-gray-500">
-                            {formatDateTime(purchases[0].created_at).time}
-                          </span>
-                        </>
-                      ) : 'No orders'}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-cyan-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-cyan-500">🕒</span>
+                  <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 p-6 rounded-2xl shadow-2xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-cyan-100 text-sm font-medium">Latest Order</p>
+                        <p className="text-lg font-bold text-white mt-2">
+                          {purchases.length > 0 ? (
+                            <>
+                              {formatDateTime(purchases[0].created_at).date}
+                              <br />
+                              <span className="text-sm text-cyan-200">
+                                {formatDateTime(purchases[0].created_at).time}
+                              </span>
+                            </>
+                          ) : 'No orders'}
+                        </p>
+                      </div>
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-2xl text-white">🕒</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Voucher Analytics Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-red-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Total Discount</p>
-                    <p className="text-2xl font-bold text-gray-800 mt-2">
-                      Rp {totalDiscountGiven.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">given via vouchers</p>
+                {/* Voucher Analytics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  <div className="bg-gradient-to-br from-red-500 to-pink-600 p-6 rounded-2xl shadow-2xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-red-100 text-sm font-medium">Total Discount</p>
+                        <p className="text-2xl font-bold text-white mt-2">
+                          Rp {totalDiscountGiven.toLocaleString()}
+                        </p>
+                        <p className="text-xs text-red-200 mt-1">given via vouchers</p>
+                      </div>
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-2xl text-white">💸</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-red-500">💸</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-indigo-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Unique Vouchers</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-2">{uniqueVouchersUsed.length}</p>
-                    <p className="text-xs text-gray-500 mt-1">different codes used</p>
+                  <div className="bg-gradient-to-br from-indigo-500 to-indigo-600 p-6 rounded-2xl shadow-2xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-indigo-100 text-sm font-medium">Unique Vouchers</p>
+                        <p className="text-3xl font-bold text-white mt-2">{uniqueVouchersUsed.length}</p>
+                        <p className="text-xs text-indigo-200 mt-1">different codes used</p>
+                      </div>
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-2xl text-white">🏷️</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-indigo-500">🏷️</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-teal-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Avg Discount</p>
-                    <p className="text-2xl font-bold text-gray-800 mt-2">
-                      {Math.round(averageDiscountRate * 100)}%
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">per voucher order</p>
+                  <div className="bg-gradient-to-br from-teal-500 to-teal-600 p-6 rounded-2xl shadow-2xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-teal-100 text-sm font-medium">Avg Discount</p>
+                        <p className="text-2xl font-bold text-white mt-2">
+                          {Math.round(averageDiscountRate * 100)}%
+                        </p>
+                        <p className="text-xs text-teal-200 mt-1">per voucher order</p>
+                      </div>
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-2xl text-white">📊</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-teal-500">📊</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-pink-500">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-600 text-sm font-medium">Voucher Rate</p>
-                    <p className="text-3xl font-bold text-gray-800 mt-2">
-                      {Math.round((purchasesWithVoucher.length / purchases.length) * 100)}%
-                    </p>
-                    <p className="text-xs text-gray-500 mt-1">of orders use voucher</p>
+                  <div className="bg-gradient-to-br from-pink-500 to-rose-600 p-6 rounded-2xl shadow-2xl">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-pink-100 text-sm font-medium">Voucher Rate</p>
+                        <p className="text-3xl font-bold text-white mt-2">
+                          {Math.round((purchasesWithVoucher.length / purchases.length) * 100)}%
+                        </p>
+                        <p className="text-xs text-pink-200 mt-1">of orders use voucher</p>
+                      </div>
+                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
+                        <span className="text-2xl text-white">🎯</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className="w-12 h-12 bg-pink-100 rounded-full flex items-center justify-center">
-                    <span className="text-2xl text-pink-500">🎯</span>
+                </div>
+              </>
+            )}
+
+            {/* Analytics Tab */}
+            {activeTab === 'analytics' && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                {/* Product Distribution Chart */}
+                <div className="bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700">
+                  <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                    📊 Product Distribution
+                  </h3>
+                  <div className="w-full max-w-md mx-auto">
+                    <Pie data={pieData} options={chartOptions} />
+                  </div>
+                </div>
+
+                {/* Voucher Usage Chart */}
+                <div className="bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700">
+                  <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                    🎫 Voucher Usage
+                  </h3>
+                  <div className="w-full max-w-md mx-auto">
+                    <Pie data={voucherPieData} options={chartOptions} />
+                  </div>
+                </div>
+
+                {/* Monthly Revenue Chart */}
+                <div className="bg-gray-800 p-6 rounded-2xl shadow-2xl border border-gray-700 lg:col-span-2">
+                  <h3 className="text-xl font-semibold text-white mb-4 flex items-center">
+                    💰 Monthly Revenue Trend
+                  </h3>
+                  <div className="w-full max-w-4xl mx-auto">
+                    <Bar data={monthlyRevenueData} options={barChartOptions} />
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-              {/* Product Distribution Chart */}
-              <div className="bg-white p-6 rounded-2xl shadow-lg">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                  📊 Product Distribution
-                </h3>
-                <div className="w-full max-w-md mx-auto">
-                  <Pie data={pieData} options={chartOptions} />
-                </div>
-              </div>
-
-              {/* Voucher Usage Chart */}
-              <div className="bg-white p-6 rounded-2xl shadow-lg">
-                <h3 className="text-xl font-semibold text-gray-800 mb-4 flex items-center">
-                  🎫 Voucher Usage
-                </h3>
-                <div className="w-full max-w-md mx-auto">
-                  <Pie data={voucherPieData} options={chartOptions} />
-                </div>
-              </div>
-            </div>
+            )}
 
             {/* Purchase History Table dengan Jam & Waktu */}
-            <div className="bg-white rounded-2xl shadow-lg overflow-hidden mb-8">
-              <div className="p-6 border-b border-gray-200">
+            <div className="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden mb-8 border border-gray-700">
+              <div className="p-6 border-b border-gray-700">
                 <div className="flex flex-col md:flex-row md:items-center justify-between">
-                  <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+                  <h3 className="text-xl font-semibold text-white flex items-center">
                     📋 Purchase History (Latest First)
                   </h3>
                   <div className="flex items-center space-x-4 mt-2 md:mt-0">
-                    <span className="text-gray-500 text-sm">
+                    <span className="text-gray-400 text-sm">
                       Total: {purchases.length} orders
                     </span>
-                    <span className="text-gray-500 text-sm">
+                    <span className="text-gray-400 text-sm">
                       • With voucher: {purchasesWithVoucher.length}
                     </span>
                   </div>
@@ -502,22 +615,23 @@ export default function Admin() {
               {purchases.length > 0 ? (
                 <div className="overflow-x-auto">
                   <table className="w-full">
-                    <thead className="bg-gray-50">
+                    <thead className="bg-gray-700/50">
                       <tr>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Date & Time</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Product</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Size</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Qty</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Original</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Final</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Voucher</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Discount</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Payment</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Customer</th>
-                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Phone</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Date & Time</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Product</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Size</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Qty</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Original</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Final</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Voucher</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Discount</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Payment</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Customer</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Phone</th>
+                        <th className="py-3 px-4 text-left text-sm font-semibold text-gray-300">Notes</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-200">
+                    <tbody className="divide-y divide-gray-700">
                       {purchases.map((purchase, index) => {
                         const originalTotal = (Number(purchase.price) || 0) * (Number(purchase.qty) || 0)
                         const finalTotal = Number(purchase.final_price) || originalTotal
@@ -527,74 +641,73 @@ export default function Admin() {
                         const datetime = formatDateTime(purchase.created_at)
                         
                         return (
-                          <tr key={index} className="hover:bg-gray-50 transition-colors">
+                          <tr key={index} className="hover:bg-gray-700/50 transition-colors">
                             {/* Kolom Date & Time */}
                             <td className="py-3 px-4">
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-white">
                                 {datetime.date}
                               </div>
-                              <div className="text-xs text-gray-500">
+                              <div className="text-xs text-gray-400">
                                 {datetime.time}
                               </div>
                             </td>
                             
-                            <td className="py-3 px-4 text-sm text-gray-800">
+                            <td className="py-3 px-4 text-sm text-gray-200">
                               {purchase.product_name || purchase.productId || 'N/A'}
                             </td>
-                            <td className="py-3 px-4 text-sm text-gray-600">{purchase.size || 'N/A'}</td>
-                            <td className="py-3 px-4 text-sm text-gray-600 text-center">{purchase.qty || 0}</td>
+                            <td className="py-3 px-4 text-sm text-gray-400">{purchase.size || 'N/A'}</td>
+                            <td className="py-3 px-4 text-sm text-gray-400 text-center">{purchase.qty || 0}</td>
                             <td className="py-3 px-4 text-sm text-gray-500 line-through">
                               Rp {originalTotal.toLocaleString()}
                             </td>
-                            <td className="py-3 px-4 text-sm font-bold text-green-600">
+                            <td className="py-3 px-4 text-sm font-bold text-green-400">
                               Rp {finalTotal.toLocaleString()}
                             </td>
                             <td className="py-3 px-4 text-sm">
                               {purchase.voucher_code ? (
-                                <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-medium">
+                                <span className="bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded text-xs font-medium border border-yellow-500/30">
                                   {purchase.voucher_code}
                                 </span>
                               ) : (
-                                <span className="text-gray-400 text-xs">-</span>
+                                <span className="text-gray-500 text-xs">-</span>
                               )}
                             </td>
                             <td className="py-3 px-4 text-sm">
                               {discount > 0 ? (
-                                <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-medium">
+                                <span className="bg-green-500/20 text-green-300 px-2 py-1 rounded text-xs font-medium border border-green-500/30">
                                   -Rp {discount.toLocaleString()} ({discountRate}%)
                                 </span>
                               ) : (
-                                <span className="text-gray-400 text-xs">0%</span>
+                                <span className="text-gray-500 text-xs">0%</span>
                               )}
                             </td>
                             <td className="py-3 px-4 text-sm">
                               {purchase.payment_method ? (
-                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-medium capitalize">
+                                <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded text-xs font-medium border border-blue-500/30 capitalize">
                                   {purchase.payment_method}
                                 </span>
                               ) : (
-                                <span className="text-gray-400 text-xs">-</span>
+                                <span className="text-gray-500 text-xs">-</span>
                               )}
                             </td>
-                            <td className="py-3 px-4 text-sm text-gray-600">{purchase.name || 'N/A'}</td>
-                            <td className="py-3 px-4 text-sm text-gray-500 font-mono">
+                            <td className="py-3 px-4 text-sm text-gray-300">{purchase.name || 'N/A'}</td>
+                            <td className="py-3 px-4 text-sm text-gray-400 font-mono">
                               {purchase.phone || 'N/A'}
                             </td>
-<th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">Notes</th>
-<td className="py-3 px-4 text-sm text-gray-600 max-w-xs">
-  {purchase.notes ? (
-    <details className="cursor-pointer">
-      <summary className="text-blue-500 hover:text-blue-700 text-xs">
-        View Notes
-      </summary>
-      <div className="mt-2 p-2 bg-gray-100 rounded text-xs break-words">
-        {purchase.notes}
-      </div>
-    </details>
-  ) : (
-    <span className="text-gray-400 text-xs">-</span>
-  )}
-</td>
+                            <td className="py-3 px-4 text-sm text-gray-400 max-w-xs">
+                              {purchase.notes ? (
+                                <details className="cursor-pointer">
+                                  <summary className="text-orange-400 hover:text-orange-300 text-xs transition-colors">
+                                    View Notes
+                                  </summary>
+                                  <div className="mt-2 p-2 bg-gray-700 rounded text-xs break-words border border-gray-600">
+                                    {purchase.notes}
+                                  </div>
+                                </details>
+                              ) : (
+                                <span className="text-gray-500 text-xs">-</span>
+                              )}
+                            </td>
                           </tr>
                         )
                       })}
@@ -603,16 +716,16 @@ export default function Admin() {
                 </div>
               ) : (
                 <div className="text-center py-12">
-                  <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-2xl text-gray-400">📭</span>
+                  <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-2xl text-gray-500">📭</span>
                   </div>
-                  <p className="text-gray-500 text-lg">No purchase data available</p>
+                  <p className="text-gray-400 text-lg">No purchase data available</p>
                 </div>
               )}
             </div>
 
             {/* Summary Section */}
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white">
+            <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-6 text-white shadow-2xl">
               <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
                 <div>
                   <p className="text-sm opacity-90">Total Revenue</p>
