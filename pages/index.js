@@ -371,7 +371,7 @@ const extractImageUrl = (url) => {
 }
 
 const LoadingScreen = () => (
-  <div className="fixed inset-0 bg-gradient-to-br from-white via-orange-50 to-amber-100 flex flex-col items-center justify-center z-50 overflow-hidden">
+  <div className="fixed inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black flex flex-col items-center justify-center z-50 overflow-hidden">
     <script
       src="https://unpkg.com/@lottiefiles/dotlottie-wc@0.7.1/dist/dotlottie-wc.js"
       type="module"
@@ -387,10 +387,10 @@ const LoadingScreen = () => (
     ></dotlottie-wc>
 
     <div className="mt-4 text-center">
-      <h2 className="text-3xl font-bold text-orange-700 relative overflow-hidden">
+      <h2 className="text-3xl font-bold text-orange-400 relative overflow-hidden">
         <span className="inline-block animate-slide-mask">Selamat Datang!</span>
       </h2>
-      <p className="text-lg text-orange-600 mt-2 relative overflow-hidden">
+      <p className="text-lg text-orange-300 mt-2 relative overflow-hidden">
         <span className="inline-block animate-slide-mask-delayed">Made By Kelompok 4</span>
       </p>
     </div>
@@ -448,8 +448,9 @@ export default function Home() {
   const [quantityUpdateKey, setQuantityUpdateKey] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [pageTransition, setPageTransition] = useState(false)
-  const [theme, setTheme] = useState('light')
+  const [theme, setTheme] = useState('dark')
   const [isThemeTransitioning, setIsThemeTransitioning] = useState(false)
+  const [recommendedProducts, setRecommendedProducts] = useState([])
 
   const paymentMethods = [
     {
@@ -555,7 +556,7 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [searchTerm, selectedTag]);
 
-  // FIXED: Improved getRecommendedProducts function
+  // FIXED: Improved getRecommendedProducts function - only update when product changes
   const getRecommendedProducts = useCallback((currentProduct) => {
     if (!currentProduct || !currentProduct.tags) return [];
     
@@ -579,6 +580,14 @@ export default function Home() {
     
     return shuffled.slice(0, 3);
   }, []);
+
+  // FIXED: Update recommended products only when selected product changes
+  useEffect(() => {
+    if (selectedProduct) {
+      const recommended = getRecommendedProducts(selectedProduct);
+      setRecommendedProducts(recommended);
+    }
+  }, [selectedProduct, getRecommendedProducts]);
 
   const calculateDiscount = useCallback((quantity, voucherCode = '') => {
     let discountRate = getDiscount(quantity)
@@ -743,7 +752,7 @@ export default function Home() {
           voucher_code: form.code || null,
           discount_rate: voucherApplied ? calculateDiscount(item.quantity, form.code) : 0,
           final_price: voucherApplied ? Math.round(item.variant.price * item.quantity * (1 - calculateDiscount(item.quantity, form.code))) : item.variant.price * item.quantity,
-          notes: form.notes || null
+          notes: form.notes || null // FIXED: Include notes in the data
         }
 
         console.log('📦 Sending purchase:', purchaseData)
@@ -798,6 +807,21 @@ export default function Home() {
         }}
       />
     );
+  };
+
+  // FIXED: Improved product description formatting
+  const formatProductDescription = (description) => {
+    if (!description) return '';
+    
+    // Split by bullet points or new lines
+    const lines = description.split(/(?:\n|•|\.\s)/).filter(line => line.trim());
+    
+    return lines.map((line, index) => (
+      <div key={index} className="flex items-start gap-2">
+        <span className="text-orange-400 mt-1">•</span>
+        <span>{line.trim()}</span>
+      </div>
+    ));
   };
 
   const AnimatedQuantity = ({ quantity }) => {
@@ -1298,22 +1322,22 @@ export default function Home() {
           theme === 'dark' ? 'text-white' : ''
         } ${pageTransition ? 'animate-page-exit' : 'animate-page-enter'}`}>
           <div className="flex items-center justify-between w-full md:w-auto gap-4">
-<div className="flex flex-col">
-  <h1 
-    className="text-xl md:text-2xl font-bold flex items-center gap-2 animate-pulse-gentle cursor-pointer transition-all duration-300"
-    style={{
-      color: theme === 'light' ? '#c2410c' : '#fdba74'
-    }}
-    onClick={() => navigateToPage('home')}
-  >
-    ⚽ Kickbyte - Steven
-  </h1>
-  <p className={`text-xs mt-1 transition-all duration-300 ${
-    theme === 'light' ? 'text-gray-600' : 'text-gray-400'
-  }`}>
-    Play Hard. Gear Smart.
-  </p>
-</div>
+            <div className="flex flex-col">
+              <h1 
+                className="text-xl md:text-2xl font-bold flex items-center gap-2 animate-pulse-gentle cursor-pointer transition-all duration-300"
+                style={{
+                  color: theme === 'light' ? '#c2410c' : '#fdba74'
+                }}
+                onClick={() => navigateToPage('home')}
+              >
+                ⚽ Kickbyte - Steven
+              </h1>
+              <p className={`text-xs mt-1 transition-all duration-300 ${
+                theme === 'light' ? 'text-gray-600' : 'text-gray-400'
+              }`}>
+                Play Hard. Gear Smart.
+              </p>
+            </div>
             
             <div className="flex items-center gap-2">
               <div 
@@ -1660,27 +1684,30 @@ export default function Home() {
               {selectedProduct.images.length > 1 && (
                 <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
                   {selectedProduct.images.map((_, index) => (
-<button
-  key={index}
-  onClick={() => handleImageChange(index)}
-  className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
-    index === currentImageIndex 
-      ? 'bg-orange-500 scale-125' 
-      : theme === 'light'
-        ? 'bg-gray-400 hover:bg-gray-500'
-
-        : 'bg-white/90 hover:bg-white'
-  }`}
-/>
+                    <button
+                      key={index}
+                      onClick={() => handleImageChange(index)}
+                      className={`w-3 h-3 rounded-full transition-all duration-300 transform hover:scale-125 ${
+                        index === currentImageIndex 
+                          ? 'bg-orange-500 scale-125' 
+                          : theme === 'light'
+                            ? 'bg-gray-400 hover:bg-gray-500'
+                            : 'bg-white/90 hover:bg-white'
+                      }`}
+                    />
                   ))}
                 </div>
               )}
             </div>
 
             <h2 className="text-xl md:text-2xl font-semibold">{selectedProduct.name}</h2>
-            <p className={`mt-2 text-sm md:text-base ${
-              theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-            }`}>{selectedProduct.description}</p>
+            
+            {/* FIXED: Improved product description formatting */}
+            <div className={`mt-3 space-y-2 text-sm ${
+              theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+            }`}>
+              {formatProductDescription(selectedProduct.description)}
+            </div>
             
             {selectedProduct.tags && selectedProduct.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-3">
@@ -1804,7 +1831,8 @@ export default function Home() {
           }`}>
             <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
             <div className="grid grid-cols-1 gap-3 md:gap-4">
-              {getRecommendedProducts(selectedProduct).map((p) => (
+              {/* FIXED: Use stable recommended products instead of recalculating on every render */}
+              {recommendedProducts.map((p) => (
                 <div
                   key={p.id}
                   className={`flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border transform hover:-translate-y-1 ${
