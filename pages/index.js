@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { products } from '@/data/product'
 
 function getDiscount(qty) {
@@ -419,6 +419,125 @@ const LoadingScreen = () => (
   </div>
 );
 
+// Enhanced Product Card Component
+const ProductCard = ({ product, theme, onProductClick, onAddToCart }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
+  return (
+    <div
+      className={`group relative p-6 rounded-2xl shadow-lg backdrop-blur-sm hover:shadow-2xl transition-all duration-500 cursor-pointer transform hover:-translate-y-2 flex flex-col min-h-[420px] animate-product-card ${
+        theme === 'light' 
+          ? 'bg-white/90 border border-orange-100' 
+          : 'bg-gray-800/90 text-white border border-gray-700'
+      }`}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={onProductClick}
+    >
+      {/* Badge untuk produk baru atau diskon */}
+      {product.isNew && (
+        <div className="absolute top-4 left-4 z-10">
+          <span className="px-3 py-1 bg-green-500 text-white text-xs font-bold rounded-full animate-pulse">
+            NEW 🔥
+          </span>
+        </div>
+      )}
+      
+      {product.isBestSeller && (
+        <div className="absolute top-4 right-4 z-10">
+          <span className="px-3 py-1 bg-red-500 text-white text-xs font-bold rounded-full">
+            BEST SELLER ⭐
+          </span>
+        </div>
+      )}
+
+      <div className="relative overflow-hidden rounded-xl mb-4">
+        <img
+          src={extractImageUrl(product.images[0])}
+          alt={product.name}
+          className={`w-full h-56 object-cover transition-all duration-700 ${
+            isHovered ? 'scale-110 rotate-1' : 'scale-100'
+          }`}
+          onError={(e) => {
+            e.target.src = '/api/placeholder/400/400';
+            e.target.alt = 'Gambar tidak tersedia';
+          }}
+        />
+        
+        {/* Overlay effect pada hover */}
+        <div className={`absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-end justify-center pb-4 ${
+          theme === 'light' ? 'text-white' : ''
+        }`}>
+          <span className="text-sm font-semibold transform translate-y-4 group-hover:translate-y-0 transition-transform duration-300">
+            👆 Klik untuk detail
+          </span>
+        </div>
+      </div>
+      
+      <div className="flex flex-col flex-grow">
+        <h3 className="font-bold text-xl mb-2 group-hover:text-orange-600 transition-colors duration-300">
+          {product.name}
+        </h3>
+        
+        <p className={`text-sm mb-4 line-clamp-3 flex-grow leading-relaxed ${
+          theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+        }`}>
+          {product.description}
+        </p>
+        
+        {/* Enhanced Tags */}
+        {product.tags && product.tags.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-4">
+            {product.tags.slice(0, 3).map(tag => (
+              <span 
+                key={tag} 
+                className={`px-3 py-1 text-xs rounded-full font-medium transition-all duration-300 hover:scale-110 ${
+                  theme === 'light' 
+                    ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 border border-orange-200' 
+                    : 'bg-gradient-to-r from-orange-900 to-amber-900 text-orange-300 border border-orange-700'
+                }`}
+              >
+                #{tag}
+              </span>
+            ))}
+            {product.tags.length > 3 && (
+              <span className={`px-2 py-1 text-xs rounded-full ${
+                theme === 'light' ? 'bg-gray-100 text-gray-600' : 'bg-gray-700 text-gray-400'
+              }`}>
+                +{product.tags.length - 3}
+              </span>
+            )}
+          </div>
+        )}
+        
+        <div className="flex items-center justify-between mt-auto">
+          <div>
+            <p className="text-2xl font-bold text-orange-600 transition-all duration-300 group-hover:scale-110">
+              Rp {product.variants[1].price.toLocaleString()}
+            </p>
+            {product.originalPrice && (
+              <p className="text-sm text-gray-400 line-through">
+                Rp {product.originalPrice.toLocaleString()}
+              </p>
+            )}
+          </div>
+          
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddToCart(product, product.variants[1], 1);
+            }}
+            className="px-6 py-3 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-110 active:scale-95 font-semibold shadow-lg hover:shadow-xl flex items-center gap-2 group/btn"
+          >
+            <span className="group-hover/btn:scale-110 transition-transform">🛒</span>
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home')
   const [selectedProduct, setSelectedProduct] = useState(null)
@@ -497,31 +616,46 @@ export default function Home() {
     }
   ]
 
-  // Hardcoded tags
-  const allTags = ['all', 'sepakbola', 'aksesoris', 'gaming']
+  // Enhanced tags dengan icon
+  const allTags = [
+    { id: 'all', name: 'Semua', icon: '🎯' },
+    { id: 'sepakbola', name: 'Sepak Bola', icon: '⚽' },
+    { id: 'aksesoris', name: 'Aksesoris', icon: '🎮' },
+    { id: 'gaming', name: 'Gaming', icon: '👾' },
+    { id: 'sports', name: 'Sports', icon: '🏆' }
+  ]
 
+  // FIXED: Single toggle theme function dengan performance improvement
   const toggleTheme = useCallback(() => {
     if (isThemeTransitioning) return;
     
     setIsThemeTransitioning(true);
     const newTheme = theme === 'light' ? 'dark' : 'light';
     
-    document.documentElement.classList.add('theme-transition');
+    // Optimized theme transition
+    document.documentElement.style.transition = 'background-color 0.3s ease, color 0.3s ease';
     
     setTimeout(() => {
       setTheme(newTheme);
+      localStorage.setItem('theme', newTheme);
     }, 150);
     
     setTimeout(() => {
-      document.documentElement.classList.remove('theme-transition');
+      document.documentElement.style.transition = '';
       setIsThemeTransitioning(false);
-    }, 600);
+    }, 450);
   }, [theme, isThemeTransitioning]);
+
+  // Load saved theme
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    setTheme(savedTheme);
+  }, []);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
-    }, 3000);
+    }, 2500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -532,56 +666,48 @@ export default function Home() {
       setCurrentPage(page);
       setTimeout(() => {
         setPageTransition(false);
-      }, 300);
-    }, 300);
+      }, 200);
+    }, 200);
   }, []);
 
-  const handleTagChange = useCallback((tag) => {
+  // FIXED: Improved tag change dengan debounce
+  const handleTagChange = useCallback((tagId) => {
     setFilterAnimating(true);
-    setSelectedTag(tag);
-  }, []);
-
-  useEffect(() => {
-    setFilterAnimating(true);
-    const timer = setTimeout(() => {
-      const filtered = products.filter(product =>
-        (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
-        (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
-      );
-      setFilteredProducts(filtered);
-      setFilterAnimating(false);
-    }, 300);
+    setSelectedTag(tagId);
     
-    return () => clearTimeout(timer);
+    // Reset animasi setelah delay
+    setTimeout(() => setFilterAnimating(false), 400);
+  }, []);
+
+  // FIXED: Optimized product filtering dengan useMemo
+  const filteredProductsMemo = useMemo(() => {
+    return products.filter(product =>
+      (product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (selectedTag === 'all' || (product.tags && product.tags.includes(selectedTag)))
+    );
   }, [searchTerm, selectedTag]);
 
-  // FIXED: Improved getRecommendedProducts function - only update when product changes
+  useEffect(() => {
+    setFilteredProducts(filteredProductsMemo);
+  }, [filteredProductsMemo]);
+
+  // FIXED: Improved getRecommendedProducts function
   const getRecommendedProducts = useCallback((currentProduct) => {
     if (!currentProduct || !currentProduct.tags) return [];
     
-    // Get all products that share at least one tag with current product
-    const recommended = products.filter(p => 
-      p.id !== currentProduct.id && 
-      p.tags && 
-      p.tags.some(tag => currentProduct.tags.includes(tag))
-    );
+    const recommended = products
+      .filter(p => 
+        p.id !== currentProduct.id && 
+        p.tags && 
+        p.tags.some(tag => currentProduct.tags.includes(tag))
+      )
+      .sort(() => Math.random() - 0.5)
+      .slice(0, 4);
     
-    // Remove duplicates by id and shuffle for variety
-    const uniqueRecommended = recommended.reduce((acc, product) => {
-      if (!acc.find(p => p.id === product.id)) {
-        acc.push(product);
-      }
-      return acc;
-    }, []);
-    
-    // Shuffle array for variety
-    const shuffled = [...uniqueRecommended].sort(() => Math.random() - 0.5);
-    
-    return shuffled.slice(0, 3);
+    return recommended;
   }, []);
 
-  // FIXED: Update recommended products only when selected product changes
   useEffect(() => {
     if (selectedProduct) {
       const recommended = getRecommendedProducts(selectedProduct);
@@ -652,12 +778,11 @@ export default function Home() {
     if (selectedProduct && currentPage === 'product') {
       const interval = setInterval(() => {
         setCurrentImageIndex(prev => (prev + 1) % selectedProduct.images.length)
-      }, 4000)
+      }, 5000) // Increased interval for better performance
       return () => clearInterval(interval)
     }
-  }, [selectedProduct, currentImageIndex, currentPage])
+  }, [selectedProduct, currentPage])
 
-  // FIXED: Improved image change animation
   const handleImageChange = useCallback((newIndex) => {
     setImageAnim(true)
     setTimeout(() => {
@@ -714,17 +839,17 @@ export default function Home() {
     setQuantityUpdateKey(prev => prev + 1)
   }, [cart])
 
-  // FIXED: Improved product detail opening
   const openProductDetail = useCallback((product) => {
     setSelectedProduct(product)
     setSelectedVariant(product.variants[1])
     setCurrentImageIndex(0)
     setQty(1)
-    setImageAnim(false) // Reset animation state
+    setImageAnim(false)
     navigateToPage('product')
     setCartOpen(false)
   }, [navigateToPage])
 
+  // FIXED: Enhanced handleCheckout dengan notes handling
   const handleCheckout = useCallback(async () => {
     if (!form.paymentMethod) {
       alert('Pilih metode pembayaran terlebih dahulu!')
@@ -752,7 +877,8 @@ export default function Home() {
           voucher_code: form.code || null,
           discount_rate: voucherApplied ? calculateDiscount(item.quantity, form.code) : 0,
           final_price: voucherApplied ? Math.round(item.variant.price * item.quantity * (1 - calculateDiscount(item.quantity, form.code))) : item.variant.price * item.quantity,
-          notes: form.notes || null // FIXED: Include notes in the data
+          notes: form.notes || null, // FIXED: Notes included
+          timestamp: new Date().toISOString()
         }
 
         console.log('📦 Sending purchase:', purchaseData)
@@ -809,11 +935,9 @@ export default function Home() {
     );
   };
 
-  // FIXED: Improved product description formatting
   const formatProductDescription = (description) => {
     if (!description) return '';
     
-    // Split by bullet points or new lines
     const lines = description.split(/(?:\n|•|\.\s)/).filter(line => line.trim());
     
     return lines.map((line, index) => (
@@ -1339,6 +1463,7 @@ export default function Home() {
               </p>
             </div>
             
+            {/* FIXED: Single toggle theme button dengan positioning yang benar */}
             <div className="flex items-center gap-2">
               <div 
                 className={`relative w-14 h-8 rounded-full p-1 cursor-pointer transition-all duration-500 ${
@@ -1399,29 +1524,8 @@ export default function Home() {
           )}
 
           <div className="hidden md:flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div 
-                className={`relative w-14 h-8 rounded-full p-1 cursor-pointer transition-all duration-500 ${
-                  theme === 'light' 
-                    ? 'bg-gradient-to-r from-orange-400 to-amber-400' 
-                    : 'bg-gradient-to-r from-gray-600 to-gray-700'
-                }`}
-                onClick={toggleTheme}
-              >
-                <div 
-                  className={`absolute top-1 w-6 h-6 rounded-full bg-white shadow-lg transform transition-all duration-500 ${
-                    theme === 'light' 
-                      ? 'left-1 translate-x-0' 
-                      : 'left-7 translate-x-0'
-                  }`}
-                >
-                  <div className="flex items-center justify-center w-full h-full">
-                    {theme === 'light' ? '☀️' : '🌙'}
-                  </div>
-                </div>
-              </div>
-            </div>
-
+            {/* FIXED: Hapus duplicate toggle theme di desktop */}
+            
             <div className="relative">
               <button
                 onClick={() => setCartOpen(!cartOpen)}
@@ -1559,107 +1663,100 @@ export default function Home() {
 
       {currentPage === 'home' && (
         <div className={pageTransition ? 'animate-page-exit' : 'animate-page-enter'}>
-          <div className="flex flex-col md:flex-row md:items-center justify-between mb-6">
-            <h2 className={`text-xl font-semibold mb-4 md:mb-0 ${
-              theme === 'dark' ? 'text-white' : ''
-            }`}>Semua Produk Kami</h2>
+          {/* Enhanced Header dengan Hero Section */}
+          <div className="text-center mb-8">
+            <h2 className={`text-3xl md:text-4xl font-bold mb-4 bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent ${
+              theme === 'dark' ? '' : ''
+            }`}>
+              Temukan Gear Terbaik untuk Passion Anda
+            </h2>
+            <p className={`text-lg max-w-2xl mx-auto ${
+              theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+            }`}>
+              Dari lapangan sepak bola hingga gaming arena - semua yang Anda butuhkan dalam satu tempat
+            </p>
+          </div>
+
+          <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+            <div className="mb-4 md:mb-0">
+              <h2 className={`text-xl font-semibold ${
+                theme === 'dark' ? 'text-white' : ''
+              }`}>
+                Koleksi Eksklusif Kami
+              </h2>
+              <p className={`text-sm ${
+                theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+              }`}>
+                {filteredProducts.length} produk ditemukan
+              </p>
+            </div>
             
+            {/* Enhanced Tags dengan icon */}
             <div className="flex flex-wrap gap-2">
               {allTags.map(tag => (
                 <button
-                  key={tag}
-                  onClick={() => handleTagChange(tag)}
-                  className={`px-3 py-1 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 ${
-                    selectedTag === tag
-                      ? 'bg-orange-500 text-white shadow-lg animate-tag-select'
+                  key={tag.id}
+                  onClick={() => handleTagChange(tag.id)}
+                  className={`px-4 py-2 rounded-full text-sm font-medium transition-all duration-300 transform hover:scale-105 flex items-center gap-2 ${
+                    selectedTag === tag.id
+                      ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-lg animate-tag-select'
                       : theme === 'light'
-                      ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                      ? 'bg-white text-gray-700 border border-gray-300 hover:border-orange-500 hover:shadow-md'
+                      : 'bg-gray-700 text-gray-300 border border-gray-600 hover:border-orange-500 hover:shadow-md'
                   }`}
                 >
-                  {tag === 'all' ? 'Semua' : `#${tag}`}
+                  <span>{tag.icon}</span>
+                  <span>{tag.name}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className={`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 transition-all duration-500 ${
+          {/* Enhanced Product Grid */}
+          <div className={`grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-6 transition-all duration-500 ${
             filterAnimating ? 'opacity-50 scale-95' : 'opacity-100 scale-100'
           }`}>
             {filteredProducts.map((product, index) => (
-              <div
+              <ProductCard
                 key={product.id}
-                className={`p-4 rounded-lg shadow-lg backdrop-blur-sm hover:shadow-xl transition-all duration-500 cursor-pointer transform hover:-translate-y-1 flex flex-col min-h-[380px] animate-product-card ${
-                  theme === 'light' 
-                    ? 'bg-white/90' 
-                    : 'bg-gray-800/90 text-white border border-gray-700'
-                }`}
-                style={{
-                  animationDelay: `${index * 0.1}s`,
-                  animationFillMode: 'both'
-                }}
-                onClick={() => openProductDetail(product)}
-              >
-                {renderProductImage(
-                  product.images[0],
-                  product.name,
-                  "w-full h-48 object-cover rounded mb-3 transition-transform duration-300 hover:scale-105"
-                )}
-                
-                <div className="flex flex-col flex-grow">
-                  <h3 className="font-semibold text-lg">{product.name}</h3>
-                  <p className={`text-sm mt-1 line-clamp-2 flex-grow ${
-                    theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-                  }`}>{product.description}</p>
-                  
-                  {product.tags && product.tags.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-2">
-                      {product.tags.slice(0, 3).map(tag => (
-                        <span key={tag} className={`px-2 py-1 text-xs rounded transition-all duration-300 hover:scale-105 ${
-                          theme === 'light' 
-                            ? 'bg-orange-100 text-orange-700' 
-                            : 'bg-orange-900 text-orange-300'
-                        }`}>
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                  
-                  <p className="mt-2 text-lg font-bold text-orange-600 transition-all duration-300 hover:scale-105">
-                    Rp {product.variants[1].price.toLocaleString()}
-                  </p>
-                  
-                  <div className="mt-auto pt-3">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        addToCart(product, product.variants[1], 1)
-                      }}
-                      className="w-full py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
-                    >
-                      + Add to Cart
-                    </button>
-                  </div>
-                </div>
-              </div>
+                product={product}
+                theme={theme}
+                onProductClick={() => openProductDetail(product)}
+                onAddToCart={addToCart}
+              />
             ))}
           </div>
+
+          {filteredProducts.length === 0 && (
+            <div className="text-center py-12">
+              <div className="text-6xl mb-4">🔍</div>
+              <h3 className={`text-xl font-semibold mb-2 ${
+                theme === 'dark' ? 'text-white' : ''
+              }`}>
+                Produk tidak ditemukan
+              </h3>
+              <p className={`${
+                theme === 'light' ? 'text-gray-500' : 'text-gray-400'
+              }`}>
+                Coba gunakan kata kunci lain atau pilih kategori berbeda
+              </p>
+            </div>
+          )}
         </div>
       )}
 
       {currentPage === 'product' && selectedProduct && (
-        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 ${
+        <div className={`grid grid-cols-1 lg:grid-cols-2 gap-8 ${
           pageTransition ? 'animate-page-exit' : 'animate-page-enter'
         }`}>
-          <section className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-300 ${
+          <section className={`p-6 rounded-2xl shadow-xl backdrop-blur-sm transition-all duration-300 ${
             theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
           }`}>
-            <div className="relative mb-4">
+            <div className="relative mb-6">
               {renderProductImage(
                 selectedProduct.images[currentImageIndex],
                 selectedProduct.name,
-                `w-full h-64 md:h-80 object-contain rounded transition-all duration-500 ${
+                `w-full h-64 md:h-80 object-contain rounded-2xl transition-all duration-500 ${
                   imageAnim ? 'opacity-0 scale-95' : 'opacity-100 scale-100'
                 }`
               )}
@@ -1668,13 +1765,13 @@ export default function Home() {
                 <>
                   <button
                     onClick={() => handleImageChange((currentImageIndex - 1 + selectedProduct.images.length) % selectedProduct.images.length)}
-                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
+                    className="absolute left-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
                   >
                     ←
                   </button>
                   <button
                     onClick={() => handleImageChange((currentImageIndex + 1) % selectedProduct.images.length)}
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-2 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition-all duration-300 transform hover:scale-110"
                   >
                     →
                   </button>
@@ -1682,7 +1779,7 @@ export default function Home() {
               )}
               
               {selectedProduct.images.length > 1 && (
-                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex gap-2">
+                <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-2">
                   {selectedProduct.images.map((_, index) => (
                     <button
                       key={index}
@@ -1700,22 +1797,21 @@ export default function Home() {
               )}
             </div>
 
-            <h2 className="text-xl md:text-2xl font-semibold">{selectedProduct.name}</h2>
+            <h2 className="text-2xl md:text-3xl font-bold mb-4">{selectedProduct.name}</h2>
             
-            {/* FIXED: Improved product description formatting */}
-            <div className={`mt-3 space-y-2 text-sm ${
+            <div className={`mb-6 space-y-2 text-sm ${
               theme === 'light' ? 'text-gray-700' : 'text-gray-300'
             }`}>
               {formatProductDescription(selectedProduct.description)}
             </div>
             
             {selectedProduct.tags && selectedProduct.tags.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-3">
+              <div className="flex flex-wrap gap-2 mb-6">
                 {selectedProduct.tags.map(tag => (
                   <span key={tag} className={`px-3 py-1 text-sm rounded-full ${
                     theme === 'light' 
-                      ? 'bg-orange-100 text-orange-700' 
-                      : 'bg-orange-900 text-orange-300'
+                      ? 'bg-gradient-to-r from-orange-100 to-amber-100 text-orange-700 border border-orange-200' 
+                      : 'bg-gradient-to-r from-orange-900 to-amber-900 text-orange-300 border border-orange-700'
                   }`}>
                     #{tag}
                   </span>
@@ -1723,46 +1819,48 @@ export default function Home() {
               </div>
             )}
             
-            <div className="mt-4 md:mt-6">
-              <h4 className="font-semibold mb-3">Pilih Size:</h4>
-              <div className="flex flex-wrap gap-2 md:gap-3">
+            <div className="mb-6">
+              <h4 className="font-semibold mb-4 text-lg">Pilih Size:</h4>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 {selectedProduct.variants.map((variant) => (
                   <button
                     key={variant.size}
                     onClick={() => setSelectedVariant(variant)}
-                    className={`px-3 py-2 md:px-4 md:py-3 border-2 rounded-lg transition-all duration-300 font-semibold text-sm md:text-base transform hover:scale-105 ${
+                    className={`p-4 border-2 rounded-xl transition-all duration-300 font-semibold text-center transform hover:scale-105 ${
                       selectedVariant.size === variant.size
-                        ? 'bg-orange-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
+                        ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white border-orange-500 shadow-lg animate-variant-bounce'
                         : theme === 'light'
                         ? 'bg-white text-gray-700 border-gray-300 hover:border-orange-500 hover:shadow-md'
                         : 'bg-gray-700 text-gray-300 border-gray-600 hover:border-orange-500 hover:shadow-md'
                     }`}
                   >
-                    {variant.size}<br/>
-                    <span className="text-xs md:text-sm font-normal">
+                    <div className="text-lg mb-1">{variant.size}</div>
+                    <div className="text-sm font-normal">
                       Rp {variant.price.toLocaleString()}
-                    </span>
+                    </div>
                   </button>
                 ))}
               </div>
             </div>
 
-            <div className="mt-6 md:mt-8 flex flex-col sm:flex-row items-center gap-4">
-              <div className={`flex items-center gap-3 rounded-lg p-2 w-full sm:w-auto justify-center transition-all duration-300 ${
+            <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
+              <div className={`flex items-center gap-4 rounded-xl p-3 w-full sm:w-auto justify-center transition-all duration-300 ${
                 theme === 'light' ? 'bg-orange-50' : 'bg-gray-700'
               }`}>
                 <button
                   onClick={() => setQty(Math.max(1, qty - 1))}
-                  className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
+                  className={`w-10 h-10 flex items-center justify-center border rounded-xl hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
                     theme === 'light' ? 'bg-white' : 'bg-gray-600 border-gray-500'
                   }`}
                 >
                   -
                 </button>
-                <AnimatedQuantity quantity={qty} />
+                <span className="text-xl font-bold w-8 text-center">
+                  <AnimatedQuantity quantity={qty} />
+                </span>
                 <button
                   onClick={() => setQty(qty + 1)}
-                  className={`w-8 h-8 flex items-center justify-center border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
+                  className={`w-10 h-10 flex items-center justify-center border rounded-xl hover:bg-orange-500 hover:text-white transition-all duration-300 font-bold transform hover:scale-110 active:scale-95 ${
                     theme === 'light' ? 'bg-white' : 'bg-gray-600 border-gray-500'
                   }`}
                 >
@@ -1775,39 +1873,39 @@ export default function Home() {
                   addToCart(selectedProduct, selectedVariant, qty)
                   setQty(1)
                 }}
-                className="w-full sm:flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg"
+                className="w-full sm:flex-1 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg shadow-lg"
               >
-                + Add to Cart
+                🛒 Add to Cart
               </button>
             </div>
 
             {selectedVariant && (
-              <div className={`mt-4 p-4 rounded-lg animate-price-change transition-all duration-300 ${
-                theme === 'light' ? 'bg-orange-50' : 'bg-gray-700'
+              <div className={`p-6 rounded-xl animate-price-change transition-all duration-300 ${
+                theme === 'light' ? 'bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200' : 'bg-gradient-to-r from-gray-700 to-gray-600 border border-gray-600'
               }`}>
                 <div className="flex items-center justify-between">
-                  <div className={`text-sm ${
-                    theme === 'light' ? 'text-gray-600' : 'text-gray-300'
-                  }`}>Harga Total:</div>
+                  <div className={`text-lg font-semibold ${
+                    theme === 'light' ? 'text-gray-700' : 'text-gray-300'
+                  }`}>Total Harga:</div>
                   <div className="text-right">
                     {discountRate > 0 && (
-                      <div className="text-sm text-gray-400 line-through animate-strike">
+                      <div className="text-lg text-gray-400 line-through animate-strike">
                         Rp {priceBeforeDiscount.toLocaleString()}
                       </div>
                     )}
-                    <div className="text-lg font-bold text-orange-600 animate-price-spring">
+                    <div className="text-2xl font-bold text-orange-600 animate-price-spring">
                       Rp {animatedPrice.toLocaleString()}
                     </div>
                     {discountRate > 0 && (
-                      <div className="text-xs text-green-600 animate-fade-in">
-                        🎉 Diskon {Math.round(discountRate * 100)}%
+                      <div className="text-sm text-green-600 animate-fade-in font-semibold">
+                        🎉 Hemat {Math.round(discountRate * 100)}%
                         {voucherApplied && ` (Voucher: ${form.code.toUpperCase()})`}
                       </div>
                     )}
                   </div>
                 </div>
                 {voucherApplied && (
-                  <div className="mt-2 text-xs text-green-600 bg-green-100 px-2 py-1 rounded animate-pulse">
+                  <div className="mt-3 text-sm text-green-600 bg-green-100 px-3 py-2 rounded-lg animate-pulse font-medium">
                     ✅ Voucher berhasil diterapkan!
                   </div>
                 )}
@@ -1816,7 +1914,7 @@ export default function Home() {
 
             <button
               onClick={() => navigateToPage('home')}
-              className={`w-full mt-4 py-2 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold ${
+              className={`w-full mt-6 py-3 border-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 font-semibold text-lg ${
                 theme === 'light'
                   ? 'border-orange-500 text-orange-500 hover:bg-orange-50'
                   : 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white'
@@ -1826,38 +1924,40 @@ export default function Home() {
             </button>
           </section>
 
-          <aside className={`p-4 md:p-6 rounded-lg shadow-xl backdrop-blur-sm transition-all duration-300 ${
+          <aside className={`p-6 rounded-2xl shadow-xl backdrop-blur-sm transition-all duration-300 ${
             theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
           }`}>
-            <h3 className="font-semibold text-lg mb-4">You may like this too</h3>
-            <div className="grid grid-cols-1 gap-3 md:gap-4">
-              {/* FIXED: Use stable recommended products instead of recalculating on every render */}
+            <h3 className="font-bold text-xl mb-6 flex items-center gap-2">
+              <span>🔥</span>
+              Rekomendasi untuk Anda
+            </h3>
+            <div className="grid grid-cols-1 gap-4">
               {recommendedProducts.map((p) => (
                 <div
                   key={p.id}
-                  className={`flex items-center gap-3 cursor-pointer hover:shadow-lg transition-all duration-300 rounded-lg p-3 border transform hover:-translate-y-1 ${
+                  className={`flex items-center gap-4 cursor-pointer hover:shadow-xl transition-all duration-300 rounded-xl p-4 border transform hover:-translate-y-1 ${
                     theme === 'light'
-                      ? 'border-transparent hover:border-orange-200 bg-orange-50/50'
-                      : 'border-gray-600 hover:border-orange-500 bg-gray-700/50'
+                      ? 'border-orange-200 hover:border-orange-300 bg-gradient-to-r from-orange-50 to-amber-50'
+                      : 'border-gray-600 hover:border-orange-500 bg-gradient-to-r from-gray-700 to-gray-600'
                   }`}
                   onClick={() => openProductDetail(p)}
                 >
                   {renderProductImage(
                     p.images[0],
                     p.name,
-                    "w-12 h-12 md:w-16 md:h-16 object-cover rounded-lg transition-transform duration-300 hover:scale-110"
+                    "w-16 h-16 md:w-20 md:h-20 object-cover rounded-xl transition-transform duration-300 hover:scale-110"
                   )}
                   <div className="flex-1">
-                    <div className="font-semibold text-sm md:text-base">{p.name}</div>
-                    <div className={`text-xs md:text-sm transition-all duration-300 hover:scale-105 ${
-                      theme === 'light' ? 'text-gray-600' : 'text-gray-300'
+                    <div className="font-semibold text-base md:text-lg">{p.name}</div>
+                    <div className={`text-sm md:text-base font-bold transition-all duration-300 hover:scale-105 ${
+                      theme === 'light' ? 'text-orange-600' : 'text-orange-400'
                     }`}>
                       Rp {p.variants[1].price.toLocaleString()}
                     </div>
                     {p.tags && p.tags.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-1">
                         {p.tags.slice(0, 2).map(tag => (
-                          <span key={tag} className={`px-1 py-0.5 text-xs rounded ${
+                          <span key={tag} className={`px-2 py-1 text-xs rounded ${
                             theme === 'light'
                               ? 'bg-orange-200 text-orange-800'
                               : 'bg-orange-900 text-orange-300'
@@ -1869,7 +1969,7 @@ export default function Home() {
                     )}
                   </div>
                   <button
-                    className={`text-xs md:text-sm px-2 py-1 md:px-3 md:py-2 border rounded-lg hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95 ${
+                    className={`px-4 py-2 border rounded-xl hover:bg-orange-500 hover:text-white transition-all duration-300 transform hover:scale-110 active:scale-95 font-semibold ${
                       theme === 'light'
                         ? 'border-orange-500 text-orange-500'
                         : 'border-orange-500 text-orange-400'
@@ -1889,39 +1989,42 @@ export default function Home() {
       )}
 
       {currentPage === 'cart' && (
-        <div className={`max-w-4xl mx-auto rounded-lg shadow-xl p-4 md:p-6 backdrop-blur-sm transition-all duration-300 ${
+        <div className={`max-w-6xl mx-auto rounded-2xl shadow-xl p-6 backdrop-blur-sm transition-all duration-300 ${
           theme === 'light' ? 'bg-white/90' : 'bg-gray-800/90 text-white'
         } ${pageTransition ? 'animate-page-exit' : 'animate-page-enter'}`}>
-          <h2 className="text-xl md:text-2xl font-semibold mb-4 md:mb-6 flex items-center gap-2">
+          <h2 className="text-2xl md:text-3xl font-bold mb-6 flex items-center gap-3">
             🛒 Checkout
           </h2>
           
           {cart.length === 0 ? (
-            <div className="text-center py-8 md:py-12">
-              <div className="text-6xl mb-4 animate-bounce">🛒</div>
-              <p className={`text-lg mb-6 ${
+            <div className="text-center py-12">
+              <div className="text-6xl mb-6 animate-bounce">🛒</div>
+              <h3 className={`text-2xl font-semibold mb-4 ${
+                theme === 'dark' ? 'text-white' : ''
+              }`}>Keranjang Anda kosong</h3>
+              <p className={`text-lg mb-8 ${
                 theme === 'light' ? 'text-gray-500' : 'text-gray-400'
-              }`}>Keranjang Anda kosong</p>
+              }`}>Mulai belanja dan temukan produk menarik!</p>
               <button
                 onClick={() => navigateToPage('home')}
-                className="px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 text-lg font-semibold transform hover:scale-105 active:scale-95"
+                className="px-8 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all duration-300 text-lg font-semibold transform hover:scale-105 active:scale-95 shadow-lg"
               >
-                Belanja Sekarang
+                🏠 Mulai Belanja
               </button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-              <div className="lg:col-span-2">
-                <h3 className="font-semibold text-lg mb-4">Items dalam Keranjang</h3>
-                <div className="space-y-3 md:space-y-4">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+              <div className="xl:col-span-2">
+                <h3 className="font-semibold text-xl mb-6">Items dalam Keranjang</h3>
+                <div className="space-y-4">
                   {cart.map((item, index) => (
                     <CheckoutCartItem key={`${item.product.id}-${item.variant.size}-${index}`} item={item} index={index} />
                   ))}
                 </div>
               </div>
 
-              <div className="space-y-4 md:space-y-6">
-                <h3 className="font-semibold text-lg">Informasi Pelanggan</h3>
+              <div className="space-y-6">
+                <h3 className="font-semibold text-xl">Informasi Pelanggan</h3>
                 
                 <div>
                   <label className="block text-sm font-medium mb-2">Nama Lengkap *</label>
@@ -1929,7 +2032,7 @@ export default function Home() {
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     placeholder="Masukkan nama lengkap"
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+                    className={`w-full border p-4 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
                       theme === 'dark' 
                         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300'
@@ -1954,7 +2057,7 @@ export default function Home() {
                     onChange={(value) => setForm({ ...form, address: value })}
                     theme={theme}
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 mt-2">
                     Mulai ketik nama jalan, contoh: "Jl. Kalideres" atau "Daan Mogot"
                   </p>
                 </div>
@@ -1965,23 +2068,24 @@ export default function Home() {
                     value={form.code}
                     onChange={(e) => setForm({ ...form, code: e.target.value })}
                     placeholder="Masukkan kode diskon"
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
+                    className={`w-full border p-4 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 ${
                       theme === 'dark' 
                         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300'
                     }`}
                   />
                   {voucherApplied && (
-                    <div className="text-sm text-green-600 mt-1 animate-pulse">
+                    <div className="text-sm text-green-600 mt-2 animate-pulse font-medium">
                       ✅ Voucher {form.code.toUpperCase()} berhasil diterapkan!
                     </div>
                   )}
                   {form.code && !voucherApplied && (
-                    <div className="text-sm text-red-600 mt-1">
+                    <div className="text-sm text-red-600 mt-2 font-medium">
                       ❌ Kode voucher tidak valid
                     </div>
                   )}
                 </div>
+
                 <div>
                   <label className="block text-sm font-medium mb-2">Catatan untuk Penjual (Opsional)</label>
                   <textarea
@@ -1989,13 +2093,13 @@ export default function Home() {
                     onChange={(e) => setForm({ ...form, notes: e.target.value })}
                     placeholder="Contoh: Warna bola yang lebih terang, pengiriman cepat, dll."
                     rows={3}
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 resize-none ${
+                    className={`w-full border p-4 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-300 resize-none ${
                       theme === 'dark' 
                         ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' 
                         : 'bg-white border-gray-300'
                     }`}
                   />
-                  <p className="text-xs text-gray-500 mt-1">
+                  <p className="text-xs text-gray-500 mt-2">
                     Berikan catatan khusus untuk pesanan Anda (warna, pengiriman, dll)
                   </p>
                 </div>
@@ -2004,13 +2108,13 @@ export default function Home() {
                   <label className="block text-sm font-medium mb-2">Metode Pembayaran *</label>
                   <button
                     onClick={() => setPaymentOpen(!paymentOpen)}
-                    className={`w-full border p-3 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent text-left flex justify-between items-center transition-all duration-300 transform hover:scale-105 ${
+                    className={`w-full border p-4 rounded-xl focus:ring-2 focus:ring-orange-500 focus:border-transparent text-left flex justify-between items-center transition-all duration-300 transform hover:scale-105 ${
                       theme === 'dark' 
                         ? 'bg-gray-700 border-gray-600 text-white' 
                         : 'bg-white border-gray-300'
                     }`}
                   >
-                    <span>
+                    <span className="font-medium">
                       {form.paymentMethod ? 
                         paymentMethods.find(p => p.id === form.paymentMethod)?.name : 
                         'Pilih metode pembayaran'
@@ -2020,7 +2124,7 @@ export default function Home() {
                   </button>
                   
                   {paymentOpen && (
-                    <div className={`absolute top-full left-0 right-0 border rounded-lg shadow-2xl z-50 max-h-60 overflow-y-auto mt-1 animate-dropdown transition-all duration-300 ${
+                    <div className={`absolute top-full left-0 right-0 border rounded-xl shadow-2xl z-50 max-h-60 overflow-y-auto mt-2 animate-dropdown transition-all duration-300 ${
                       theme === 'light' 
                         ? 'bg-white border-gray-200' 
                         : 'bg-gray-800 border-gray-600'
@@ -2032,7 +2136,7 @@ export default function Home() {
                             setForm({ ...form, paymentMethod: method.id })
                             setPaymentOpen(false)
                           }}
-                          className={`p-3 border-b cursor-pointer transition-all duration-200 transform hover:scale-105 ${
+                          className={`p-4 border-b cursor-pointer transition-all duration-200 transform hover:scale-105 ${
                             form.paymentMethod === method.id 
                               ? theme === 'light'
                                 ? 'bg-orange-100 border-orange-500'
@@ -2046,11 +2150,11 @@ export default function Home() {
                             <img
                               src={method.icon}
                               alt={method.name}
-                              className="w-6 h-6 object-contain"
+                              className="w-8 h-8 object-contain"
                             />
                             <div>
                               <div className="font-semibold">{method.name}</div>
-                              <div className={`text-xs ${
+                              <div className={`text-sm ${
                                 theme === 'light' ? 'text-gray-600' : 'text-gray-400'
                               }`}>{method.description}</div>
                             </div>
@@ -2061,41 +2165,41 @@ export default function Home() {
                   )}
                 </div>
 
-                <div className="border-t pt-4 animate-total-update" style={{
+                <div className="border-t pt-6 animate-total-update" style={{
                   borderColor: theme === 'light' ? 'rgba(253, 186, 116, 0.3)' : 'rgba(75, 85, 99, 0.3)'
                 }}>
-                  <div className="flex justify-between text-lg font-semibold">
+                  <div className="flex justify-between text-lg font-semibold mb-4">
                     <span>Total Items:</span>
-                    <span className="animate-quantity-bounce">{totalItems} items</span>
+                    <span className="animate-quantity-bounce text-orange-600">{totalItems} items</span>
                   </div>
-                  <div className="flex justify-between text-xl font-bold mt-2">
+                  <div className="flex justify-between text-2xl font-bold">
                     <span>Total Pembayaran:</span>
                     <span className="text-orange-600 animate-price-spring">
                       Rp {animatedTotalPrice.toLocaleString()}
                     </span>
                   </div>
                   {voucherApplied && (
-                    <div className="text-sm text-green-600 mt-2 bg-green-50 p-2 rounded animate-pulse">
+                    <div className="text-sm text-green-600 mt-3 bg-green-100 p-3 rounded-lg animate-pulse font-medium">
                       🎉 Hemat {Math.round((calculateDiscount(1, form.code) - getDiscount(1)) * 100)}% dengan voucher!
                     </div>
                   )}
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-6">
+                <div className="flex flex-col sm:flex-row gap-4 mt-6">
                   <button
                     onClick={() => navigateToPage('home')}
-                    className={`flex-1 py-3 border-2 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300 font-semibold ${
+                    className={`flex-1 py-4 border-2 rounded-xl hover:scale-105 active:scale-95 transition-all duration-300 font-semibold text-lg ${
                       theme === 'light'
                         ? 'border-orange-500 text-orange-500 hover:bg-orange-50'
                         : 'border-orange-500 text-orange-400 hover:bg-orange-500 hover:text-white'
                     }`}
                   >
-                    ← Kembali
+                    ← Kembali Belanja
                   </button>
                   <button
                     onClick={handleCheckout}
                     disabled={!form.name || !form.phone || !form.address || !form.paymentMethod}
-                    className="flex-1 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95"
+                    className="flex-1 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-lg transform hover:scale-105 active:scale-95 shadow-lg"
                   >
                     💳 Bayar Sekarang
                   </button>
@@ -2108,29 +2212,38 @@ export default function Home() {
     </main>
 
     {showSuccessPopup && (
-      <div className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 backdrop-blur-sm p-4">
-        <div className={`p-6 md:p-8 rounded-xl flex flex-col items-center gap-4 shadow-2xl animate-fadeIn border max-w-md w-full text-center transition-all duration-300 ${
+      <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 backdrop-blur-sm p-4">
+        <div className={`p-8 rounded-2xl flex flex-col items-center gap-6 shadow-2xl animate-fadeIn border max-w-md w-full text-center transition-all duration-300 ${
           theme === 'light' 
             ? 'bg-white border-orange-200' 
             : 'bg-gray-800 border-gray-700 text-white'
         }`}>
           <div className="text-6xl text-green-500 animate-bounce">✓</div>
-          <h3 className="text-xl md:text-2xl font-semibold">Pesanan Berhasil!</h3>
-          <p className={`text-sm md:text-base ${
+          <h3 className="text-2xl font-bold">Pesanan Berhasil!</h3>
+          <p className={`text-base leading-relaxed ${
             theme === 'light' ? 'text-gray-600' : 'text-gray-300'
           }`}>
-            Terima kasih telah berbelanja di Soccer Ball Shop. 
-            {form.paymentMethod && ` Pembayaran dengan ${paymentMethods.find(p => p.id === form.paymentMethod)?.name} berhasil. Pesananmu akan kami siapkan!`}
+            Terima kasih telah berbelanja di Kickbyte. 
+            {form.paymentMethod && ` Pembayaran dengan ${paymentMethods.find(p => p.id === form.paymentMethod)?.name} berhasil.`}
+            <br /><br />
+            Pesanan Anda akan segera kami proses!
           </p>
+          {form.notes && (
+            <div className={`text-sm p-3 rounded-lg w-full ${
+              theme === 'light' ? 'bg-orange-50 text-orange-700' : 'bg-orange-900 text-orange-300'
+            }`}>
+              <strong>Catatan Anda:</strong> {form.notes}
+            </div>
+          )}
           <button
-            className="w-full mt-4 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold"
+            className="w-full mt-4 py-4 bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-xl hover:from-orange-600 hover:to-amber-600 transition-all duration-300 transform hover:scale-105 active:scale-95 font-semibold text-lg"
             onClick={() => {
               setShowSuccessPopup(false)
               navigateToPage('home')
               setForm({ name: '', phone: '', address: '', code: '', paymentMethod: '', notes: '' })
             }}
           >
-            Kembali ke Home
+            🏠 Kembali ke Home
           </button>
         </div>
       </div>
@@ -2307,12 +2420,12 @@ export default function Home() {
         100% { transform: scale(1); }
       }
       .animate-page-enter {
-        animation: pageEnter 0.6s ease-out forwards;
+        animation: pageEnter 0.4s ease-out forwards;
       }
       @keyframes pageEnter {
         from { 
           opacity: 0; 
-          transform: scale(0.8) translateY(20px); 
+          transform: scale(0.9) translateY(20px); 
         }
         to { 
           opacity: 1; 
@@ -2329,20 +2442,8 @@ export default function Home() {
         }
         to { 
           opacity: 0; 
-          transform: scale(0.9) translateY(-10px); 
+          transform: scale(0.95) translateY(-10px); 
         }
-      }
-      .line-clamp-2 {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-      }
-      .min-h-\[380px\] {
-        min-height: 380px;
-      }
-      .mt-auto {
-        margin-top: auto;
       }
       .animate-product-card {
         animation: productCardIn 0.6s ease-out forwards;
@@ -2359,6 +2460,24 @@ export default function Home() {
           opacity: 1;
           transform: translateY(0) scale(1);
         }
+      }
+      .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .line-clamp-3 {
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .min-h-\[420px\] {
+        min-height: 420px;
+      }
+      .mt-auto {
+        margin-top: auto;
       }
     `}</style>
     </div>
